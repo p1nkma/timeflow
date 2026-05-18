@@ -3,26 +3,26 @@
    ============================================ */
 
 :root {
-  /* Background — 60%. Near-white with cyan undertone */
-  --color-bg-primary:       #f6fbfb;
-  --color-bg-secondary:     #e0fbfc;  /* blocks, sidebar, cards */
-  --color-bg-tertiary:      #c2dfe3;  /* hover, dividers */
-  --color-bg-elevated:      #ffffff;  /* floating surfaces */
+  /* Background — elevation model: higher = lighter */
+  --color-bg-primary:       #f4f8f9;  /* основной фон — мягкий нейтральный */
+  --color-bg-secondary:     #ffffff;  /* карточки — белые, "парят" над фоном */
+  --color-bg-tertiary:      #e0fbfc;  /* сайдбар, акценты, hover — фирменный циан */
+  --color-bg-elevated:      #ffffff;  /* попапы, модалки */
 
-  /* Accent — 10% */
-  --color-accent-primary:       #253237;
-  --color-accent-primary-hover: #0f1a1e;
-  --color-accent-secondary:     #5c6b73;
+  /* Accent */
+  --color-accent-primary:       #1e292d;
+  --color-accent-primary-hover: #0f1618;
+  --color-accent-secondary:     #4a5a61;
 
   /* Text */
-  --color-text-primary:     #253237;
+  --color-text-primary:     #1e292d;
   --color-text-secondary:   #3d4f57;
-  --color-text-tertiary:    #5c6b73;
-  --color-text-inverse:     #e0fbfc;
+  --color-text-tertiary:    #627781;
+  --color-text-inverse:     #ffffff;
 
   /* Borders */
-  --color-border-default:   rgba(37, 50, 55, 0.10);
-  --color-border-strong:    rgba(37, 50, 55, 0.22);
+  --color-border-default:   rgba(30, 41, 45, 0.06);
+  --color-border-strong:    rgba(30, 41, 45, 0.15);
 
   /* Semantic */
   --color-success-bg:   #E1F5EE;
@@ -34,30 +34,30 @@
   --color-info-bg:      #E6F1FB;
   --color-info-text:    #0C447C;
 
-  /* Categories — fill / border / text */
-  --cat-study-bg:     #EEEDFE;
-  --cat-study-border: #534AB7;
-  --cat-study-text:   #3C3489;
+  /* Categories — desaturated, sophisticated, muted */
+  --cat-study-bg:         #EEEDF8;  /* приглушённый сизо-лавандовый */
+  --cat-study-border:     #6E67B8;
+  --cat-study-text:       #3D3880;
 
-  --cat-code-bg:      #E1F5EE;
-  --cat-code-border:  #0F6E56;
-  --cat-code-text:    #085041;
+  --cat-code-bg:          #E8F5EF;  /* тихий шалфей */
+  --cat-code-border:      #4A9B7A;
+  --cat-code-text:        #205A40;
 
-  --cat-freelance-bg:     #FAEEDA;
-  --cat-freelance-border: #854F0B;
-  --cat-freelance-text:   #633806;
+  --cat-freelance-bg:     #F7F1E6;  /* тёплый песок */
+  --cat-freelance-border: #A87D3A;
+  --cat-freelance-text:   #6B4E18;
 
-  --cat-sport-bg:     #FAECE7;
-  --cat-sport-border: #993C1D;
-  --cat-sport-text:   #712B13;
+  --cat-sport-bg:         #F5EDEA;  /* терракота пыльная */
+  --cat-sport-border:     #B05A40;
+  --cat-sport-text:       #6E2E1A;
 
-  --cat-reading-bg:     #E6F1FB;
-  --cat-reading-border: #185FA5;
-  --cat-reading-text:   #0C447C;
+  --cat-reading-bg:       #E8EFF8;  /* стальной синий */
+  --cat-reading-border:   #4A72AA;
+  --cat-reading-text:     #1E3D6A;
 
-  --cat-fixed-bg:     #F1EFE8;
-  --cat-fixed-border: #888780;
-  --cat-fixed-text:   #444441;
+  --cat-fixed-bg:         #EFEFEC;  /* тёплый камень */
+  --cat-fixed-border:     #88877E;
+  --cat-fixed-text:       #44433E;
 
   /* Space */
   --space-1: 4px;
@@ -100,11 +100,11 @@
   --z-modal:   20;
   --z-toast:   30;
 
-  /* Energy zones */
-  --ez-low:    #c2dfe3;
-  --ez-medium: #9db4c0;
-  --ez-dip:    #f6d9a0;
-  --ez-peak:   #45a88e;
+  /* Energy zones — distinct, harmonious, readable */
+  --ez-peak:   #C5EDE0;  /* 9–12  пик: mint-green, свежий и заряженный */
+  --ez-medium: #C5DCF0;  /* 12–17 работа: спокойный синий */
+  --ez-low:    #D8D5F5;  /* 17–20 спад: мягкий лавандовый */
+  --ez-dip:    #F5EDD5;  /* утро/ночь: тёплый бежевый, отдых */
 }
 
 html.dark {
@@ -134,29 +134,29 @@ html.dark {
   --color-info-bg:      #0A2A4D;
   --color-info-text:    #A9CDF2;
 
-  --cat-study-bg:     #26215C;
-  --cat-study-border: #8E85E6;
-  --cat-study-text:   #C9C3F5;
+  --cat-study-bg:         #1C1A2E;
+  --cat-study-border:     #6E67B8;
+  --cat-study-text:       #ADA8E0;
 
-  --cat-code-bg:      #04342C;
-  --cat-code-border:  #45A88E;
-  --cat-code-text:    #9FE0CD;
+  --cat-code-bg:          #0E2018;
+  --cat-code-border:      #4A9B7A;
+  --cat-code-text:        #7ECBA8;
 
-  --cat-freelance-bg:     #412402;
-  --cat-freelance-border: #D98B2E;
-  --cat-freelance-text:   #F2C990;
+  --cat-freelance-bg:     #221A0A;
+  --cat-freelance-border: #A87D3A;
+  --cat-freelance-text:   #D4AA68;
 
-  --cat-sport-bg:     #4A1B0C;
-  --cat-sport-border: #D97753;
-  --cat-sport-text:   #F2B59A;
+  --cat-sport-bg:         #221210;
+  --cat-sport-border:     #B05A40;
+  --cat-sport-text:       #D98870;
 
-  --cat-reading-bg:     #042C53;
-  --cat-reading-border: #4B8FD9;
-  --cat-reading-text:   #A9CDF2;
+  --cat-reading-bg:       #0C1820;
+  --cat-reading-border:   #4A72AA;
+  --cat-reading-text:     #82AADC;
 
-  --cat-fixed-bg:     #2A2825;
-  --cat-fixed-border: #6E6D66;
-  --cat-fixed-text:   #BDBCB3;
+  --cat-fixed-bg:         #1A1A18;
+  --cat-fixed-border:     #6E6D66;
+  --cat-fixed-text:       #A8A79E;
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.30);
@@ -165,9 +165,9 @@ html.dark {
 
   --focus-ring: 0 0 0 3px rgba(224, 251, 252, 0.25);
 
-  --ez-low:    #2e3d44;
-  --ez-medium: #253237;
-  --ez-dip:    #412402;
-  --ez-peak:   #04342C;
+  --ez-peak:   #162E24;  /* пик: глубокий mint-green */
+  --ez-medium: #162333;  /* работа: тёмный navy-blue */
+  --ez-low:    #1E1A30;  /* спад: тёмный лавандовый */
+  --ez-dip:    #282218;  /* отдых: тёмный тёплый беж */
 }
 

@@ -103,8 +103,8 @@
   align-items: stretch;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: color-mix(in oklch, var(--ez-color, var(--color-bg-secondary)) 10%, var(--color-bg-elevated));
-  border: 1px solid color-mix(in oklch, var(--ez-color, var(--color-border-default)) 20%, transparent);
+  background: color-mix(in oklch, var(--ez-color, var(--color-bg-primary)) 12%, var(--color-bg-primary));
+  border: 1px solid var(--color-border-default);
   box-sizing: border-box;
   transition: background 300ms;
 }
@@ -114,25 +114,14 @@
   outline-offset: -1px;
 }
 
-/* ── Левая часть: 58px, цифра + энергополоска ── */
+/* ── Левая часть: 58px, цифра ── */
 .gutter {
   width: 58px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  background: color-mix(in oklch, var(--ez-color, var(--color-bg-secondary)) 22%, transparent);
-}
-
-/* ── Энергополоска: 4px по левому краю gutter ── */
-.energyBar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  opacity: 0.9;
+  background: color-mix(in oklch, var(--ez-color, var(--color-bg-secondary)) 28%, transparent);
 }
 
 .hourNum {
@@ -180,23 +169,22 @@
   min-width: 0;
   height: 24px;
   border-radius: var(--radius-sm);
-  border: 1px dashed var(--cat-border, var(--color-border-default));
-  background: color-mix(in oklch, var(--cat-bg, var(--color-bg-secondary)) 40%, transparent);
+  border: 1px dashed var(--color-border-strong);
+  background: transparent;
   display: flex;
   align-items: center;
-  gap: 0;
   overflow: hidden;
   cursor: pointer;
-  transition: opacity 150ms, background 150ms;
-  opacity: 0.65;
+  transition: background 150ms, opacity 150ms;
+  opacity: 0.6;
 }
-.contCard:hover { opacity: 1; background: color-mix(in oklch, var(--cat-bg, var(--color-bg-secondary)) 70%, transparent); }
-.contCardActive { opacity: 1; border-style: solid; border-color: var(--cat-border); }
+.contCard:hover { opacity: 1; background: var(--color-bg-secondary); }
+.contCardActive { opacity: 1; border-style: solid; }
 
 .contText {
   font-size: 10px;
   font-weight: 500;
-  color: var(--cat-text, var(--color-text-tertiary));
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -229,20 +217,21 @@
 /* ── Карточка задачи ── */
 .task {
   border-radius: var(--radius-md);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-default);
+  background: color-mix(in oklch, var(--cat-bg, var(--color-bg-elevated)) 60%, var(--color-bg-elevated));
+  border: 1px solid color-mix(in oklch, var(--cat-border, var(--color-border-default)) 25%, var(--color-border-default));
+  box-shadow: var(--shadow-xs);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-2);
   overflow: hidden;
   cursor: pointer;
-  transition: box-shadow 150ms, opacity 150ms, background 150ms;
-  padding: var(--space-2) var(--space-2) var(--space-2) 0;
+  transition: box-shadow 150ms, background 150ms;
+  padding: 0 var(--space-2);
   min-height: 0;
   height: 100%;
 }
 
-.task:hover { background: var(--color-bg-tertiary); }
+.task:hover { box-shadow: var(--shadow-sm); background: color-mix(in oklch, var(--cat-bg, var(--color-bg-elevated)) 80%, var(--color-bg-elevated)); }
 
 .task:focus-visible {
   outline: none;
@@ -263,15 +252,6 @@
 }
 .taskOverdue .taskTitle { color: var(--color-danger-text) !important; }
 
-/* ── Левый акцент-бордер ── */
-.taskAccent {
-  width: 3px;
-  align-self: stretch;
-  flex-shrink: 0;
-  background: var(--cat-border, var(--color-border-strong));
-  border-radius: 0 2px 2px 0;
-}
-
 /* ── Статус-кружок ── */
 .statusDot {
   width: 16px;
@@ -282,7 +262,6 @@
   background: transparent;
   cursor: pointer;
   padding: 0;
-  margin-top: 2px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -307,7 +286,8 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  justify-content: center;
+  gap: 1px;
   overflow: hidden;
 }
 
@@ -340,17 +320,16 @@
 /* ── Бейдж категории ── */
 .catBadge {
   flex-shrink: 0;
-  align-self: flex-start;
-  padding: 2px 5px;
+  align-self: center;
+  padding: 2px 6px;
   border-radius: var(--radius-sm);
-  background: color-mix(in oklch, var(--cat-border, var(--color-border-strong)) 15%, transparent);
+  background: color-mix(in oklch, var(--cat-border, var(--color-border-strong)) 12%, transparent);
   color: var(--cat-text, var(--color-text-secondary));
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
-  margin-top: 1px;
 }
 
 /* ── Drawer деталей ── */

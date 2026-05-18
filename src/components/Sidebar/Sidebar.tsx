@@ -38,7 +38,7 @@ export function Sidebar({ darkMode, onDarkToggle }: SidebarProps) {
             onClick={() => navigate(path)}
             aria-current={pathname === path ? 'page' : undefined}
           >
-            <Icon icon={icon} size={18} aria-hidden />
+            <Icon icon={icon} size={18} aria-hidden style={path === '/analytics' ? { transform: 'scaleY(-1)' } : undefined} />
             <span>{label}</span>
           </button>
         ))}

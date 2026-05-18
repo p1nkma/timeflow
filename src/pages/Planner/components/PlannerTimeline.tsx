@@ -115,7 +115,6 @@ function TaskCard({
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
-      <div className={styles.taskAccent} />
       <button
         className={`${styles.statusDot} ${task.done ? styles.statusDotDone : ''}`}
         aria-label={task.done ? 'Отметить невыполненным' : 'Отметить выполненным'}
@@ -145,13 +144,11 @@ function ContinuationCard({
   return (
     <div
       className={`${styles.contCard} ${isActive ? styles.contCardActive : ''}`}
-      style={catStyle(task.cat)}
       role="button" tabIndex={0}
       aria-label={`${task.title} продолжается до ${endStr}`}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
-      <div className={styles.taskAccent} />
       <span className={styles.contText}>↓ продолжается · до {endStr}</span>
     </div>
   );
@@ -183,7 +180,6 @@ function HourSlot({
       style={{ '--ez-color': ezColor } as React.CSSProperties}
     >
       <div className={styles.gutter}>
-        <div className={styles.energyBar} style={{ background: ezColor }} />
         <span className={`${styles.hourNum} ${isNow ? styles.hourNumNow : ''}`}>{hour}</span>
       </div>
       <div className={styles.slotContent}>
