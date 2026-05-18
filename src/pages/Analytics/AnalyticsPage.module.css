@@ -1,0 +1,68 @@
+.page {
+  padding: var(--space-5) var(--space-6) var(--space-8);
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.periodSwitch {
+  display: flex;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.periodBtn {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: all 150ms;
+}
+.periodBtnActive {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+}
+
+@media (max-width: 1000px) { .statGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px)  { .statGrid { grid-template-columns: 1fr; } }
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 1000px) { .mainGrid { grid-template-columns: 1fr; } }
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.right {
+  position: sticky;
+  top: var(--space-5);
+}

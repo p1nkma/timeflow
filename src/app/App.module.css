@@ -13,3 +13,23 @@
   height: 100vh;
   overflow: hidden;
 }
+
+.main > * {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .main {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+}

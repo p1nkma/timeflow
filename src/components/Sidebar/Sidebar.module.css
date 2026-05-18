@@ -51,7 +51,7 @@
   color: var(--color-text-secondary);
   font-size: 14px;
   font-weight: 400;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition: background 150ms ease, color 150ms ease;
   width: 100%;
   text-align: left;
   cursor: pointer;
@@ -84,7 +84,9 @@
   margin-top: 4px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.15s ease;
+  width: 100%;
+  text-align: left;
+  transition: background 150ms ease;
 }
 .userChip:hover { background: var(--color-bg-tertiary); }
 
@@ -95,7 +97,7 @@
   background: linear-gradient(135deg, var(--cat-freelance-border), var(--cat-study-border));
   display: grid;
   place-items: center;
-  color: white;
+  color: var(--color-text-inverse);
   font-size: 12px;
   font-weight: 600;
   flex-shrink: 0;

@@ -1,16 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Page, ToastState } from '../../shared/types';
+import type { ToastState } from '../../shared/types';
 
 interface UIState {
-  page: Page;
   darkMode: boolean;
   openTaskId: string | null;
   toast: ToastState | null;
 }
 
 const initialState: UIState = {
-  page: (localStorage.getItem('tf.page') as Page) ?? 'today',
   darkMode: localStorage.getItem('tf.dark') === '1',
   openTaskId: null,
   toast: null,
@@ -20,10 +18,6 @@ const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
-    setPage(state, action: PayloadAction<Page>) {
-      state.page = action.payload;
-      localStorage.setItem('tf.page', action.payload);
-    },
     toggleDarkMode(state) {
       state.darkMode = !state.darkMode;
       localStorage.setItem('tf.dark', state.darkMode ? '1' : '0');
@@ -44,5 +38,5 @@ const uiSlice = createSlice({
   },
 });
 
-export const { setPage, toggleDarkMode, openTask, closeTask, showToast, clearToast } = uiSlice.actions;
+export const { toggleDarkMode, openTask, closeTask, showToast, clearToast } = uiSlice.actions;
 export default uiSlice.reducer;

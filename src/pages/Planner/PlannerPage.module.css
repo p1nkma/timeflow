@@ -6,28 +6,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  overflow-y: auto;
-  min-height: 0;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-.headerLeft {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
 }
 
 .btnGenerate {
@@ -47,29 +31,17 @@
 .btnGenerate:hover { opacity: .85; }
 .btnGenerate:disabled { opacity: .5; cursor: not-allowed; }
 
-/* Фокус: двухколоночный layout */
-.focusLayout {
+.layout {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 300px;
   gap: var(--space-5);
   align-items: start;
 }
 
-.focusLeft {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+.main {
+  min-width: 0;
 }
 
-.focusRight {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  position: sticky;
-  top: var(--space-5);
-}
-
-@media (max-width: 960px) {
-  .focusLayout { grid-template-columns: 1fr; }
-  .focusRight  { position: static; }
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 1fr; }
 }

@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router';
 import { useAppDispatch, useAppSelector } from './hooks';
-import { toggleDarkMode, setPage } from '../features/ui';
+import { toggleDarkMode } from '../features/ui';
 import { Sidebar } from '../components/Sidebar/Sidebar';
+import { BottomNav } from '../components/BottomNav/BottomNav';
 import { Toast } from '../shared/ui';
 import { TodayPage } from '../pages/Today/TodayPage';
 import { PlannerPage } from '../pages/Planner/PlannerPage';
@@ -11,7 +13,7 @@ import styles from './App.module.css';
 
 export function App() {
   const dispatch = useAppDispatch();
-  const { page, darkMode } = useAppSelector(s => s.ui);
+  const { darkMode } = useAppSelector(s => s.ui);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -19,20 +21,25 @@ export function App() {
 
   return (
     <div className={styles.app}>
-      <Sidebar
-        page={page}
-        onNavigate={(p) => dispatch(setPage(p))}
-        darkMode={darkMode}
-        onDarkToggle={() => dispatch(toggleDarkMode())}
-      />
+      <div className={styles.sidebar}>
+        <Sidebar
+          darkMode={darkMode}
+          onDarkToggle={() => dispatch(toggleDarkMode())}
+        />
+      </div>
 
       <main className={styles.main}>
-        {page === 'today'     && <TodayPage />}
-        {page === 'planner'   && <PlannerPage />}
-        {page === 'analytics' && <AnalyticsPage />}
-        {page === 'settings'  && <SettingsPage />}
+        <Routes>
+          <Route index element={<Navigate to="/today" replace />} />
+          <Route path="/today"     element={<TodayPage />} />
+          <Route path="/planner"   element={<PlannerPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/settings"  element={<SettingsPage />} />
+          <Route path="*"          element={<Navigate to="/today" replace />} />
+        </Routes>
       </main>
 
+      <BottomNav />
       <Toast />
     </div>
   );

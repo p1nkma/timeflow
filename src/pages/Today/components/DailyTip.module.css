@@ -1,0 +1,26 @@
+.tip {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-success-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(8, 80, 65, .12);
+}
+
+.icon {
+  color: var(--color-success-text);
+  font-size: 16px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.label {
+  color: var(--color-success-text);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.tip p {
+  margin: 0;
+  color: var(--color-success-text);
+}

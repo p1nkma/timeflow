@@ -1,0 +1,55 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.barLabel {
+  width: 64px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.barTrack {
+  flex: 1;
+  height: 6px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width .4s ease;
+}

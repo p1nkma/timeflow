@@ -1,27 +1,28 @@
-import type { Page } from '../../shared/types';
 import type { IconSvgElement } from '@hugeicons/react';
+import { useNavigate, useLocation } from 'react-router';
 import { Toggle, StreakBadge, Icon,
   Clock01Icon, Calendar03Icon, BarChartIcon, Setting06Icon,
   Moon01Icon, Sun01Icon } from '../../shared/ui';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
-  page: Page;
-  onNavigate: (page: Page) => void;
   darkMode: boolean;
   onDarkToggle: () => void;
 }
 
-const NAV: { key: Page; label: string; icon: IconSvgElement }[] = [
-  { key: 'today',     label: 'Сегодня',     icon: Clock01Icon },
-  { key: 'planner',   label: 'Планировщик', icon: Calendar03Icon },
-  { key: 'analytics', label: 'Аналитика',   icon: BarChartIcon },
-  { key: 'settings',  label: 'Настройки',   icon: Setting06Icon },
+const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
+  { path: '/today',     label: 'Сегодня',     icon: Clock01Icon },
+  { path: '/planner',   label: 'Планировщик', icon: Calendar03Icon },
+  { path: '/analytics', label: 'Аналитика',   icon: BarChartIcon },
+  { path: '/settings',  label: 'Настройки',   icon: Setting06Icon },
 ];
 
 const STREAK = 7;
 
-export function Sidebar({ page, onNavigate, darkMode, onDarkToggle }: SidebarProps) {
+export function Sidebar({ darkMode, onDarkToggle }: SidebarProps) {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.brand}>
@@ -30,13 +31,14 @@ export function Sidebar({ page, onNavigate, darkMode, onDarkToggle }: SidebarPro
       </div>
 
       <nav className={styles.nav}>
-        {NAV.map(({ key, label, icon }) => (
+        {NAV.map(({ path, label, icon }) => (
           <button
-            key={key}
-            className={`${styles.navItem} ${page === key ? styles.active : ''}`}
-            onClick={() => onNavigate(key)}
+            key={path}
+            className={`${styles.navItem} ${pathname === path ? styles.active : ''}`}
+            onClick={() => navigate(path)}
+            aria-current={pathname === path ? 'page' : undefined}
           >
-            <Icon icon={icon} size={18} />
+            <Icon icon={icon} size={18} aria-hidden />
             <span>{label}</span>
           </button>
         ))}
@@ -46,23 +48,29 @@ export function Sidebar({ page, onNavigate, darkMode, onDarkToggle }: SidebarPro
         <button
           className={`${styles.navItem} ${styles.darkToggle}`}
           onClick={onDarkToggle}
+          aria-label={darkMode ? 'Переключить на светлую тему' : 'Переключить на тёмную тему'}
+          aria-pressed={darkMode}
         >
           <span className={styles.darkLabel}>
             <Icon icon={darkMode ? Sun01Icon : Moon01Icon} size={16} />
             <span>{darkMode ? 'Светлая' : 'Тёмная'}</span>
           </span>
-          <Toggle on={darkMode} onChange={onDarkToggle} />
+          <Toggle on={darkMode} onChange={() => {}} />
         </button>
 
         {STREAK > 0 && <StreakBadge n={STREAK} />}
 
-        <div className={styles.userChip}>
+        <button
+          className={styles.userChip}
+          onClick={() => navigate('/settings')}
+          aria-label="Открыть настройки профиля"
+        >
           <div className={styles.avatar}>М</div>
           <div className={styles.userInfo}>
             <div className={styles.userName}>Михаил П.</div>
             <div className={styles.userRole}>Студент · МГТУ</div>
           </div>
-        </div>
+        </button>
       </div>
     </aside>
   );

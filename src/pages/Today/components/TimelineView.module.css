@@ -1,0 +1,373 @@
+/* ── Корень ── */
+.root {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+/* ── Список слотов ── */
+.timeline {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Один слот часа ── */
+.hourRow {
+  display: flex;
+  align-items: stretch;
+  min-height: 76px;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  position: relative;
+}
+
+.hourRowNow {
+  background: color-mix(in oklch, var(--color-accent-primary) 4%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Левая колонка ── */
+.hourGutter {
+  width: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.energyBar {
+  width: 4px;
+  border-radius: 2px;
+  align-self: stretch;
+  min-height: 24px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.hourNum {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  line-height: 1;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Контент слота ── */
+.slotContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-bottom: var(--space-1);
+}
+
+/* ── Пустая ячейка ── */
+.emptyCell {
+  flex: 1;
+  min-height: 60px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  opacity: 0.5;
+}
+
+/* ── Ряд задач ── */
+.taskRow {
+  display: grid;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+/* ── Кнопка свёртки ── */
+.collapseBtn {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color 150ms;
+}
+.collapseBtn:hover { color: var(--color-text-primary); }
+
+/* ── Карточка задачи ── */
+.task {
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 150ms, opacity 150ms, transform 150ms;
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  min-height: 58px;
+}
+
+.task:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.task:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), var(--shadow-sm);
+}
+
+.taskActive {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  border-color: var(--cat-border);
+}
+
+.taskDone { opacity: 0.4; }
+.taskDone .taskTitle { text-decoration: line-through; }
+
+.taskOverdue {
+  background: var(--color-danger-bg) !important;
+  border-color: var(--color-danger-text) !important;
+}
+.taskOverdue .taskTitle { color: var(--color-danger-text) !important; }
+
+/* ── Левый акцент-бордер ── */
+.taskAccent {
+  width: 3px;
+  align-self: stretch;
+  flex-shrink: 0;
+  background: var(--cat-border, var(--color-border-strong));
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── Статус-кружок ── */
+.statusDot {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-strong);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 3px;
+  transition: background 150ms, border-color 150ms;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusDotDone {
+  background: var(--color-success-text);
+  border-color: var(--color-success-text);
+}
+.statusDotDone::after {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: white;
+}
+
+/* ── Тело карточки ── */
+.taskBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.taskTime {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.taskTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+}
+
+.taskReason {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Бейдж категории ── */
+.catBadge {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in oklch, var(--cat-border, var(--color-border-strong)) 15%, transparent);
+  color: var(--cat-text, var(--color-text-secondary));
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Drawer ── */
+.drawer {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: sticky;
+  top: 0;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 768px) {
+  .root { flex-direction: column; }
+  .drawer { width: 100%; position: static; max-height: none; }
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawerCatBadge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--cat-bg);
+  color: var(--cat-text);
+  border: 1px solid var(--cat-border);
+}
+
+.drawerClose {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms, color 150ms;
+}
+.drawerClose:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
+
+.drawerTitle {
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.drawerDone {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+.drawerMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.drawerLocked {
+  background: var(--cat-fixed-bg);
+  color: var(--cat-fixed-text);
+  border: 1px solid var(--cat-fixed-border);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.drawerAi {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.drawerReason { margin: 0; line-height: 1.55; }
+
+.drawerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms;
+  width: 100%;
+  justify-content: center;
+}
+.drawerBtn:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
+
+.drawerBtnDone {
+  border-color: var(--color-success-text);
+  color: var(--color-success-text);
+}
+.drawerBtnDone:hover { background: var(--color-success-bg); }
+
+/* ── Empty state ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) 0;
+  text-align: center;
+}
+
+.emptyCta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: opacity 150ms;
+}
+.emptyCta:hover { opacity: 0.85; }

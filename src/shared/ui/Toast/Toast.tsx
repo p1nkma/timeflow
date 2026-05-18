@@ -17,7 +17,13 @@ export function Toast() {
   if (!toast) return null;
 
   return (
-    <div className={`${styles.toast} ${styles[toast.variant]}`} key={toast.id}>
+    <div
+      className={`${styles.toast} ${styles[toast.variant]}`}
+      key={toast.id}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <Icon icon={Tick01Icon} size={14} strokeWidth={2} />
       {toast.message}
     </div>

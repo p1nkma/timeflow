@@ -6,7 +6,7 @@
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
-  transition: background 0.12s ease, transform 0.05s ease, color 0.12s ease, border-color 0.12s ease;
+  transition: background 150ms ease, transform 80ms ease, color 150ms ease, border-color 150ms ease;
   cursor: pointer;
   border: none;
   font-family: inherit;
@@ -16,15 +16,19 @@
 /* Sizes */
 .sm { height: 30px; padding: 0 10px; font-size: 12px; }
 .md { height: 36px; padding: 0 14px; }
-.lg { height: 42px; padding: 0 18px; font-size: 14px; }
+.lg { height: 44px; padding: 0 18px; font-size: 14px; }
+
+@media (max-width: 768px) {
+  .sm { height: 36px; }
+  .md { height: 44px; }
+}
 
 /* Variants */
 .primary {
   background: var(--color-accent-primary);
   color: var(--color-text-inverse);
 }
-.primary:hover { background: #0f1a1e; }
-:global(html.dark) .primary:hover { background: #c2dfe3; }
+.primary:hover { background: var(--color-accent-primary-hover); }
 
 .ghost {
   color: var(--color-text-secondary);

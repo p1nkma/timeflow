@@ -7,7 +7,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
 
 body {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -91,6 +91,13 @@ h1, h2, h3, h4 { margin: 0; font-weight: 500; letter-spacing: -0.01em; }
   animation: shimmer 1.2s linear infinite;
 }
 @keyframes shimmer { from { background-position: 200% 0 } to { background-position: -200% 0 } }
+
+/* ===== Mobile font size ===== */
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .t-body    { font-size: 16px; }
+  .t-body-md { font-size: 15px; }
+}
 
 /* ===== Reduced motion ===== */
 @media (prefers-reduced-motion: reduce) {
