@@ -35,17 +35,28 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-2) var(--space-4);
-  background: var(--color-accent-primary);
-  color: var(--color-text-inverse);
+  background: transparent;
+  color: var(--color-text-secondary);
   border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  border: none;
-  transition: opacity 150ms;
+  border: 1px solid var(--color-border-default);
+  transition: all 150ms;
 }
-.btnGenerate:hover { opacity: .85; }
+.btnGenerate:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
 .btnGenerate:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Утром (план ещё не создан) — primary */
+.btnGenerateMorning {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-accent-primary);
+}
+.btnGenerateMorning:hover { opacity: .85; background: var(--color-accent-primary); color: var(--color-text-inverse); }
 
 /* Фокус: двухколоночный layout */
 .focusLayout {
@@ -72,4 +83,10 @@
 @media (max-width: 960px) {
   .focusLayout { grid-template-columns: 1fr; }
   .focusRight  { position: static; }
+}
+
+.segmentsLayout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
 }

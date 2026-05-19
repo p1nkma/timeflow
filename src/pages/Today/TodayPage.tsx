@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Segmented, Icon, SparklesIcon, StreakBadge } from '../../shared/ui';
+import { useAppSelector } from '../../app/hooks';
+import { selectNowMin } from '../../features/tasks/tasksSelectors';
+import { Segmented, Icon, SparklesIcon } from '../../shared/ui';
 import { HeroFocus }    from './components/HeroFocus';
-import { DailyTip }     from './components/DailyTip';
-import { TimelineView } from './components/TimelineView';
+import { TaskList }     from './components/TaskList';
 import { ProgressRing } from './components/ProgressRing';
 import { UpcomingList } from './components/UpcomingList';
 import { QuickAdd }     from './components/QuickAdd';
@@ -14,17 +15,33 @@ import styles from './TodayPage.module.css';
 const TABS = ['Фокус', 'Сегменты'] as const;
 type Tab = typeof TABS[number];
 
-const STREAK = 7;
-
 export function TodayPage() {
-  const [tab, setTab] = useState<Tab>('Фокус');
-  const [generating, setGenerating] = useState(false);
-  const today = format(new Date(), 'd MMMM, EEE', { locale: ru });
+  const [tab, setTab]           = useState<Tab>('Фокус');
+  const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
+  const [generating, setGenerating]   = useState(false);
+  const nowMin = useAppSelector(selectNowMin);
+  const today  = format(new Date(), 'd MMMM, EEE', { locale: ru });
+
+  const nowHour   = Math.floor(nowMin / 60);
+  const isMorning = nowHour < 10;
+  const isEvening = nowHour >= 20;
+
+  const btnLabel = generating
+    ? (isMorning ? 'Генерирую…' : 'Подвожу итоги…')
+    : isMorning
+      ? 'Сгенерировать план'
+      : isEvening
+        ? 'Подвести итоги дня'
+        : 'Перепланировать';
 
   function handleGenerate() {
     setGenerating(true);
-    // placeholder — будет заменено на RTK Query мутацию при подключении бэка
     setTimeout(() => setGenerating(false), 2000);
+  }
+
+  function handleFocusTask(id: string) {
+    setFocusTaskId(id);
+    setTab('Фокус');
   }
 
   return (
@@ -33,10 +50,7 @@ export function TodayPage() {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h2 className="t-h2">Сегодня</h2>
-          <div className="hstack gap-2">
-            <span className="t-small muted">{today}</span>
-            {STREAK > 0 && <StreakBadge n={STREAK} />}
-          </div>
+          <span className="t-small muted">{today}</span>
         </div>
         <div className={styles.headerRight}>
           <Segmented
@@ -45,39 +59,35 @@ export function TodayPage() {
             onChange={v => setTab(v as Tab)}
           />
           <button
-            className={styles.btnGenerate}
-            aria-label="Сгенерировать план с помощью ИИ"
+            className={`${styles.btnGenerate} ${isMorning ? styles.btnGenerateMorning : ''}`}
+            aria-label={btnLabel}
             onClick={handleGenerate}
             disabled={generating}
           >
             <Icon icon={SparklesIcon} size={15} />
-            {generating ? 'Генерирую…' : 'Сгенерировать план'}
+            {btnLabel}
           </button>
         </div>
       </div>
 
-      {tab === 'Фокус' && (
-        <div className={styles.focusLayout}>
-          <div className={styles.focusLeft}>
-            <HeroFocus />
-            <DailyTip />
-            <TimelineView />
-          </div>
-          <div className={styles.focusRight}>
-            <ProgressRing />
-            <QuickAdd />
-            <UpcomingList />
-          </div>
+      <div className={styles.focusLayout}>
+        <div className={styles.focusLeft}>
+          {tab === 'Фокус' && (
+            <>
+              <HeroFocus />
+              <TaskList focusTaskId={focusTaskId} onFocusConsumed={() => setFocusTaskId(null)} />
+            </>
+          )}
+          {tab === 'Сегменты' && (
+            <SegmentsView isLoading={generating} onFocusTask={handleFocusTask} />
+          )}
         </div>
-      )}
-
-      {tab === 'Сегменты' && (
-        <>
-          <SegmentsView />
-          <DailyTip />
-          <TimelineView />
-        </>
-      )}
+        <div className={styles.focusRight}>
+          <ProgressRing />
+          <QuickAdd />
+          <UpcomingList />
+        </div>
+      </div>
 
     </div>
   );

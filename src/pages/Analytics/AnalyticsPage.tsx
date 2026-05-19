@@ -1,51 +1,59 @@
-import { useState } from 'react';
-import { StatCard }          from './components/StatCard';
-import { ActivityChart }     from './components/ActivityChart';
+import { useState, useEffect, useRef } from 'react';
+import { AIInsightBlock }    from './components/AIInsightBlock';
 import { CategoryBreakdown } from './components/CategoryBreakdown';
-import { DonutChart }        from './components/DonutChart';
-import { InsightsList }      from './components/InsightsList';
 import styles from './AnalyticsPage.module.css';
 
 type Period = '7' | '30' | '90';
 
+const PERIOD_LABEL: Record<Period, string> = {
+  '7':  '7 дней',
+  '30': '30 дней',
+  '90': '90 дней',
+};
+
 export function AnalyticsPage() {
-  const [period, setPeriod] = useState<Period>('7');
+  const [period, setPeriod]       = useState<Period>('7');
+  const [fading, setFading]       = useState(false);
+  const [visiblePeriod, setVisiblePeriod] = useState<Period>('7');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handlePeriod(p: Period) {
+    if (p === period) return;
+    setFading(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      setPeriod(p);
+      setVisiblePeriod(p);
+      setFading(false);
+    }, 180);
+  }
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h2 className="t-h2">Аналитика</h2>
-        <div className={styles.periodSwitch}>
-          {(['7', '30', '90'] as Period[]).map(p => (
-            <button
-              key={p}
-              className={`${styles.periodBtn} ${period === p ? styles.periodBtnActive : ''}`}
-              onClick={() => setPeriod(p)}
-            >
-              {p} дней
-            </button>
-          ))}
+      <div className={styles.stickyTop}>
+        <div className={styles.header}>
+          <h2 className="t-h2">Аналитика</h2>
+          <div className={styles.periodSwitch}>
+            {(['7', '30', '90'] as Period[]).map(p => (
+              <button
+                key={p}
+                className={`${styles.periodBtn} ${visiblePeriod === p ? styles.periodBtnActive : ''}`}
+                onClick={() => handlePeriod(p)}
+                aria-pressed={visiblePeriod === p}
+              >
+                {PERIOD_LABEL[p]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className={styles.statGrid}>
-        <StatCard
-          label="Стрик" value={7} sub="дней подряд" trend="Лучший: 14 дней"
-          featured streakDays={7} streakMax={14}
-        />
-        <StatCard label="Задач выполнено" value={47}     sub="из 58 запланированных"   trend="↑ 12% к прошлой" trendUp />
-        <StatCard label="Глубокая работа" value="3.2 ч"  sub="в среднем за день"        trend="↓ 0.4 ч"         trendUp={false} />
-        <StatCard label="В срок"          value="81%"    sub="задач сданы вовремя"       trend="↑ 5%"            trendUp />
-      </div>
-
-      <div className={styles.mainGrid}>
-        <div className={styles.left}>
-          <ActivityChart />
-          <CategoryBreakdown />
-          <InsightsList />
-        </div>
-        <div className={styles.right}>
-          <DonutChart />
+      <div className={fading ? styles.fadeOut : styles.fadeIn}>
+        <div className={styles.content}>
+          <AIInsightBlock period={period} />
+          <CategoryBreakdown period={period} />
         </div>
       </div>
     </div>

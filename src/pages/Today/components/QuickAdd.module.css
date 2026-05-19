@@ -18,17 +18,26 @@
   width: 100%;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-lg);
-  border: 1px dashed var(--color-border-strong);
-  background: transparent;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-primary);
   color: var(--color-text-primary);
   outline: none;
-  transition: border-color 150ms, background 150ms;
+  transition: border-color 150ms, background 150ms, box-shadow 150ms;
   box-sizing: border-box;
 }
 
 .input::placeholder { color: var(--color-text-tertiary); }
+.input:hover { background: var(--color-bg-secondary); }
 .input:focus {
   border-color: var(--color-accent-primary);
-  border-style: solid;
   background: var(--color-bg-secondary);
+  box-shadow: var(--focus-ring);
+}
+
+/* Flash-фидбек после отправки в Inbox */
+.inputConfirmed {
+  border-color: var(--color-success-text) !important;
+  background: var(--color-success-bg) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-success-text) 20%, transparent) !important;
+  transition: border-color 80ms, background 80ms, box-shadow 80ms;
 }

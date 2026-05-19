@@ -1,6 +1,6 @@
 import { useAppSelector } from '../../../app/hooks';
 import { selectDoneTasks, selectRealTasks } from '../../../features/tasks/tasksSelectors';
-import { fmt } from '../../../shared/utils/time';
+import { fmtCountdown } from '../../../shared/utils/time';
 import styles from './ProgressRing.module.css';
 
 const R = 54;
@@ -14,7 +14,10 @@ export function ProgressRing() {
   const doneCount = done.length;
   const pct       = total > 0 ? doneCount / total : 0;
   const remaining = all.filter(t => !t.done);
-  const remMin    = remaining.reduce((s, t) => s + (t.end - t.start), 0);
+  // Считаем только рабочее время (без перерывов), чтобы не пугать лишними часами
+  const remMin    = remaining
+    .filter(t => !t.isBreak)
+    .reduce((s, t) => s + (t.end - t.start), 0);
 
   const dash = CIRC * pct;
   const gap  = CIRC - dash;
@@ -38,9 +41,12 @@ export function ProgressRing() {
           <strong>{doneCount} из {total}</strong> задач выполнено
         </span>
         {remaining.length > 0 && (
-          <span className="t-small muted">
-            Осталось {remaining.length} задач · {fmt(remMin)}
-          </span>
+          <>
+            <span className="t-small muted">
+              Осталось {remaining.length} задач · {fmtCountdown(remMin)}
+            </span>
+            <span className="t-xs tertiary">За весь день</span>
+          </>
         )}
       </div>
     </div>

@@ -1,0 +1,251 @@
+import { useState, useEffect, useRef } from 'react';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { toggleTask, rescheduleTask, moveTaskToEvening } from '../../../features/tasks';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks/tasksSelectors';
+import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { rangeFmt, fmtCountdown } from '../../../shared/utils/time';
+import { Icon, Cancel01Icon, Tick01Icon } from '../../../shared/ui';
+import type { Task } from '../../../shared/types';
+import styles from './TaskList.module.css';
+
+/* ── Drawer деталей (1-в-1 как в Planner) ── */
+function TaskDrawer({ task, onClose }: { task: Task; onClose: () => void }) {
+  const dispatch = useAppDispatch();
+  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
+
+  return (
+    <div className={styles.drawer} role="dialog" aria-label={`Детали: ${task.title}`}>
+      <div className={styles.drawerHeader}>
+        <div className={styles.drawerCatBadge} style={catStyle(task.cat)}>{catLabel}</div>
+        <button className={styles.drawerClose} onClick={onClose} aria-label="Закрыть">
+          <Icon icon={Cancel01Icon} size={16} aria-hidden />
+        </button>
+      </div>
+      <h3 className={`t-h3 ${styles.drawerTitle} ${task.done ? styles.drawerDone : ''}`}>
+        {task.title}
+      </h3>
+      <div className={styles.drawerMeta}>
+        <span className="t-small muted">{rangeFmt(task.start, task.end)}</span>
+        <span className="t-small muted">·</span>
+        <span className="t-small muted">{task.end - task.start} мин</span>
+        {task.source === 'uni' && <span className={`t-xs ${styles.drawerLocked}`}>ВУЗ</span>}
+        {task.source === 'ai'  && <span className={`t-xs ${styles.drawerAi}`}>ИИ</span>}
+      </div>
+      {task.reasonLong && (
+        <p className={`t-body-md muted ${styles.drawerReason}`}>{task.reasonLong}</p>
+      )}
+      {!task.locked && (
+        <button
+          className={`${styles.drawerBtn} ${task.done ? styles.drawerBtnDone : ''}`}
+          onClick={() => dispatch(toggleTask(task.id))}
+        >
+          <Icon icon={Tick01Icon} size={15} aria-hidden />
+          {task.done ? 'Отменить выполнение' : 'Отметить выполненным'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ── Карточка задачи (стиль Planner) ── */
+function TaskCard({
+  task, isActive, isNow, isFocused, nowMin, onClick,
+}: { task: Task; isActive: boolean; isNow: boolean; isFocused?: boolean; nowMin: number; onClick: () => void }) {
+  const dispatch = useAppDispatch();
+  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
+  const cardRef  = useRef<HTMLDivElement>(null);
+  const overdueMins = task.overdue ? nowMin - task.start : 0;
+
+  useEffect(() => {
+    if (isFocused && cardRef.current) {
+      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [isFocused]);
+
+  return (
+    <div
+      ref={cardRef}
+      className={[
+        styles.task,
+        task.done    ? styles.taskDone    : '',
+        task.overdue ? styles.taskOverdue : '',
+        isActive     ? styles.taskActive  : '',
+        isNow        ? styles.taskNow     : '',
+        isFocused    ? styles.taskFocused : '',
+      ].filter(Boolean).join(' ')}
+      style={catStyle(task.cat)}
+      role="button" tabIndex={0}
+      aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}`}
+      aria-pressed={task.done} aria-expanded={isActive}
+      onClick={onClick}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
+    >
+      <button
+        className={`${styles.statusDot} ${task.done ? styles.statusDotDone : ''}`}
+        aria-label={task.done ? 'Отметить невыполненным' : 'Отметить выполненным'}
+        onClick={e => { e.stopPropagation(); if (!task.locked) dispatch(toggleTask(task.id)); }}
+        tabIndex={-1}
+      />
+      <div className={styles.taskBody}>
+        <span className={styles.taskTime}>{rangeFmt(task.start, task.end)}</span>
+        <span className={styles.taskTitle}>{task.title}</span>
+        {task.reason && <span className={styles.taskReason}>{task.reason}</span>}
+      </div>
+
+      {task.overdue && !task.done && !task.locked ? (
+        <div className={styles.overdueActions} onClick={e => e.stopPropagation()}>
+          <button
+            className={styles.overdueBtn}
+            title={`Сдвинуть на ${fmtCountdown(overdueMins)}`}
+            onClick={() => dispatch(rescheduleTask(task.id))}
+          >
+            Сдвинуть
+          </button>
+          <button
+            className={`${styles.overdueBtn} ${styles.overdueBtnSecondary}`}
+            title="Перенести в вечерний слот"
+            onClick={() => dispatch(moveTaskToEvening(task.id))}
+          >
+            На вечер
+          </button>
+        </div>
+      ) : (
+        <span className={styles.catBadge}>
+          {task.source === 'uni' ? 'ВУЗ' : catLabel}
+        </span>
+      )}
+    </div>
+  );
+}
+
+interface TaskListProps {
+  /** Если задан — показываем только задачи в диапазоне [from, to) минут */
+  filterRange?: { from: number; to: number; label: string };
+  /** ID задачи, на которую нужно проскроллить и подсветить (из Segments → Focus) */
+  focusTaskId?: string | null;
+  /** Вызывается после того, как фокус был применён */
+  onFocusConsumed?: () => void;
+  /** Callback при клике на карточку задачи (используется в Segments) */
+  onTaskClick?: (id: string) => void;
+}
+
+const DONE_COLLAPSE_THRESHOLD = 5;
+
+/* ── Основной компонент ── */
+export function TaskList({ filterRange, focusTaskId, onFocusConsumed, onTaskClick }: TaskListProps) {
+  const tasks      = useAppSelector(selectAllTasks);
+  const nowMin     = useAppSelector(selectNowMin);
+  const [activeId, setActiveId]       = useState<string | null>(null);
+  const [doneExpanded, setDoneExpanded] = useState(false);
+
+  const allReal = tasks.filter(t => !t.isBreak).sort((a, b) => a.start - b.start);
+
+  const realTasks = filterRange
+    ? allReal.filter(t => t.start >= filterRange.from && t.start < filterRange.to)
+    : allReal;
+
+  const doneTasks   = realTasks.filter(t => t.done);
+  const pendingTasks = realTasks.filter(t => !t.done);
+  const shouldCollapse = doneTasks.length >= DONE_COLLAPSE_THRESHOLD;
+
+  const activeTask = activeId ? tasks.find(t => t.id === activeId) ?? null : null;
+  const nowHour    = Math.floor(nowMin / 60);
+
+  useEffect(() => {
+    if (focusTaskId) {
+      setActiveId(focusTaskId);
+      onFocusConsumed?.();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusTaskId]);
+
+  function handleClick(id: string) {
+    if (onTaskClick) {
+      onTaskClick(id);
+    } else {
+      setActiveId(prev => prev === id ? null : id);
+    }
+  }
+
+  function renderCard(t: Task) {
+    const taskHour = Math.floor(t.start / 60);
+    const isNow    = taskHour === nowHour && t.start <= nowMin && t.end > nowMin;
+    return (
+      <li key={t.id}>
+        <TaskCard
+          task={t}
+          isActive={activeId === t.id}
+          isNow={isNow}
+          isFocused={focusTaskId === t.id}
+          nowMin={nowMin}
+          onClick={() => handleClick(t.id)}
+        />
+      </li>
+    );
+  }
+
+  const label = filterRange ? filterRange.label : 'Задачи дня';
+
+  if (realTasks.length === 0) {
+    return (
+      <div className={styles.empty}>
+        <span className="t-body muted">{filterRange ? 'В этом блоке задач нет' : 'День свободен'}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.root}>
+      <div className={styles.list}>
+        <div className={styles.listHeader}>
+          <span className="t-small muted" style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: 11, fontWeight: 600 }}>
+            {label}
+          </span>
+          <span className="t-small muted">
+            {doneTasks.length} / {realTasks.length} выполнено
+          </span>
+        </div>
+
+        <ul className={styles.taskList}>
+          {/* Невыполненные — всегда видны */}
+          {pendingTasks.map(renderCard)}
+
+          {/* Разделитель — только если есть и те и другие */}
+          {doneTasks.length > 0 && pendingTasks.length > 0 && (
+            <li className={styles.doneDivider} aria-hidden />
+          )}
+
+          {/* Выполненные: коллапс при >= 5 */}
+          {shouldCollapse && !doneExpanded ? (
+            <li>
+              <button
+                className={styles.doneCollapseBtn}
+                onClick={() => setDoneExpanded(true)}
+              >
+                + ещё {doneTasks.length} выполненных
+              </button>
+            </li>
+          ) : (
+            <>
+              {doneTasks.map(renderCard)}
+              {shouldCollapse && doneExpanded && (
+                <li>
+                  <button
+                    className={styles.doneCollapseBtn}
+                    onClick={() => setDoneExpanded(false)}
+                  >
+                    Свернуть выполненные
+                  </button>
+                </li>
+              )}
+            </>
+          )}
+        </ul>
+      </div>
+
+      {activeTask && (
+        <TaskDrawer task={activeTask} onClose={() => setActiveId(null)} />
+      )}
+    </div>
+  );
+}

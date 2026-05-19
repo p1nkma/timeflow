@@ -1,13 +1,12 @@
 import type { IconSvgElement } from '@hugeicons/react';
 import { useNavigate, useLocation } from 'react-router';
-import { Toggle, StreakBadge, Icon,
-  Clock01Icon, Calendar03Icon, BarChartIcon, Setting06Icon,
-  Moon01Icon, Sun01Icon } from '../../shared/ui';
+import { StreakBadge, Icon,
+  Clock01Icon, Calendar03Icon, BarChartIcon, Setting06Icon } from '../../shared/ui';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
-  darkMode: boolean;
-  onDarkToggle: () => void;
+  darkMode?: boolean;
+  onDarkToggle?: () => void;
 }
 
 const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
@@ -19,7 +18,7 @@ const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
 
 const STREAK = 7;
 
-export function Sidebar({ darkMode, onDarkToggle }: SidebarProps) {
+export function Sidebar(_props: SidebarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -45,19 +44,6 @@ export function Sidebar({ darkMode, onDarkToggle }: SidebarProps) {
       </nav>
 
       <div className={styles.footer}>
-        <button
-          className={`${styles.navItem} ${styles.darkToggle}`}
-          onClick={onDarkToggle}
-          aria-label={darkMode ? 'Переключить на светлую тему' : 'Переключить на тёмную тему'}
-          aria-pressed={darkMode}
-        >
-          <span className={styles.darkLabel}>
-            <Icon icon={darkMode ? Sun01Icon : Moon01Icon} size={16} />
-            <span>{darkMode ? 'Светлая' : 'Тёмная'}</span>
-          </span>
-          <Toggle on={darkMode} onChange={() => {}} />
-        </button>
-
         {STREAK > 0 && <StreakBadge n={STREAK} />}
 
         <button

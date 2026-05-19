@@ -3,16 +3,25 @@ import { useAppSelector, useAppDispatch } from '../../../app/hooks';
 import { removeInboxItem } from '../../../features/inbox';
 import { addTask } from '../../../features/tasks';
 import { catStyle } from '../../../shared/utils/categories';
-import { Icon, SparklesIcon } from '../../../shared/ui';
+import { Icon, SparklesIcon, FilterHorizontalIcon } from '../../../shared/ui';
 import type { CategoryKey } from '../../../shared/types';
 import styles from './InboxPanel.module.css';
 
 type Filter = 'all' | 'urgent' | CategoryKey;
 
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: 'all',       label: 'Все' },
+  { key: 'urgent',    label: 'Срочные' },
+  { key: 'code',      label: 'Кодинг' },
+  { key: 'freelance', label: 'Фриланс' },
+  { key: 'study',     label: 'Учёба' },
+];
+
 export function InboxPanel() {
   const dispatch = useAppDispatch();
   const inbox    = useAppSelector(s => s.inbox);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter]       = useState<Filter>('all');
+  const [filterOpen, setFilterOpen] = useState(false);
   const [rescheduling, setRescheduling] = useState(false);
 
   function handleReschedule() {
@@ -33,32 +42,45 @@ export function InboxPanel() {
     dispatch(removeInboxItem(id));
   }
 
-  const FILTERS: { key: Filter; label: string }[] = [
-    { key: 'all',      label: 'Все' },
-    { key: 'urgent',   label: 'Срочные' },
-    { key: 'code',     label: 'Кодинг' },
-    { key: 'freelance',label: 'Фриланс' },
-    { key: 'study',    label: 'Учёба' },
-  ];
+  const activeLabel = FILTERS.find(f => f.key === filter)?.label;
 
   return (
     <aside className={styles.panel}>
       <div className={styles.head}>
         <span className="t-h3">Inbox</span>
-        <span className="t-small muted">{inbox.length} задач</span>
+        <div className={styles.headRight}>
+          <span className="t-small muted">{inbox.length} задач</span>
+          <button
+            className={`${styles.filterBtn} ${filterOpen ? styles.filterBtnOpen : ''}`}
+            onClick={() => setFilterOpen(o => !o)}
+            aria-expanded={filterOpen}
+          >
+            <Icon icon={FilterHorizontalIcon} size={14} aria-hidden />
+            {filter !== 'all' && <span className={styles.filterDot} />}
+          </button>
+        </div>
       </div>
 
-      <div className={styles.filters}>
-        {FILTERS.map(f => (
-          <button
-            key={f.key}
-            className={`${styles.chip} ${filter === f.key ? styles.chipActive : ''}`}
-            onClick={() => setFilter(f.key)}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      {filterOpen && (
+        <div className={styles.filters}>
+          {FILTERS.map(f => (
+            <button
+              key={f.key}
+              className={`${styles.chip} ${filter === f.key ? styles.chipActive : ''}`}
+              onClick={() => { setFilter(f.key); setFilterOpen(false); }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filter !== 'all' && !filterOpen && (
+        <div className={styles.activeFilter}>
+          <span className={styles.activeFilterLabel}>{activeLabel}</span>
+          <button className={styles.clearFilter} onClick={() => setFilter('all')} aria-label="Сбросить фильтр">×</button>
+        </div>
+      )}
 
       <ul className={styles.list}>
         {filtered.map(item => (

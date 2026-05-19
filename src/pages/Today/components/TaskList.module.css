@@ -5,118 +5,49 @@
   align-items: flex-start;
 }
 
-/* ── Список слотов ── */
-.timeline {
+.list {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
 }
 
-/* ── Один слот часа ── */
-.hourRow {
+.listHeader {
   display: flex;
-  align-items: stretch;
-  min-height: 76px;
-  gap: var(--space-2);
-  padding: var(--space-1) 0;
-  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 20px;
 }
 
-.hourRowNow {
-  background: color-mix(in oklch, var(--color-accent-primary) 4%, transparent);
-  border-radius: var(--radius-lg);
-}
 
-/* ── Левая колонка ── */
-.hourGutter {
-  width: 52px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  padding-top: 6px;
-}
 
-.energyBar {
-  width: 4px;
-  border-radius: 2px;
-  align-self: stretch;
-  min-height: 24px;
-  flex-shrink: 0;
-  opacity: 0.75;
-}
-
-.hourNum {
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--color-text-secondary);
-  line-height: 1;
-  user-select: none;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── Контент слота ── */
-.slotContent {
-  flex: 1;
-  min-width: 0;
+.taskList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding-bottom: var(--space-1);
-}
-
-/* ── Пустая ячейка ── */
-.emptyCell {
-  flex: 1;
-  min-height: 60px;
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
-  opacity: 0.5;
-}
-
-/* ── Ряд задач ── */
-.taskRow {
-  display: grid;
   gap: var(--space-2);
-  align-items: stretch;
 }
 
-/* ── Кнопка свёртки ── */
-.collapseBtn {
-  align-self: flex-start;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-text-tertiary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 2px 0;
-  transition: color 150ms;
-}
-.collapseBtn:hover { color: var(--color-text-primary); }
-
-/* ── Карточка задачи ── */
+/* ── Карточка задачи (1-в-1 стиль Planner) ── */
 .task {
   border-radius: var(--radius-md);
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-default);
+  box-shadow: var(--shadow-xs);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-2);
   overflow: hidden;
   cursor: pointer;
-  transition: box-shadow 150ms, opacity 150ms, transform 150ms;
-  box-shadow: var(--shadow-xs);
-  padding: var(--space-2) var(--space-3) var(--space-2) 0;
-  min-height: 58px;
+  transition: box-shadow 150ms;
+  padding: var(--space-2) var(--space-3);
+  min-height: 52px;
 }
 
-.task:hover {
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-1px);
-}
+.task:hover { box-shadow: var(--shadow-sm); }
 
 .task:focus-visible {
   outline: none;
@@ -125,27 +56,34 @@
 
 .taskActive {
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
   border-color: var(--cat-border);
 }
 
-.taskDone { opacity: 0.4; }
-.taskDone .taskTitle { }
+/* Текущая задача — лёгкий акцент */
+.taskNow {
+  outline: 2px solid color-mix(in oklch, var(--color-accent-primary) 25%, transparent);
+  outline-offset: -1px;
+}
+
+.taskDone { opacity: 0.45; }
+
+/* Задача, переданная из вкладки «Сегменты» — кратковременный пульс-акцент */
+.taskFocused {
+  animation: focusPulse 900ms ease-out forwards;
+}
+
+@keyframes focusPulse {
+  0%   { box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent-primary) 40%, transparent); }
+  100% { box-shadow: var(--shadow-xs); }
+}
 
 .taskOverdue {
-  background: var(--color-danger-bg) !important;
-  border-color: var(--color-danger-text) !important;
+  background: color-mix(in oklch, var(--color-danger-bg) 70%, var(--color-danger-text) 5%) !important;
+  border: 2px solid color-mix(in oklch, var(--color-danger-text) 55%, transparent) !important;
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-danger-text) 12%, transparent) !important;
 }
 .taskOverdue .taskTitle { color: var(--color-danger-text) !important; }
-
-/* ── Левый акцент-бордер ── */
-.taskAccent {
-  width: 3px;
-  align-self: stretch;
-  flex-shrink: 0;
-  background: var(--cat-border, var(--color-border-strong));
-  border-radius: 0 2px 2px 0;
-}
+.taskOverdue .taskTime  { color: var(--color-danger-text) !important; opacity: 0.75; }
 
 /* ── Статус-кружок ── */
 .statusDot {
@@ -157,12 +95,11 @@
   background: transparent;
   cursor: pointer;
   padding: 0;
-  margin-top: 3px;
-  transition: background 150ms, border-color 150ms;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 150ms, border-color 150ms;
 }
 
 .statusDotDone {
@@ -183,15 +120,16 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  justify-content: center;
+  gap: 1px;
 }
 
 .taskTime {
   font-size: 10px;
   font-weight: 600;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
-  opacity: 0.8;
+  white-space: nowrap;
 }
 
 .taskTitle {
@@ -201,26 +139,69 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .taskReason {
   font-size: 11px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ── Быстрые действия для просроченных задач ── */
+.overdueActions {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+  align-self: center;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.task:hover .overdueActions,
+.taskActive .overdueActions {
+  opacity: 1;
+}
+
+.overdueBtn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in oklch, var(--color-danger-text) 45%, transparent);
+  background: color-mix(in oklch, var(--color-danger-text) 10%, transparent);
+  color: var(--color-danger-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms;
+  line-height: 1;
+}
+.overdueBtn:hover {
+  background: color-mix(in oklch, var(--color-danger-text) 20%, transparent);
+}
+
+.overdueBtnSecondary {
+  border-color: var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+.overdueBtnSecondary:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
 /* ── Бейдж категории ── */
 .catBadge {
   flex-shrink: 0;
-  align-self: flex-start;
-  margin-top: 2px;
-  padding: 2px 6px;
+  align-self: center;
+  padding: 3px 7px;
   border-radius: var(--radius-sm);
-  background: color-mix(in oklch, var(--cat-border, var(--color-border-strong)) 15%, transparent);
+  background: var(--cat-bg, var(--color-bg-secondary));
   color: var(--cat-text, var(--color-text-secondary));
+  border: 1px solid color-mix(in oklch, var(--cat-border, var(--color-border-default)) 40%, transparent);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -228,7 +209,43 @@
   white-space: nowrap;
 }
 
-/* ── Drawer ── */
+/* ── Разделитель выполненных ── */
+.doneDivider {
+  height: 1px;
+  background: var(--color-border-default);
+  margin: var(--space-1) 0;
+  list-style: none;
+}
+
+/* ── Кнопка свернуть/развернуть выполненные ── */
+.doneCollapseBtn {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+.doneCollapseBtn:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-strong);
+}
+
+/* ── Empty state ── */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) 0;
+}
+
+/* ── Drawer деталей ── */
 .drawer {
   width: 280px;
   flex-shrink: 0;
@@ -247,7 +264,7 @@
 }
 
 @media (max-width: 768px) {
-  .root { flex-direction: column; }
+  .root   { flex-direction: column; }
   .drawer { width: 100%; position: static; max-height: none; }
 }
 
@@ -284,15 +301,8 @@
 }
 .drawerClose:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
 
-.drawerTitle {
-  color: var(--color-text-primary);
-  line-height: 1.3;
-}
-
-.drawerDone {
-  opacity: 0.5;
-  color: var(--color-text-tertiary);
-}
+.drawerTitle { color: var(--color-text-primary); line-height: 1.3; }
+.drawerDone  { opacity: 0.5; color: var(--color-text-tertiary); }
 
 .drawerMeta {
   display: flex;
@@ -308,7 +318,6 @@
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   font-weight: 600;
-  letter-spacing: 0.04em;
 }
 
 .drawerAi {
@@ -317,7 +326,6 @@
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   font-weight: 600;
-  letter-spacing: 0.04em;
 }
 
 .drawerReason { margin: 0; line-height: 1.55; }
@@ -339,35 +347,5 @@
   justify-content: center;
 }
 .drawerBtn:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
-
-.drawerBtnDone {
-  border-color: var(--color-success-text);
-  color: var(--color-success-text);
-}
+.drawerBtnDone { border-color: var(--color-success-text); color: var(--color-success-text); }
 .drawerBtnDone:hover { background: var(--color-success-bg); }
-
-/* ── Empty state ── */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-8) 0;
-  text-align: center;
-}
-
-.emptyCta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-accent-primary);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: opacity 150ms;
-}
-.emptyCta:hover { opacity: 0.85; }

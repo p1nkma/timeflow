@@ -1,6 +1,6 @@
 .page {
-  padding: var(--space-5) var(--space-6) var(--space-8);
-  max-width: 1280px;
+  padding: 0 var(--space-6) var(--space-8);
+  max-width: 680px;
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -10,21 +10,23 @@
   min-height: 0;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-  align-items: start;
+.stickyTop {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised);
+  background: var(--color-bg-primary);
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-default);
 }
 
-@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-
-.col {
+.content {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
+/* ── Section ── */
 .section {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-default);
@@ -33,49 +35,90 @@
 }
 
 .sectionTitle {
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--color-border-default);
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.06em;
 }
 
 .sectionBody {
   display: flex;
   flex-direction: column;
-  padding: var(--space-2) 0;
 }
 
+/* ── Row ── */
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-3) var(--space-5);
-  gap: var(--space-3);
+  gap: var(--space-4);
+  min-height: 48px;
 }
-.row + .row { border-top: 1px solid var(--color-border-default); }
+
+.row + .row {
+  border-top: 1px solid var(--color-border-default);
+}
+
+.rowLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowHint {
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  /* сбрасываем t-xs uppercase */
+  text-transform: none;
+  letter-spacing: 0;
+}
 
 .rowValue {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
   flex-shrink: 0;
-  text-align: right;
 }
 
-/* Профиль */
-.profile {
+.valueText {
+  color: var(--color-text-secondary);
+}
+
+.valueChevron {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+}
+
+.chevron {
+  font-size: 16px;
+  color: var(--color-text-tertiary);
+  line-height: 1;
+}
+
+/* ── Profile card ── */
+.profileCard {
   display: flex;
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border-default);
 }
 
 .avatar {
-  width: 52px; height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--color-accent-primary);
   color: var(--color-text-inverse);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 15px;
   flex-shrink: 0;
 }
 
@@ -83,9 +126,40 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
-/* Кнопки */
+/* ── Schedule ── */
+.schedule {
+  display: flex;
+  flex-direction: column;
+}
+
+.scheduleRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.scheduleRow:last-child {
+  border-bottom: none;
+}
+
+.scheduleDay {
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.04em;
+  min-width: 24px;
+  flex-shrink: 0;
+}
+
+.scheduleActions {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border-default);
+}
+
+/* ── Buttons ── */
 .btnOutline {
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
@@ -94,10 +168,13 @@
   color: var(--color-text-secondary);
   font-size: 13px;
   cursor: pointer;
-  transition: all 150ms;
-  align-self: flex-start;
+  transition: background 150ms, color 150ms;
 }
-.btnOutline:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
+
+.btnOutline:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
 
 .btnDanger {
   padding: var(--space-2) var(--space-3);
@@ -107,9 +184,12 @@
   color: var(--color-danger-text);
   font-size: 13px;
   cursor: pointer;
-  transition: all 150ms;
+  transition: background 150ms;
 }
-.btnDanger:hover { background: var(--color-danger-bg); }
+
+.btnDanger:hover {
+  background: var(--color-danger-bg);
+}
 
 .dangerZone {
   display: flex;
@@ -117,4 +197,10 @@
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--color-border-default);
   flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .page { padding: 0 var(--space-4) var(--space-7); }
+  .profileCard { flex-wrap: wrap; }
+  .profileCard .btnOutline { margin-left: 0 !important; }
 }

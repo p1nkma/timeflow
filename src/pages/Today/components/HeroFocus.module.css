@@ -6,6 +6,23 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dot-grid декор в правом нижнем углу */
+.hero::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  width: 120px;
+  height: 120px;
+  background-image: radial-gradient(circle, var(--color-border-strong) 1px, transparent 1px);
+  background-size: 12px 12px;
+  opacity: 0.45;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 80% 80% at 80% 80%, black 20%, transparent 70%);
 }
 
 .meta {
@@ -89,22 +106,66 @@
 }
 .btnGhost:hover { color: var(--color-text-primary); }
 
-.meta2 {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border-default);
-  margin-top: var(--space-1);
-  flex-wrap: wrap;
-}
-
-.dur {
-  color: var(--color-text-primary);
-  margin-right: var(--space-3);
+.nextHint {
+  margin: 0;
+  color: var(--color-text-tertiary);
 }
 
 .empty {
   text-align: center;
   padding: var(--space-6) 0;
+}
+
+/* ── Встроенный совет дня ── */
+.tip {
+  margin-top: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tipHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-accent-primary);
+}
+
+.tipLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.tipText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-primary);
+}
+
+.tipAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent-primary);
+  background: color-mix(in oklch, var(--color-accent-primary) 8%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-accent-primary) 30%, transparent);
+  border-radius: var(--radius-md);
+  padding: 5px var(--space-3);
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, color 150ms;
+  align-self: flex-start;
+}
+.tipAction:hover {
+  background: color-mix(in oklch, var(--color-accent-primary) 16%, transparent);
+  border-color: color-mix(in oklch, var(--color-accent-primary) 55%, transparent);
 }

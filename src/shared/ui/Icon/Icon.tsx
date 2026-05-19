@@ -23,6 +23,7 @@ export {
   Notification01Icon,
   ArrowRight01Icon,
   Refresh01Icon,
+  FilterHorizontalIcon,
 } from '@hugeicons/core-free-icons';
 
 type HugeIconProps = ComponentProps<typeof HugeiconsIcon>;

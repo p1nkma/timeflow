@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { format, addDays, subDays, isToday } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { toggleTask } from '../../../features/tasks';
+import { toggleTask, rescheduleTask, moveTaskToEvening } from '../../../features/tasks';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks/tasksSelectors';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
-import { rangeFmt } from '../../../shared/utils/time';
+import { rangeFmt, fmtCountdown } from '../../../shared/utils/time';
 import { Icon, Cancel01Icon, Tick01Icon } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './PlannerTimeline.module.css';
@@ -95,10 +95,11 @@ function TaskDrawer({ task, onClose }: { task: Task; onClose: () => void }) {
 
 /* ── Основная карточка задачи ── */
 function TaskCard({
-  task, isActive, onClick,
-}: { task: Task; isActive: boolean; onClick: () => void }) {
-  const dispatch = useAppDispatch();
-  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
+  task, isActive, nowMin, onClick,
+}: { task: Task; isActive: boolean; nowMin: number; onClick: () => void }) {
+  const dispatch    = useAppDispatch();
+  const catLabel    = CATEGORIES[task.cat]?.label ?? task.cat;
+  const overdueMins = task.overdue ? nowMin - task.start : 0;
 
   return (
     <div
@@ -126,9 +127,29 @@ function TaskCard({
         <span className={styles.taskTitle}>{task.title}</span>
         {task.reason && <span className={styles.taskReason}>{task.reason}</span>}
       </div>
-      <span className={styles.catBadge}>
-        {task.source === 'uni' ? 'ВУЗ' : catLabel}
-      </span>
+
+      {task.overdue && !task.done && !task.locked ? (
+        <div className={styles.overdueActions} onClick={e => e.stopPropagation()}>
+          <button
+            className={styles.overdueBtn}
+            title={`Сдвинуть на ${fmtCountdown(overdueMins)}`}
+            onClick={() => dispatch(rescheduleTask(task.id))}
+          >
+            Сдвинуть
+          </button>
+          <button
+            className={`${styles.overdueBtn} ${styles.overdueBtnSecondary}`}
+            title="Перенести в вечерний слот"
+            onClick={() => dispatch(moveTaskToEvening(task.id))}
+          >
+            На вечер
+          </button>
+        </div>
+      ) : (
+        <span className={styles.catBadge}>
+          {task.source === 'uni' ? 'ВУЗ' : catLabel}
+        </span>
+      )}
     </div>
   );
 }
@@ -140,37 +161,43 @@ function ContinuationCard({
   const endH   = Math.floor(task.end / 60);
   const endMin = task.end % 60;
   const endStr = `${endH}:${endMin.toString().padStart(2, '0')}`;
+  const durationMin = task.end - task.start;
 
   return (
     <div
       className={`${styles.contCard} ${isActive ? styles.contCardActive : ''}`}
+      style={catStyle(task.cat)}
       role="button" tabIndex={0}
       aria-label={`${task.title} продолжается до ${endStr}`}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
-      <span className={styles.contText}>↓ продолжается · до {endStr}</span>
+      <div className={styles.contStripe} />
+      <span className={styles.contTitle}>{task.title}</span>
+      <span className={styles.contMeta}>↓ до {endStr} · {durationMin} мин</span>
     </div>
   );
 }
 
 /* ── Один часовой слот ── */
 function HourSlot({
-  hour, primary, cont, activeId, isNow, onTaskClick,
+  hour, primary, cont, activeId, isNow, nowMin, onTaskClick,
 }: {
   hour: number;
   primary: Task[];
   cont: Task[];
   activeId: string | null;
   isNow: boolean;
+  nowMin: number;
   onTaskClick: (id: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [offset, setOffset] = useState(0);
 
-  const sorted  = [...primary].sort((a, b) => taskPriority(b) - taskPriority(a));
-  const visible = expanded ? sorted : sorted.slice(0, MAX_VISIBLE);
-  const hidden  = sorted.length - MAX_VISIBLE;
-  const isEmpty = primary.length === 0 && cont.length === 0;
+  const sorted    = [...primary].sort((a, b) => taskPriority(b) - taskPriority(a));
+  const paginated = sorted.length > MAX_VISIBLE;
+  const maxOffset = Math.max(0, sorted.length - MAX_VISIBLE);
+  const visible   = paginated ? sorted.slice(offset, offset + MAX_VISIBLE) : sorted;
+  const isEmpty   = primary.length === 0 && cont.length === 0;
 
   const ezColor = energyColor(hour);
 
@@ -187,7 +214,6 @@ function HourSlot({
           <div className={styles.emptyCell} />
         ) : (
           <>
-            {/* Карточки-продолжения сверху */}
             {cont.length > 0 && (
               <div className={styles.contRow}>
                 {cont.map(t => (
@@ -201,9 +227,8 @@ function HourSlot({
               </div>
             )}
 
-            {/* Основные карточки */}
             {primary.length > 0 && (
-              <>
+              <div className={styles.primaryArea}>
                 <div
                   className={styles.taskRow}
                   style={{ gridTemplateColumns: visible.length === 1 ? '1fr' : '1fr 1fr' }}
@@ -213,21 +238,24 @@ function HourSlot({
                       key={t.id}
                       task={t}
                       isActive={activeId === t.id}
+                      nowMin={nowMin}
                       onClick={() => onTaskClick(t.id)}
                     />
                   ))}
                 </div>
-                {!expanded && hidden > 0 && (
-                  <button className={styles.collapseBtn} onClick={() => setExpanded(true)}>
-                    + ещё {hidden} {hidden === 1 ? 'задача' : hidden < 5 ? 'задачи' : 'задач'}
-                  </button>
+                {paginated && (
+                  <div className={styles.slotNav}>
+                    {sorted.map((_, i) => (
+                      <button
+                        key={i}
+                        className={`${styles.slotDot} ${i >= offset && i < offset + MAX_VISIBLE ? styles.slotDotActive : ''}`}
+                        onClick={() => setOffset(Math.min(i, maxOffset))}
+                        aria-label={`Задача ${i + 1}`}
+                      />
+                    ))}
+                  </div>
                 )}
-                {expanded && hidden > 0 && (
-                  <button className={styles.collapseBtn} onClick={() => setExpanded(false)}>
-                    Свернуть
-                  </button>
-                )}
-              </>
+              </div>
             )}
           </>
         )}
@@ -297,6 +325,7 @@ export function PlannerTimeline() {
                 cont={slot.cont}
                 activeId={activeTaskId}
                 isNow={showNow && h === nowHour}
+                nowMin={nowMin}
                 onTaskClick={handleTaskClick}
               />
             );

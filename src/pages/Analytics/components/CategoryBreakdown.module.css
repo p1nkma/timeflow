@@ -8,18 +8,12 @@
   border-radius: var(--radius-xl);
 }
 
-.chips {
+.head {
   display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.chip {
-  padding: 4px var(--space-3);
-  border-radius: var(--radius-full);
-  border: 1px solid;
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .bars {
@@ -29,19 +23,42 @@
 }
 
 .barRow {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-2);
+  margin: 0 calc(var(--space-2) * -1);
+  transition: background 150ms;
+}
+
+.barRow:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.barLeft {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  min-width: 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .barLabel {
-  width: 64px;
-  flex-shrink: 0;
   color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .barTrack {
-  flex: 1;
   height: 6px;
   background: var(--color-bg-tertiary);
   border-radius: var(--radius-full);
@@ -51,5 +68,38 @@
 .barFill {
   height: 100%;
   border-radius: var(--radius-full);
-  transition: width .4s ease;
+  transition: width 0.4s ease;
+}
+
+.barMeta {
+  display: grid;
+  grid-template-columns: 36px 54px 64px;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.metaPct {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.metaHours {
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.metaCount {
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .barRow {
+    grid-template-columns: 96px 1fr auto;
+  }
 }

@@ -9,6 +9,16 @@ export const CATEGORIES: Record<CategoryKey, Category> = {
   fixed:     { key: 'fixed',     label: 'Вуз',      varPrefix: 'cat-fixed',     cls: 'cat-fixed' },
 };
 
+// Hex-цвета для Recharts (SVG не поддерживает CSS-переменные внутри fill)
+export const CAT_COLORS: Record<CategoryKey, string> = {
+  study:    '#6E67B8',
+  code:     '#4A9B7A',
+  freelance:'#A87D3A',
+  sport:    '#B05A40',
+  reading:  '#4A72AA',
+  fixed:    '#88877E',
+};
+
 export const catStyle = (key: CategoryKey): React.CSSProperties => ({
   '--cat-border': `var(--${CATEGORIES[key].varPrefix}-border)`,
   '--cat-bg':     `var(--${CATEGORIES[key].varPrefix}-bg)`,
