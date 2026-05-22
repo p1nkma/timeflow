@@ -1,14 +1,8 @@
-.panel {
+.inboxContent {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-xl);
   padding: var(--space-4);
-  height: fit-content;
-  position: sticky;
-  top: var(--space-5);
 }
 
 .head {
@@ -25,8 +19,8 @@
 
 .filterBtn {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-default);
   background: var(--color-bg-elevated);
@@ -80,19 +74,24 @@
 }
 
 .activeFilterLabel {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-text-secondary);
 }
 
 .clearFilter {
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1;
   color: var(--color-text-tertiary);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0 2px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color 150ms;
 }
 .clearFilter:hover { color: var(--color-text-primary); }
@@ -100,7 +99,7 @@
 .chip {
   padding: 4px var(--space-3);
   border-radius: var(--radius-full);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   border: 1px solid var(--color-border-default);
   background: var(--color-bg-elevated);
@@ -125,17 +124,53 @@
 
 .item {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-2);
   padding: var(--space-3);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-default);
   border-left: 3px solid var(--cat-border, var(--color-border-strong));
   background: var(--color-bg-elevated);
-  transition: background 150ms;
+  transition: background 150ms, opacity 150ms, box-shadow 150ms;
 }
 .item:hover {
   background: var(--color-bg-tertiary);
+}
+
+.itemDragging {
+  opacity: 0.4;
+  box-shadow: var(--shadow-md);
+}
+
+.dragHandle {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: grab;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  transition: background 150ms, color 150ms;
+  touch-action: none;
+}
+.dragHandle:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+.dragHandle:active { cursor: grabbing; }
+
+.itemContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .itemBody {
@@ -150,7 +185,7 @@
 .scheduleBtn {
   align-self: flex-start;
   margin-top: var(--space-1);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-accent-primary);
   padding: 0;
@@ -178,7 +213,7 @@
   border: 1px solid var(--color-border-default);
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: 0.8125rem;
   cursor: pointer;
   transition: all 150ms;
 }

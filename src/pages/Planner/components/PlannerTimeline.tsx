@@ -1,20 +1,17 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { format, addDays, subDays, isToday } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { toggleTask, rescheduleTask, moveTaskToEvening } from '../../../features/tasks';
-import { selectAllTasks, selectNowMin } from '../../../features/tasks/tasksSelectors';
+import { useDroppable } from '@dnd-kit/core';
+import { useAppSelector } from '../../../app/hooks';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks';
+import { selectWorkWindow } from '../../../features/planner';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
-import { rangeFmt, fmtCountdown } from '../../../shared/utils/time';
-import { Icon, Cancel01Icon, Tick01Icon } from '../../../shared/ui';
+import { rangeFmt } from '../../../shared/utils/time';
 import type { Task } from '../../../shared/types';
 import styles from './PlannerTimeline.module.css';
 
 type ViewMode = 'day' | 'week';
 
-const START_H = 7;
-const END_H   = 22;
-const HOURS   = Array.from({ length: END_H - START_H }, (_, i) => i + START_H);
 const MAX_VISIBLE = 2;
 
 function energyColor(hour: number): string {
@@ -35,71 +32,32 @@ function taskPriority(t: Task): number {
 /* Для каждого часа собираем:
    - primary: задачи, НАЧИНАЮЩИЕСЯ в этом часу
    - continuation: задачи из предыдущих часов, которые сюда ПЕРЕХОДЯТ */
-function buildSlotMap(tasks: Task[]): Map<number, { primary: Task[]; cont: Task[] }> {
+function buildSlotMap(
+  tasks: Task[], hours: number[], windowStart: number, windowEnd: number,
+): Map<number, { primary: Task[]; cont: Task[] }> {
   const map = new Map<number, { primary: Task[]; cont: Task[] }>();
-  for (const h of HOURS) map.set(h, { primary: [], cont: [] });
+  for (const h of hours) map.set(h, { primary: [], cont: [] });
 
   for (const task of tasks) {
-    const startH = Math.floor(task.start / 60);
-    const endH   = Math.ceil(task.end / 60);   // час, в котором задача заканчивается
+    const taskStartH = Math.floor(task.start / 60);
+    const taskEndH   = Math.ceil(task.end / 60);
 
-    for (let h = startH; h < endH && h < END_H; h++) {
-      if (h < START_H) continue;
+    for (let h = taskStartH; h < taskEndH && h < windowEnd; h++) {
+      if (h < windowStart) continue;
       const slot = map.get(h);
       if (!slot) continue;
-      if (h === startH) slot.primary.push(task);
-      else              slot.cont.push(task);
+      if (h === taskStartH) slot.primary.push(task);
+      else                  slot.cont.push(task);
     }
   }
   return map;
 }
 
-/* ── Drawer деталей ── */
-function TaskDrawer({ task, onClose }: { task: Task; onClose: () => void }) {
-  const dispatch = useAppDispatch();
-  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
-
-  return (
-    <div className={styles.drawer} role="dialog" aria-label={`Детали: ${task.title}`}>
-      <div className={styles.drawerHeader}>
-        <div className={styles.drawerCatBadge} style={catStyle(task.cat)}>{catLabel}</div>
-        <button className={styles.drawerClose} onClick={onClose} aria-label="Закрыть">
-          <Icon icon={Cancel01Icon} size={16} aria-hidden />
-        </button>
-      </div>
-      <h3 className={`t-h3 ${styles.drawerTitle} ${task.done ? styles.drawerDone : ''}`}>
-        {task.title}
-      </h3>
-      <div className={styles.drawerMeta}>
-        <span className="t-small muted">{rangeFmt(task.start, task.end)}</span>
-        <span className="t-small muted">·</span>
-        <span className="t-small muted">{task.end - task.start} мин</span>
-        {task.source === 'uni' && <span className={`t-xs ${styles.drawerLocked}`}>ВУЗ</span>}
-        {task.source === 'ai'  && <span className={`t-xs ${styles.drawerAi}`}>ИИ</span>}
-      </div>
-      {task.reasonLong && (
-        <p className={`t-body-md muted ${styles.drawerReason}`}>{task.reasonLong}</p>
-      )}
-      {!task.locked && (
-        <button
-          className={`${styles.drawerBtn} ${task.done ? styles.drawerBtnDone : ''}`}
-          onClick={() => dispatch(toggleTask(task.id))}
-        >
-          <Icon icon={Tick01Icon} size={15} aria-hidden />
-          {task.done ? 'Отменить выполнение' : 'Отметить выполненным'}
-        </button>
-      )}
-    </div>
-  );
-}
-
 /* ── Основная карточка задачи ── */
 function TaskCard({
-  task, isActive, nowMin, onClick,
+  task, isActive, onClick,
 }: { task: Task; isActive: boolean; nowMin: number; onClick: () => void }) {
-  const dispatch    = useAppDispatch();
-  const catLabel    = CATEGORIES[task.cat]?.label ?? task.cat;
-  const overdueMins = task.overdue ? nowMin - task.start : 0;
+  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
 
   return (
     <div
@@ -116,40 +74,14 @@ function TaskCard({
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
-      <button
-        className={`${styles.statusDot} ${task.done ? styles.statusDotDone : ''}`}
-        aria-label={task.done ? 'Отметить невыполненным' : 'Отметить выполненным'}
-        onClick={e => { e.stopPropagation(); if (!task.locked) dispatch(toggleTask(task.id)); }}
-        tabIndex={-1}
-      />
       <div className={styles.taskBody}>
         <span className={styles.taskTime}>{rangeFmt(task.start, task.end)}</span>
         <span className={styles.taskTitle}>{task.title}</span>
         {task.reason && <span className={styles.taskReason}>{task.reason}</span>}
       </div>
-
-      {task.overdue && !task.done && !task.locked ? (
-        <div className={styles.overdueActions} onClick={e => e.stopPropagation()}>
-          <button
-            className={styles.overdueBtn}
-            title={`Сдвинуть на ${fmtCountdown(overdueMins)}`}
-            onClick={() => dispatch(rescheduleTask(task.id))}
-          >
-            Сдвинуть
-          </button>
-          <button
-            className={`${styles.overdueBtn} ${styles.overdueBtnSecondary}`}
-            title="Перенести в вечерний слот"
-            onClick={() => dispatch(moveTaskToEvening(task.id))}
-          >
-            На вечер
-          </button>
-        </div>
-      ) : (
-        <span className={styles.catBadge}>
-          {task.source === 'uni' ? 'ВУЗ' : catLabel}
-        </span>
-      )}
+      <span className={styles.catBadge}>
+        {task.source === 'uni' ? 'ВУЗ' : catLabel}
+      </span>
     </div>
   );
 }
@@ -169,6 +101,7 @@ function ContinuationCard({
       style={catStyle(task.cat)}
       role="button" tabIndex={0}
       aria-label={`${task.title} продолжается до ${endStr}`}
+      aria-pressed={isActive}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
@@ -191,19 +124,26 @@ function HourSlot({
   nowMin: number;
   onTaskClick: (id: string) => void;
 }) {
-  const [offset, setOffset] = useState(0);
+  const [page, setPage] = useState(0);
+  const { setNodeRef, isOver } = useDroppable({
+    id: `slot-${hour}`,
+    data: { type: 'slot', hour },
+  });
 
-  const sorted    = [...primary].sort((a, b) => taskPriority(b) - taskPriority(a));
-  const paginated = sorted.length > MAX_VISIBLE;
-  const maxOffset = Math.max(0, sorted.length - MAX_VISIBLE);
-  const visible   = paginated ? sorted.slice(offset, offset + MAX_VISIBLE) : sorted;
+  const sorted     = [...primary].sort((a, b) => taskPriority(b) - taskPriority(a));
+  const totalPages = Math.ceil(sorted.length / MAX_VISIBLE);
+  const paginated  = totalPages > 1;
+  const visible    = paginated ? sorted.slice(page * MAX_VISIBLE, page * MAX_VISIBLE + MAX_VISIBLE) : sorted;
+  const hasPrev    = page > 0;
+  const hasNext    = page < totalPages - 1;
   const isEmpty   = primary.length === 0 && cont.length === 0;
 
   const ezColor = energyColor(hour);
 
   return (
     <div
-      className={`${styles.hourRow} ${isNow ? styles.hourRowNow : ''}`}
+      ref={setNodeRef}
+      className={`${styles.hourRow} ${isNow ? styles.hourRowNow : ''} ${isOver ? styles.hourRowOver : ''}`}
       style={{ '--ez-color': ezColor } as React.CSSProperties}
     >
       <div className={styles.gutter}>
@@ -244,15 +184,24 @@ function HourSlot({
                   ))}
                 </div>
                 {paginated && (
-                  <div className={styles.slotNav}>
-                    {sorted.map((_, i) => (
-                      <button
-                        key={i}
-                        className={`${styles.slotDot} ${i >= offset && i < offset + MAX_VISIBLE ? styles.slotDotActive : ''}`}
-                        onClick={() => setOffset(Math.min(i, maxOffset))}
-                        aria-label={`Задача ${i + 1}`}
-                      />
-                    ))}
+                  <div className={styles.pageNav}>
+                    <span className={styles.pageCounter}>{page + 1} / {totalPages}</span>
+                    <button
+                      className={styles.pageBtn}
+                      onClick={() => setPage(p => p - 1)}
+                      disabled={!hasPrev}
+                      aria-label="Предыдущие задачи"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 8L6 4L10 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
+                    <button
+                      className={styles.pageBtn}
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={!hasNext}
+                      aria-label="Следующие задачи"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
                   </div>
                 )}
               </div>
@@ -264,28 +213,33 @@ function HourSlot({
   );
 }
 
+interface PlannerTimelineProps {
+  selectedTaskId: string | null;
+  onTaskSelect: (id: string) => void;
+}
+
 /* ── Основной компонент ── */
-export function PlannerTimeline() {
-  const [date, setDate]         = useState(new Date());
-  const [mode, setMode]         = useState<ViewMode>('day');
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+export function PlannerTimeline({ selectedTaskId, onTaskSelect }: PlannerTimelineProps) {
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState<ViewMode>('day');
 
   const tasks  = useAppSelector(selectAllTasks);
   const nowMin = useAppSelector(selectNowMin);
+  const { startHour, endHour } = useAppSelector(selectWorkWindow);
 
-  const nowHour  = Math.floor(nowMin / 60);
-  const showNow  = isToday(date);
+  const nowHour = Math.floor(nowMin / 60);
+  const showNow = isToday(date);
+
+  const hours = useMemo(
+    () => Array.from({ length: endHour - startHour }, (_, i) => i + startHour),
+    [startHour, endHour],
+  );
 
   const realTasks = tasks.filter(t => !t.isBreak);
-  const slotMap   = buildSlotMap(realTasks);
-
-  const activeTask = activeTaskId
-    ? tasks.find(t => t.id === activeTaskId) ?? null
-    : null;
-
-  function handleTaskClick(id: string) {
-    setActiveTaskId(prev => prev === id ? null : id);
-  }
+  const slotMap   = useMemo(
+    () => buildSlotMap(realTasks, hours, startHour, endHour),
+    [realTasks, hours, startHour, endHour],
+  );
 
   return (
     <div className={styles.wrap}>
@@ -305,6 +259,7 @@ export function PlannerTimeline() {
               key={m}
               className={`${styles.modeBtn} ${mode === m ? styles.modeBtnActive : ''}`}
               onClick={() => setMode(m)}
+              aria-pressed={mode === m}
             >
               {m === 'day' ? 'День' : 'Неделя'}
             </button>
@@ -312,10 +267,10 @@ export function PlannerTimeline() {
         </div>
       </div>
 
-      {/* ── Таймлайн + drawer ── */}
+      {/* ── Таймлайн ── */}
       <div className={styles.root}>
         <div className={styles.timelineWrap}>
-          {HOURS.map(h => {
+          {hours.map(h => {
             const slot = slotMap.get(h)!;
             return (
               <HourSlot
@@ -323,18 +278,14 @@ export function PlannerTimeline() {
                 hour={h}
                 primary={slot.primary}
                 cont={slot.cont}
-                activeId={activeTaskId}
+                activeId={selectedTaskId}
                 isNow={showNow && h === nowHour}
                 nowMin={nowMin}
-                onTaskClick={handleTaskClick}
+                onTaskClick={onTaskSelect}
               />
             );
           })}
         </div>
-
-        {activeTask && (
-          <TaskDrawer task={activeTask} onClose={() => setActiveTaskId(null)} />
-        )}
       </div>
     </div>
   );

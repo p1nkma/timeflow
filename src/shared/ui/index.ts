@@ -5,3 +5,7 @@ export { StreakBadge } from './Badge/Badge';
 export { Toast } from './Toast/Toast';
 export { Icon } from './Icon/Icon';
 export * from './Icon/Icon';
+export { TaskModal, NewTaskModal } from './TaskModal/TaskModal';
+export { TimePicker } from './TimePicker/TimePicker';
+export { DatePicker } from './TimePicker/DatePicker';
+export { Fab } from './Fab/Fab';

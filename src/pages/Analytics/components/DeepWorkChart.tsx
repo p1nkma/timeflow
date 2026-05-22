@@ -96,6 +96,7 @@ export function DeepWorkChart({ period }: { period: Period }) {
               fill="url(#deepGrad)"
               dot={{ fill: color, r: 3, strokeWidth: 0 }}
               activeDot={{ r: 5, strokeWidth: 0 }}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>

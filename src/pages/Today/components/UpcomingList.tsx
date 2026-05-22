@@ -1,10 +1,14 @@
 import { useAppSelector } from '../../../app/hooks';
-import { selectUpcomingTasks, selectCurrentTask, selectNextTask } from '../../../features/tasks/tasksSelectors';
+import { selectUpcomingTasks, selectCurrentTask, selectNextTask } from '../../../features/tasks';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
 import { fmt } from '../../../shared/utils/time';
 import styles from './UpcomingList.module.css';
 
-export function UpcomingList() {
+interface Props {
+  onTaskClick?: (id: string) => void;
+}
+
+export function UpcomingList({ onTaskClick }: Props) {
   const current  = useAppSelector(selectCurrentTask);
   const next     = useAppSelector(selectNextTask);
   const upcoming = useAppSelector(selectUpcomingTasks);
@@ -20,7 +24,15 @@ export function UpcomingList() {
       <h3 className="t-h3">Предстоит сегодня</h3>
       <ul className={styles.list}>
         {tasks.map(t => (
-          <li key={t.id} className={styles.item} style={catStyle(t.cat)}>
+          <li
+            key={t.id}
+            className={`${styles.item} ${onTaskClick ? styles.itemClickable : ''}`}
+            style={catStyle(t.cat)}
+            onClick={() => onTaskClick?.(t.id)}
+            role={onTaskClick ? 'button' : undefined}
+            tabIndex={onTaskClick ? 0 : undefined}
+            onKeyDown={onTaskClick ? e => { if (e.key === 'Enter' || e.key === ' ') onTaskClick(t.id); } : undefined}
+          >
             <span className={`t-small ${styles.time}`}>{fmt(t.start)}</span>
             <span className={`t-body-md ${styles.title}`}>{t.title}</span>
             <span className={styles.badge}>{CATEGORIES[t.cat]?.label ?? t.cat}</span>

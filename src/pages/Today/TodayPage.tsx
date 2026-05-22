@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useAppSelector } from '../../app/hooks';
-import { selectNowMin } from '../../features/tasks/tasksSelectors';
-import { Segmented, Icon, SparklesIcon } from '../../shared/ui';
+import { selectNowMin, selectAllTasks } from '../../features/tasks';
+import { Segmented, Icon, SparklesIcon, PlusSignIcon, TaskModal, NewTaskModal } from '../../shared/ui';
 import { HeroFocus }    from './components/HeroFocus';
 import { TaskList }     from './components/TaskList';
 import { ProgressRing } from './components/ProgressRing';
@@ -19,7 +19,11 @@ export function TodayPage() {
   const [tab, setTab]           = useState<Tab>('Фокус');
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
   const [generating, setGenerating]   = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [showNewTask, setShowNewTask] = useState(false);
   const nowMin = useAppSelector(selectNowMin);
+  const allTasks = useAppSelector(selectAllTasks);
+  const selectedTask = selectedTaskId ? allTasks.find(t => t.id === selectedTaskId) ?? null : null;
   const today  = format(new Date(), 'd MMMM, EEE', { locale: ru });
 
   const nowHour   = Math.floor(nowMin / 60);
@@ -67,6 +71,14 @@ export function TodayPage() {
             <Icon icon={SparklesIcon} size={15} />
             {btnLabel}
           </button>
+          <button
+            className={styles.btnNewTask}
+            aria-label="Новая задача"
+            onClick={() => setShowNewTask(true)}
+          >
+            <Icon icon={PlusSignIcon} size={15} strokeWidth={2} />
+            Новая задача
+          </button>
         </div>
       </div>
 
@@ -85,10 +97,14 @@ export function TodayPage() {
         <div className={styles.focusRight}>
           <ProgressRing />
           <QuickAdd />
-          <UpcomingList />
+          <UpcomingList onTaskClick={id => setSelectedTaskId(id)} />
         </div>
       </div>
 
+      {selectedTask && (
+        <TaskModal task={selectedTask} onClose={() => setSelectedTaskId(null)} />
+      )}
+      {showNewTask && <NewTaskModal onClose={() => setShowNewTask(false)} />}
     </div>
   );
 }

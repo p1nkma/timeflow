@@ -1,2 +1,2 @@
-export { addInboxItem, removeInboxItem } from './inboxSlice';
-export { default as inboxReducer } from './inboxSlice';
+export { addInboxItem, removeInboxItem } from './model/inboxSlice';
+export { default as inboxReducer } from './model/inboxSlice';

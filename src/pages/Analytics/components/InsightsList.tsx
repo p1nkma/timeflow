@@ -62,11 +62,11 @@ export function InsightsList({ period }: { period: Period }) {
             <div className={styles.itemHeader}>
               <span className={styles.dot} />
               <span className="t-body-md">{ins.text}</span>
-              <span className={styles.chevron}>{expanded === i ? '−' : '+'}</span>
+              <span className={styles.chevron}>+</span>
             </div>
-            {expanded === i && (
+            <div className={styles.detailOuter}>
               <p className={`t-small ${styles.detail}`}>{ins.detail}</p>
-            )}
+            </div>
           </li>
         ))}
       </ul>

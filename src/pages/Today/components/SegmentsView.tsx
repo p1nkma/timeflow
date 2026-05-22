@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAppSelector } from '../../../app/hooks';
-import { selectAllTasks, selectNowMin } from '../../../features/tasks/tasksSelectors';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
 import { Icon, Tick01Icon } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';

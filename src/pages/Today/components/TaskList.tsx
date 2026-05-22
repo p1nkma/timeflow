@@ -1,51 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { toggleTask, rescheduleTask, moveTaskToEvening } from '../../../features/tasks';
-import { selectAllTasks, selectNowMin } from '../../../features/tasks/tasksSelectors';
+import {
+  toggleTask, rescheduleTask, moveTaskToEvening,
+  selectAllTasks, selectNowMin,
+} from '../../../features/tasks';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown } from '../../../shared/utils/time';
-import { Icon, Cancel01Icon, Tick01Icon } from '../../../shared/ui';
+import { TaskModal } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './TaskList.module.css';
-
-/* ── Drawer деталей (1-в-1 как в Planner) ── */
-function TaskDrawer({ task, onClose }: { task: Task; onClose: () => void }) {
-  const dispatch = useAppDispatch();
-  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
-
-  return (
-    <div className={styles.drawer} role="dialog" aria-label={`Детали: ${task.title}`}>
-      <div className={styles.drawerHeader}>
-        <div className={styles.drawerCatBadge} style={catStyle(task.cat)}>{catLabel}</div>
-        <button className={styles.drawerClose} onClick={onClose} aria-label="Закрыть">
-          <Icon icon={Cancel01Icon} size={16} aria-hidden />
-        </button>
-      </div>
-      <h3 className={`t-h3 ${styles.drawerTitle} ${task.done ? styles.drawerDone : ''}`}>
-        {task.title}
-      </h3>
-      <div className={styles.drawerMeta}>
-        <span className="t-small muted">{rangeFmt(task.start, task.end)}</span>
-        <span className="t-small muted">·</span>
-        <span className="t-small muted">{task.end - task.start} мин</span>
-        {task.source === 'uni' && <span className={`t-xs ${styles.drawerLocked}`}>ВУЗ</span>}
-        {task.source === 'ai'  && <span className={`t-xs ${styles.drawerAi}`}>ИИ</span>}
-      </div>
-      {task.reasonLong && (
-        <p className={`t-body-md muted ${styles.drawerReason}`}>{task.reasonLong}</p>
-      )}
-      {!task.locked && (
-        <button
-          className={`${styles.drawerBtn} ${task.done ? styles.drawerBtnDone : ''}`}
-          onClick={() => dispatch(toggleTask(task.id))}
-        >
-          <Icon icon={Tick01Icon} size={15} aria-hidden />
-          {task.done ? 'Отменить выполнение' : 'Отметить выполненным'}
-        </button>
-      )}
-    </div>
-  );
-}
 
 /* ── Карточка задачи (стиль Planner) ── */
 function TaskCard({
@@ -97,7 +60,7 @@ function TaskCard({
           <button
             className={styles.overdueBtn}
             title={`Сдвинуть на ${fmtCountdown(overdueMins)}`}
-            onClick={() => dispatch(rescheduleTask(task.id))}
+            onClick={() => dispatch(rescheduleTask({ id: task.id, nowMin }))}
           >
             Сдвинуть
           </button>
@@ -162,9 +125,9 @@ export function TaskList({ filterRange, focusTaskId, onFocusConsumed, onTaskClic
   function handleClick(id: string) {
     if (onTaskClick) {
       onTaskClick(id);
-    } else {
-      setActiveId(prev => prev === id ? null : id);
+      return;
     }
+    setActiveId(id);
   }
 
   function renderCard(t: Task) {
@@ -195,8 +158,7 @@ export function TaskList({ filterRange, focusTaskId, onFocusConsumed, onTaskClic
   }
 
   return (
-    <div className={styles.root}>
-      <div className={styles.list}>
+    <div className={styles.list}>
         <div className={styles.listHeader}>
           <span className="t-small muted" style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: 11, fontWeight: 600 }}>
             {label}
@@ -241,10 +203,9 @@ export function TaskList({ filterRange, focusTaskId, onFocusConsumed, onTaskClic
             </>
           )}
         </ul>
-      </div>
 
-      {activeTask && (
-        <TaskDrawer task={activeTask} onClose={() => setActiveId(null)} />
+      {activeTask && !onTaskClick && (
+        <TaskModal task={activeTask} onClose={() => setActiveId(null)} />
       )}
     </div>
   );

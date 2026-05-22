@@ -70,14 +70,14 @@
 }
 
 .cardSub {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-text-tertiary);
 }
 .cardDark .cardSub { color: rgba(255,255,255,0.6); }
 
 .count {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -93,7 +93,7 @@
 }
 
 .currentTitle {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text-primary);
   line-height: 1.3;
@@ -101,7 +101,7 @@
 .cardDark .currentTitle { color: var(--color-text-inverse); }
 
 .currentReason {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-tertiary);
   line-height: 1.4;
   text-transform: uppercase;
@@ -111,7 +111,7 @@
 .cardDark .currentReason { color: rgba(255,255,255,0.5); }
 
 .closed {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-tertiary);
 }
 .cardDark .closed { color: rgba(255,255,255,0.5); }
@@ -120,7 +120,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-success-text);
 }

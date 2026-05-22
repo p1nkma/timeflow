@@ -1,5 +1,5 @@
 import { useAppSelector } from '../../../app/hooks';
-import { selectAllTasks } from '../../../features/tasks/tasksSelectors';
+import { selectAllTasks } from '../../../features/tasks';
 import styles from './OverdueBanner.module.css';
 
 export function OverdueBanner() {

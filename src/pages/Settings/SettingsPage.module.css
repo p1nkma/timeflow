@@ -69,7 +69,7 @@
 
 .rowHint {
   color: var(--color-text-tertiary);
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 400;
   line-height: 1.4;
   /* сбрасываем t-xs uppercase */
@@ -95,7 +95,7 @@
 }
 
 .chevron {
-  font-size: 16px;
+  font-size: 1rem;
   color: var(--color-text-tertiary);
   line-height: 1;
 }
@@ -118,7 +118,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 0.9375rem;
   flex-shrink: 0;
 }
 
@@ -166,7 +166,7 @@
   border: 1px solid var(--color-border-default);
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: 0.8125rem;
   cursor: pointer;
   transition: background 150ms, color 150ms;
 }
@@ -182,7 +182,7 @@
   border: 1px solid var(--color-danger-text);
   background: transparent;
   color: var(--color-danger-text);
-  font-size: 13px;
+  font-size: 0.8125rem;
   cursor: pointer;
   transition: background 150ms;
 }

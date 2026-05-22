@@ -25,12 +25,12 @@
   display: grid;
   place-items: center;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 .brandName {
   font-weight: 600;
-  font-size: 15px;
+  font-size: 0.9375rem;
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
 }
@@ -49,7 +49,7 @@
   padding: 0 12px;
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 400;
   transition: background 150ms ease, color 150ms ease;
   width: 100%;
@@ -74,7 +74,7 @@
 }
 
 .darkToggle { justify-content: space-between; padding: 8px 10px; }
-.darkLabel  { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.darkLabel  { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; }
 
 .userChip {
   display: flex;
@@ -98,10 +98,10 @@
   display: grid;
   place-items: center;
   color: var(--color-text-inverse);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   flex-shrink: 0;
 }
 .userInfo { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.userName { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
-.userRole { font-size: 11px; color: var(--color-text-tertiary); }
+.userName { font-size: 0.8125rem; font-weight: 500; color: var(--color-text-primary); }
+.userRole { font-size: 0.6875rem; color: var(--color-text-tertiary); }

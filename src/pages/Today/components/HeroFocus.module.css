@@ -36,7 +36,7 @@
 }
 
 .catBadge {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 500;
   text-transform: capitalize;
   padding: 2px var(--space-2);
@@ -67,7 +67,7 @@
   border-radius: var(--radius-md);
   background: var(--color-accent-primary);
   color: var(--color-text-inverse);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   border: none;
@@ -84,7 +84,7 @@
   background: var(--color-bg-elevated);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border-default);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 150ms;
@@ -100,7 +100,7 @@
   background: transparent;
   color: var(--color-text-secondary);
   border: none;
-  font-size: 13px;
+  font-size: 0.8125rem;
   cursor: pointer;
   transition: color 150ms;
 }
@@ -136,7 +136,7 @@
 }
 
 .tipLabel {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -145,7 +145,7 @@
 
 .tipText {
   margin: 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.55;
   color: var(--color-text-primary);
 }
@@ -154,7 +154,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-accent-primary);
   background: color-mix(in oklch, var(--color-accent-primary) 8%, transparent);

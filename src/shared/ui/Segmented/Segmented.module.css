@@ -7,7 +7,7 @@
 }
 .seg {
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: 0.75rem;
   border-radius: 6px;
   color: var(--color-text-secondary);
   transition: background 0.12s ease, color 0.12s ease;

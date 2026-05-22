@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { PlannerSettings, CategoryKey, ChronoType } from '../../shared/types';
-import { toMin } from '../../shared/utils/time';
+import type { PlannerSettings, CategoryKey, ChronoType } from '../../../shared/types';
+import { toMin } from '../../../shared/utils/time';
 
 const initialState: PlannerSettings = {
   chronotype: 'lark',

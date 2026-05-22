@@ -3,7 +3,7 @@
   align-items: center;
   gap: 8px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   white-space: nowrap;
   transition: background 150ms ease, transform 80ms ease, color 150ms ease, border-color 150ms ease;
@@ -14,9 +14,9 @@
 .btn:active { transform: translateY(0.5px); }
 
 /* Sizes */
-.sm { height: 30px; padding: 0 10px; font-size: 12px; }
+.sm { height: 30px; padding: 0 10px; font-size: 0.75rem; }
 .md { height: 36px; padding: 0 14px; }
-.lg { height: 44px; padding: 0 18px; font-size: 14px; }
+.lg { height: 44px; padding: 0 18px; font-size: 0.875rem; }
 
 @media (max-width: 768px) {
   .sm { height: 36px; }

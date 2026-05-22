@@ -5,6 +5,7 @@ export {
   Clock01Icon,
   Calendar03Icon,
   BarChartIcon,
+  Analytics01Icon,
   Setting06Icon,
   Fire02Icon,
   Search01Icon,
@@ -24,6 +25,13 @@ export {
   ArrowRight01Icon,
   Refresh01Icon,
   FilterHorizontalIcon,
+  AlertCircleIcon,
+  Delete01Icon,
+  CheckmarkCircle01Icon,
+  FloppyDiskIcon,
+  MoreVerticalIcon,
+  Edit01Icon,
+  ArrowLeft01Icon,
 } from '@hugeicons/core-free-icons';
 
 type HugeIconProps = ComponentProps<typeof HugeiconsIcon>;

@@ -1,7 +1,7 @@
 import type { IconSvgElement } from '@hugeicons/react';
 import { useNavigate, useLocation } from 'react-router';
 import { StreakBadge, Icon,
-  Clock01Icon, Calendar03Icon, BarChartIcon, Setting06Icon } from '../../shared/ui';
+  Clock01Icon, Calendar03Icon, Analytics01Icon, Setting06Icon } from '../../shared/ui';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -12,7 +12,7 @@ interface SidebarProps {
 const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
   { path: '/today',     label: 'Сегодня',     icon: Clock01Icon },
   { path: '/planner',   label: 'Планировщик', icon: Calendar03Icon },
-  { path: '/analytics', label: 'Аналитика',   icon: BarChartIcon },
+  { path: '/analytics', label: 'Аналитика',   icon: Analytics01Icon },
   { path: '/settings',  label: 'Настройки',   icon: Setting06Icon },
 ];
 
@@ -23,7 +23,7 @@ export function Sidebar(_props: SidebarProps) {
   const { pathname } = useLocation();
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={styles.sidebar} aria-label="Навигация">
       <div className={styles.brand}>
         <div className={styles.brandMark}>TF</div>
         <span className={styles.brandName}>TimeFlow</span>
@@ -37,7 +37,7 @@ export function Sidebar(_props: SidebarProps) {
             onClick={() => navigate(path)}
             aria-current={pathname === path ? 'page' : undefined}
           >
-            <Icon icon={icon} size={18} aria-hidden style={path === '/analytics' ? { transform: 'scaleY(-1)' } : undefined} />
+            <Icon icon={icon} size={18} aria-hidden />
             <span>{label}</span>
           </button>
         ))}

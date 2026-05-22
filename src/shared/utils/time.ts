@@ -20,6 +20,34 @@ export const fmtCountdown = (min: number): string => {
   return `${m} мин`;
 };
 
+/** Find first free slot of `duration` minutes within [rangeStart, rangeEnd], avoiding `busy` intervals. */
+export const findFreeSlot = (
+  busy: { start: number; end: number }[],
+  duration: number,
+  rangeStart: number,
+  rangeEnd: number,
+): number => {
+  // Sort and merge overlapping intervals first
+  const merged: { start: number; end: number }[] = [];
+  for (const b of [...busy].sort((a, b) => a.start - b.start)) {
+    const last = merged[merged.length - 1];
+    if (last && b.start < last.end) {
+      last.end = Math.max(last.end, b.end);
+    } else {
+      merged.push({ ...b });
+    }
+  }
+
+  let cursor = rangeStart;
+  for (const block of merged) {
+    if (block.end <= cursor) continue;          // block is entirely before cursor
+    if (block.start >= cursor + duration) break; // gap before this block fits
+    cursor = block.end;                          // move cursor past this block
+  }
+  // Clamp to range — if nothing fits, return closest possible start
+  return Math.min(cursor, rangeEnd - duration);
+};
+
 /* «осталось X мин» — оставшееся время текущего блока */
 export const fmtRemaining = (endMin: number, nowMin: number): string => {
   const rem = endMin - nowMin;

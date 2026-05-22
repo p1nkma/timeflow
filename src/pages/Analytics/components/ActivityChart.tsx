@@ -77,7 +77,7 @@ export function ActivityChart({ period }: { period: Period }) {
             cursor={{ fill: 'rgba(0,0,0,0.04)' }}
             formatter={(v) => [`${v} задач`, '']}
           />
-          <Bar dataKey="tasks" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="tasks" radius={[4, 4, 0, 0]} isAnimationActive={false}>
             {data.map((_, i) => (
               <Cell key={i} fill={i === highlightIdx ? accent : muted} />
             ))}

@@ -1,6 +1,8 @@
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { toggleTask, updateTask, addTask, startTaskNow } from '../../../features/tasks';
-import { selectCurrentTask, selectNextTask, selectNowMin } from '../../../features/tasks/tasksSelectors';
+import {
+  toggleTask, updateTask, addTask, startTaskNow,
+  selectCurrentTask, selectNextTask, selectNowMin,
+} from '../../../features/tasks';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown, fmtRemaining } from '../../../shared/utils/time';
 import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, SparklesIcon, PlusSignIcon } from '../../../shared/ui';
@@ -33,7 +35,7 @@ export function HeroFocus() {
 
   function handleDone()  { dispatch(toggleTask(task!.id)); }
   function handleSkip()  { dispatch(toggleTask(task!.id)); }
-  function handleStart() { dispatch(startTaskNow(task!.id)); }
+  function handleStart() { dispatch(startTaskNow({ id: task!.id, nowMin })); }
   function handleDelay() {
     if (!current) return;
     dispatch(updateTask({ ...current, start: current.start + 15, end: current.end + 15 }));
@@ -99,7 +101,13 @@ export function HeroFocus() {
         {MOCK_TIP.taskHint && (
           <button
             className={styles.tipAction}
-            onClick={() => dispatch(addTask({ title: MOCK_TIP.taskHint }))}
+            onClick={() => dispatch(addTask({
+              title: MOCK_TIP.taskHint,
+              cat: 'study',
+              start: nowMin,
+              end: nowMin + 30,
+              source: 'ai',
+            }))}
           >
             <Icon icon={PlusSignIcon} size={12} />
             {MOCK_TIP.taskHint} — добавить в расписание

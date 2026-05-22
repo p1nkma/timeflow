@@ -14,7 +14,33 @@
   justify-content: space-between;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .btnGenerate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--color-border-default);
+  transition: all 150ms;
+}
+.btnGenerate:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+.btnGenerate:disabled { opacity: .5; cursor: not-allowed; }
+
+.btnNewTask {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -22,14 +48,27 @@
   background: var(--color-accent-primary);
   color: var(--color-text-inverse);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border: none;
+  border: 1px solid var(--color-accent-primary);
   transition: opacity 150ms;
 }
-.btnGenerate:hover { opacity: .85; }
-.btnGenerate:disabled { opacity: .5; cursor: not-allowed; }
+.btnNewTask:hover { opacity: 0.85; }
+
+.dragPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-left: 3px solid var(--cat-border, var(--color-border-strong));
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-width: 280px;
+  cursor: grabbing;
+}
 
 .layout {
   display: grid;

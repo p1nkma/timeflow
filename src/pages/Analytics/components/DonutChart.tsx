@@ -54,6 +54,7 @@ export function DonutChart({ period }: { period: Period }) {
               dataKey="value"
               stroke="none"
               paddingAngle={2}
+              isAnimationActive={false}
             >
               {data.map(d => <Cell key={d.key} fill={CAT_COLORS[d.key]} />)}
             </Pie>

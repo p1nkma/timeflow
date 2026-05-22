@@ -18,7 +18,7 @@
 }
 
 .featured .label { color: var(--color-text-inverse); opacity: 0.65; margin-bottom: 0; }
-.featured .value { font-size: 48px; line-height: 1; letter-spacing: -0.03em; color: var(--color-text-inverse); }
+.featured .value { font-size: 3rem; line-height: 1; letter-spacing: -0.03em; color: var(--color-text-inverse); }
 .featured .sub   { color: var(--color-text-inverse); opacity: 0.65; }
 .featured .trend { color: var(--color-text-inverse); opacity: 0.5; }
 

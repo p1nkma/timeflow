@@ -17,6 +17,7 @@ export type TaskSource = 'user' | 'ai' | 'uni' | 'google';
 export interface Task {
   id: string;
   title: string;
+  date?: string;       // ISO YYYY-MM-DD; absent = today
   start: number;       // minutes from midnight
   end: number;         // minutes from midnight
   cat: CategoryKey;

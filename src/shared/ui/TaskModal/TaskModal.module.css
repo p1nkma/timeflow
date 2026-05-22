@@ -1,0 +1,543 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--space-4);
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-default);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-default);
+  gap: var(--space-2);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.catDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cat-border, var(--color-border-strong));
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  transition: all 150ms;
+  flex-shrink: 0;
+}
+.closeBtn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.closeBtnDanger:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  border-color: color-mix(in oklch, var(--color-danger-text) 30%, transparent);
+}
+
+/* ── Kebab menu ── */
+.kebab {
+  position: relative;
+}
+
+.kebabBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms;
+  flex-shrink: 0;
+}
+.kebabBtn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.kebabMenu {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 160px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.kebabItem {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: background 150ms;
+}
+.kebabItem:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.kebabItemDanger {
+  color: var(--color-danger-text);
+}
+.kebabItemDanger:hover {
+  background: var(--color-danger-bg);
+}
+
+/* ── Body ── */
+.body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── View mode ── */
+.viewTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.viewTitleDone {
+  text-decoration: line-through;
+  color: var(--color-text-tertiary);
+}
+
+.viewMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.viewTime {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.badgeAi {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.badgeLocked {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+}
+
+.reasonBlock {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-warning-bg);
+  border: 1px solid rgba(163, 125, 58, 0.15);
+  font-size: 0.8125rem;
+  color: var(--color-warning-text);
+  line-height: 1.5;
+}
+
+html.dark .reasonBlock {
+  border-color: rgba(242, 201, 144, 0.15);
+}
+
+.notesBlock {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-tertiary);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Overdue block ── */
+.overdueBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  border: 1px solid color-mix(in oklch, var(--color-danger-text) 25%, transparent);
+}
+
+.overdueLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-danger-text);
+}
+
+.overdueActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.btnOverdue {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in oklch, var(--color-danger-text) 40%, transparent);
+  background: color-mix(in oklch, var(--color-danger-text) 10%, transparent);
+  color: var(--color-danger-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms;
+  min-height: 44px;
+  text-align: center;
+}
+.btnOverdue:hover {
+  background: color-mix(in oklch, var(--color-danger-text) 20%, transparent);
+}
+
+.btnOverdueSecondary {
+  border-color: var(--color-border-default);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+}
+.btnOverdueSecondary:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.btnOverdueFull { width: 100%; }
+
+.btnOverduePrimary {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 150ms;
+  min-height: 44px;
+}
+.btnOverduePrimary:hover { opacity: 0.85; }
+
+.customPickerWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid color-mix(in oklch, var(--color-danger-text) 20%, transparent);
+}
+
+.customPickerInfo {
+  text-align: center;
+  font-size: 0.75rem;
+  min-height: 1.25rem;
+}
+
+.customOk      { color: var(--color-success-text); }
+.customConflict { color: var(--color-danger-text); }
+
+/* ── Edit mode ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  transition: border-color 150ms;
+  box-sizing: border-box;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: var(--focus-ring);
+}
+.input::placeholder { color: var(--color-text-tertiary); }
+
+.select {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  padding-right: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23627781' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-2) center;
+  box-sizing: border-box;
+}
+.select:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  resize: vertical;
+  min-height: 64px;
+  box-sizing: border-box;
+  transition: border-color 150ms;
+}
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: var(--focus-ring);
+}
+.textarea::placeholder { color: var(--color-text-tertiary); }
+
+/* ── Delete confirm ── */
+.deleteWarning {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-danger-bg);
+  border: 1px solid rgba(121, 31, 31, 0.12);
+  font-size: 0.8125rem;
+  color: var(--color-danger-text);
+  line-height: 1.5;
+}
+
+html.dark .deleteWarning {
+  border-color: rgba(242, 180, 180, 0.12);
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+}
+
+.toggleLabel {
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+}
+
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleTrack {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+  transition: background 200ms;
+}
+
+.toggle input:checked ~ .toggleTrack {
+  background: var(--color-accent-primary);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 200ms;
+}
+
+.toggle input:checked ~ .toggleTrack .toggleThumb {
+  transform: translateX(16px);
+}
+
+/* ── Footer ── */
+.footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border-default);
+  display: flex;
+  gap: var(--space-2);
+}
+
+.btnPrimary {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: opacity 150ms;
+  min-height: 44px;
+}
+.btnPrimary:hover { opacity: 0.85; }
+.btnPrimary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btnDoneActive {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid color-mix(in oklch, var(--color-success-text) 30%, transparent);
+}
+
+.btnDanger {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid rgba(121, 31, 31, 0.2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: opacity 150ms;
+  min-height: 44px;
+}
+.btnDanger:hover:not(:disabled) { opacity: 0.85; }
+.btnDanger:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btnSecondary {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  min-height: 44px;
+  transition: all 150ms;
+}
+.btnSecondary:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}

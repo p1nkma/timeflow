@@ -1,5 +1,5 @@
 import { useAppSelector } from '../../../app/hooks';
-import { selectDoneTasks, selectRealTasks } from '../../../features/tasks/tasksSelectors';
+import { selectDoneTasks, selectRealTasks } from '../../../features/tasks';
 import { fmtCountdown } from '../../../shared/utils/time';
 import styles from './ProgressRing.module.css';
 

@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import { useAppDispatch, useAppSelector } from './hooks';
 import { toggleDarkMode } from '../features/ui';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 import { BottomNav } from '../components/BottomNav/BottomNav';
-import { Toast } from '../shared/ui';
+import { Toast, Fab, NewTaskModal } from '../shared/ui';
 import { TodayPage } from '../pages/Today/TodayPage';
 import { PlannerPage } from '../pages/Planner/PlannerPage';
 import { AnalyticsPage } from '../pages/Analytics/AnalyticsPage';
@@ -14,6 +14,7 @@ import styles from './App.module.css';
 export function App() {
   const dispatch = useAppDispatch();
   const { darkMode } = useAppSelector(s => s.ui);
+  const [showNewTask, setShowNewTask] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -41,6 +42,8 @@ export function App() {
 
       <BottomNav />
       <Toast />
+      <Fab onClick={() => setShowNewTask(true)} />
+      {showNewTask && <NewTaskModal onClose={() => setShowNewTask(false)} />}
     </div>
   );
 }

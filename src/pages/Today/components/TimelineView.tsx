@@ -1,16 +1,13 @@
-import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { toggleTask } from '../../../features/tasks';
-import { selectAllTasks, selectNowMin } from '../../../features/tasks/tasksSelectors';
+import { useMemo, useState } from 'react';
+import { useAppSelector } from '../../../app/hooks';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks';
+import { selectWorkWindow } from '../../../features/planner';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
 import { rangeFmt } from '../../../shared/utils/time';
-import { Icon, SparklesIcon, Tick01Icon, Cancel01Icon } from '../../../shared/ui';
+import { Icon, SparklesIcon, TaskModal } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './TimelineView.module.css';
 
-const START_H    = 7;
-const END_H      = 22;
-const HOURS      = Array.from({ length: END_H - START_H }, (_, i) => i + START_H);
 const MAX_VISIBLE = 2;
 
 function energyColor(hour: number): string {
@@ -27,69 +24,31 @@ function taskPriority(t: Task): number {
   return 0;
 }
 
-function buildSlotMap(tasks: Task[]): Map<number, { primary: Task[]; cont: Task[] }> {
+function buildSlotMap(
+  tasks: Task[], hours: number[], startH: number, endH: number,
+): Map<number, { primary: Task[]; cont: Task[] }> {
   const map = new Map<number, { primary: Task[]; cont: Task[] }>();
-  for (const h of HOURS) map.set(h, { primary: [], cont: [] });
+  for (const h of hours) map.set(h, { primary: [], cont: [] });
 
   for (const task of tasks) {
-    const startH = Math.floor(task.start / 60);
-    const endH   = Math.ceil(task.end / 60);
+    const taskStartH = Math.floor(task.start / 60);
+    const taskEndH   = Math.ceil(task.end / 60);
 
-    for (let h = startH; h < endH && h < END_H; h++) {
-      if (h < START_H) continue;
+    for (let h = taskStartH; h < taskEndH && h < endH; h++) {
+      if (h < startH) continue;
       const slot = map.get(h);
       if (!slot) continue;
-      if (h === startH) slot.primary.push(task);
-      else              slot.cont.push(task);
+      if (h === taskStartH) slot.primary.push(task);
+      else                  slot.cont.push(task);
     }
   }
   return map;
-}
-
-/* ── Drawer ── */
-function TaskDrawer({ task, onClose }: { task: Task; onClose: () => void }) {
-  const dispatch = useAppDispatch();
-  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
-
-  return (
-    <div className={styles.drawer} role="dialog" aria-label={`Детали: ${task.title}`}>
-      <div className={styles.drawerHeader}>
-        <div className={styles.drawerCatBadge} style={catStyle(task.cat)}>{catLabel}</div>
-        <button className={styles.drawerClose} onClick={onClose} aria-label="Закрыть">
-          <Icon icon={Cancel01Icon} size={16} aria-hidden />
-        </button>
-      </div>
-      <h3 className={`t-h3 ${styles.drawerTitle} ${task.done ? styles.drawerDone : ''}`}>
-        {task.title}
-      </h3>
-      <div className={styles.drawerMeta}>
-        <span className="t-small muted">{rangeFmt(task.start, task.end)}</span>
-        <span className="t-small muted">·</span>
-        <span className="t-small muted">{task.end - task.start} мин</span>
-        {task.source === 'uni' && <span className={`t-xs ${styles.drawerLocked}`}>ВУЗ</span>}
-        {task.source === 'ai'  && <span className={`t-xs ${styles.drawerAi}`}>ИИ</span>}
-      </div>
-      {task.reasonLong && (
-        <p className={`t-body-md muted ${styles.drawerReason}`}>{task.reasonLong}</p>
-      )}
-      {!task.locked && (
-        <button
-          className={`${styles.drawerBtn} ${task.done ? styles.drawerBtnDone : ''}`}
-          onClick={() => dispatch(toggleTask(task.id))}
-        >
-          <Icon icon={Tick01Icon} size={15} aria-hidden />
-          {task.done ? 'Отменить выполнение' : 'Отметить выполненным'}
-        </button>
-      )}
-    </div>
-  );
 }
 
 /* ── Карточка задачи ── */
 function TaskCard({
   task, isActive, onClick,
 }: { task: Task; isActive: boolean; onClick: () => void }) {
-  const dispatch = useAppDispatch();
   const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
 
   return (
@@ -108,12 +67,6 @@ function TaskCard({
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
       <div className={styles.taskAccent} />
-      <button
-        className={`${styles.statusDot} ${task.done ? styles.statusDotDone : ''}`}
-        aria-label={task.done ? 'Отметить невыполненным' : 'Отметить выполненным'}
-        onClick={e => { e.stopPropagation(); if (!task.locked) dispatch(toggleTask(task.id)); }}
-        tabIndex={-1}
-      />
       <div className={styles.taskBody}>
         <span className={styles.taskTime}>{rangeFmt(task.start, task.end)}</span>
         <span className={styles.taskTitle}>{task.title}</span>
@@ -156,15 +109,17 @@ function HourSlot({
   hour: number; primary: Task[]; cont: Task[];
   activeId: string | null; isNow: boolean; onTaskClick: (id: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  const sorted  = [...primary].sort((a, b) => taskPriority(b) - taskPriority(a));
-  const visible = expanded ? sorted : sorted.slice(0, MAX_VISIBLE);
-  const hidden  = sorted.length - MAX_VISIBLE;
-  const isEmpty = primary.length === 0 && cont.length === 0;
+  const [page, setPage] = useState(0);
+  const sorted    = [...primary].sort((a, b) => taskPriority(b) - taskPriority(a));
+  const totalPages = Math.ceil(sorted.length / MAX_VISIBLE);
+  const visible   = sorted.slice(page * MAX_VISIBLE, page * MAX_VISIBLE + MAX_VISIBLE);
+  const hasNext   = page < totalPages - 1;
+  const hasPrev   = page > 0;
+  const isEmpty   = primary.length === 0 && cont.length === 0;
 
   return (
     <div className={`${styles.hourRow} ${isNow ? styles.hourRowNow : ''}`}>
-      <div className={styles.gutter}>
+      <div className={styles.hourGutter}>
         <div className={styles.energyBar} style={{ background: energyColor(hour) }} />
         <span className={styles.hourNum}>{hour}</span>
       </div>
@@ -185,7 +140,7 @@ function HourSlot({
               </div>
             )}
             {primary.length > 0 && (
-              <>
+              <div className={styles.pageWrap}>
                 <div
                   className={styles.taskRow}
                   style={{ gridTemplateColumns: visible.length === 1 ? '1fr' : '1fr 1fr' }}
@@ -198,17 +153,28 @@ function HourSlot({
                     />
                   ))}
                 </div>
-                {!expanded && hidden > 0 && (
-                  <button className={styles.collapseBtn} onClick={() => setExpanded(true)}>
-                    + ещё {hidden} {hidden === 1 ? 'задача' : hidden < 5 ? 'задачи' : 'задач'}
-                  </button>
+                {totalPages > 1 && (
+                  <div className={styles.pageNav}>
+                    <span className={styles.pageCounter}>{page + 1} / {totalPages}</span>
+                    <button
+                      className={styles.pageBtn}
+                      onClick={() => setPage(p => p - 1)}
+                      disabled={!hasPrev}
+                      aria-label="Предыдущие задачи"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 8L6 4L10 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
+                    <button
+                      className={styles.pageBtn}
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={!hasNext}
+                      aria-label="Следующие задачи"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
+                  </div>
                 )}
-                {expanded && hidden > 0 && (
-                  <button className={styles.collapseBtn} onClick={() => setExpanded(false)}>
-                    Свернуть
-                  </button>
-                )}
-              </>
+              </div>
             )}
           </>
         )}
@@ -221,11 +187,20 @@ function HourSlot({
 export function TimelineView() {
   const tasks  = useAppSelector(selectAllTasks);
   const nowMin = useAppSelector(selectNowMin);
+  const { startHour, endHour } = useAppSelector(selectWorkWindow);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+
+  const hours = useMemo(
+    () => Array.from({ length: endHour - startHour }, (_, i) => i + startHour),
+    [startHour, endHour],
+  );
 
   const nowHour   = Math.floor(nowMin / 60);
   const realTasks = tasks.filter(t => !t.isBreak);
-  const slotMap   = buildSlotMap(realTasks);
+  const slotMap   = useMemo(
+    () => buildSlotMap(realTasks, hours, startHour, endHour),
+    [realTasks, hours, startHour, endHour],
+  );
 
   const activeTask = activeTaskId
     ? tasks.find(t => t.id === activeTaskId) ?? null
@@ -238,14 +213,14 @@ export function TimelineView() {
   return (
     <div className={styles.root}>
       <div className={styles.timeline}>
-        {HOURS.map(h => {
+        {hours.map(h => {
           const slot = slotMap.get(h)!;
           return (
             <HourSlot
               key={h} hour={h}
               primary={slot.primary} cont={slot.cont}
               activeId={activeTaskId}
-              isNow={h === nowHour && nowMin >= START_H * 60 && nowMin <= END_H * 60}
+              isNow={h === nowHour && nowMin >= startHour * 60 && nowMin <= endHour * 60}
               onTaskClick={handleTaskClick}
             />
           );
@@ -253,7 +228,7 @@ export function TimelineView() {
       </div>
 
       {activeTask && (
-        <TaskDrawer task={activeTask} onClose={() => setActiveTaskId(null)} />
+        <TaskModal task={activeTask} onClose={() => setActiveTaskId(null)} />
       )}
 
       {realTasks.length === 0 && (

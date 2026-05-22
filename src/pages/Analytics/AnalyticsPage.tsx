@@ -1,6 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { AIInsightBlock }    from './components/AIInsightBlock';
+import { KpiRow }            from './components/KpiRow';
+import { ActivityChart }     from './components/ActivityChart';
+import { DeepWorkChart }     from './components/DeepWorkChart';
 import { CategoryBreakdown } from './components/CategoryBreakdown';
+import { DonutChart }        from './components/DonutChart';
+import { InsightsList }      from './components/InsightsList';
 import styles from './AnalyticsPage.module.css';
 
 type Period = '7' | '30' | '90';
@@ -12,23 +17,32 @@ const PERIOD_LABEL: Record<Period, string> = {
 };
 
 export function AnalyticsPage() {
-  const [period, setPeriod]       = useState<Period>('7');
-  const [fading, setFading]       = useState(false);
-  const [visiblePeriod, setVisiblePeriod] = useState<Period>('7');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [period, setPeriod]             = useState<Period>('7');
+  const [animClass, setAnimClass]       = useState(styles.fadeIn);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function handlePeriod(p: Period) {
+  const handlePeriod = useCallback((p: Period) => {
     if (p === period) return;
-    setFading(true);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      setPeriod(p);
-      setVisiblePeriod(p);
-      setFading(false);
-    }, 180);
-  }
 
-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+    // 1. Fade out
+    setAnimClass(styles.fadeOut);
+
+    timerRef.current = setTimeout(() => {
+      // 2. Swap data
+      setPeriod(p);
+
+      // 3. Force reflow so browser registers the class removal before re-adding fadeIn
+      if (contentRef.current) {
+        contentRef.current.classList.remove(styles.fadeOut, styles.fadeIn);
+        void contentRef.current.offsetHeight; // reflow
+      }
+
+      // 4. Fade in
+      setAnimClass(styles.fadeIn);
+    }, 160);
+  }, [period]);
 
   return (
     <div className={styles.page}>
@@ -39,9 +53,9 @@ export function AnalyticsPage() {
             {(['7', '30', '90'] as Period[]).map(p => (
               <button
                 key={p}
-                className={`${styles.periodBtn} ${visiblePeriod === p ? styles.periodBtnActive : ''}`}
+                className={`${styles.periodBtn} ${period === p ? styles.periodBtnActive : ''}`}
                 onClick={() => handlePeriod(p)}
-                aria-pressed={visiblePeriod === p}
+                aria-pressed={period === p}
               >
                 {PERIOD_LABEL[p]}
               </button>
@@ -50,10 +64,19 @@ export function AnalyticsPage() {
         </div>
       </div>
 
-      <div className={fading ? styles.fadeOut : styles.fadeIn}>
+      <div ref={contentRef} className={animClass}>
         <div className={styles.content}>
+          <KpiRow period={period} />
           <AIInsightBlock period={period} />
-          <CategoryBreakdown period={period} />
+          <div className={styles.chartsRow}>
+            <ActivityChart period={period} />
+            <DeepWorkChart period={period} />
+          </div>
+          <div className={styles.bottomRow}>
+            <CategoryBreakdown period={period} />
+            <DonutChart period={period} />
+          </div>
+          <InsightsList period={period} />
         </div>
       </div>
     </div>

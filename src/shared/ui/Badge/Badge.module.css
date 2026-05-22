@@ -6,7 +6,7 @@
   border-radius: var(--radius-full);
   background: var(--color-warning-bg);
   color: var(--color-warning-text);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   border: 0.5px solid rgba(133, 79, 11, 0.2);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);

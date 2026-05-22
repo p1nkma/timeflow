@@ -71,7 +71,11 @@ export function CategoryBreakdown({ period }: { period: Period }) {
               >
                 <div
                   className={styles.barFill}
-                  style={{ width: `${(d.hours / maxHours) * 100}%`, background: CAT_COLORS[d.key] }}
+                  style={{
+                    width: '100%',
+                    transform: `scaleX(${d.hours / maxHours})`,
+                    background: CAT_COLORS[d.key],
+                  }}
                 />
               </div>
               <span className={styles.barMeta}>

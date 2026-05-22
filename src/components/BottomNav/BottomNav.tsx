@@ -1,12 +1,12 @@
 import { useNavigate, useLocation } from 'react-router';
-import { Icon, Clock01Icon, Calendar03Icon, BarChartIcon, Setting06Icon } from '../../shared/ui';
+import { Icon, Clock01Icon, Calendar03Icon, Analytics01Icon, Setting06Icon } from '../../shared/ui';
 import type { IconSvgElement } from '@hugeicons/react';
 import styles from './BottomNav.module.css';
 
 const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
   { path: '/today',     label: 'Сегодня',     icon: Clock01Icon },
   { path: '/planner',   label: 'Планировщик', icon: Calendar03Icon },
-  { path: '/analytics', label: 'Аналитика',   icon: BarChartIcon },
+  { path: '/analytics', label: 'Аналитика',   icon: Analytics01Icon },
   { path: '/settings',  label: 'Настройки',   icon: Setting06Icon },
 ];
 

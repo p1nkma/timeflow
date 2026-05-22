@@ -7,7 +7,7 @@
   color: var(--color-text-inverse);
   padding: 10px 16px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: 0.8125rem;
   box-shadow: var(--shadow-md);
   z-index: 200;
   display: flex;
