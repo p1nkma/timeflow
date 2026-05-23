@@ -3,11 +3,21 @@ import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useDraggable } from '@dnd-kit/core';
 import { useAppSelector } from '../../../app/hooks';
-import { catStyle } from '../../../shared/utils/categories';
-import { Icon, SparklesIcon, FilterHorizontalIcon, DragDropVerticalIcon } from '../../../shared/ui';
+import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { Icon, SparklesIcon } from '../../../shared/ui';
 import type { CategoryKey, InboxItem } from '../../../shared/types';
 import { ScheduleModal } from './ScheduleModal';
 import styles from './InboxPanel.module.css';
+
+export type Filter = 'all' | 'urgent' | CategoryKey;
+
+export const FILTERS: { key: Filter; label: string }[] = [
+  { key: 'all',       label: 'Все' },
+  { key: 'urgent',    label: 'Срочные' },
+  { key: 'code',      label: 'Кодинг' },
+  { key: 'freelance', label: 'Фриланс' },
+  { key: 'study',     label: 'Учёба' },
+];
 
 function DraggableInboxItem({
   item, onSchedule,
@@ -22,50 +32,38 @@ function DraggableInboxItem({
       ref={setNodeRef}
       className={`${styles.item} ${isDragging ? styles.itemDragging : ''}`}
       style={catStyle(item.cat)}
+      {...listeners}
+      {...attributes}
     >
-      <button
-        className={styles.dragHandle}
-        aria-label="Перетащить в расписание"
-        {...listeners}
-        {...attributes}
-      >
-        <Icon icon={DragDropVerticalIcon} size={14} />
-      </button>
       <div className={styles.itemContent}>
-        <div className={styles.itemBody}>
-          <span className={`t-body-md ${styles.itemTitle} ${item.urgent ? styles.urgent : ''}`}>
-            {item.title}
-          </span>
-          <span className="t-xs muted">
-            {item.deadline
-              ? item.urgent
-                ? `${format(parseISO(item.deadline), 'd MMM', { locale: ru })} · Срочно`
-                : format(parseISO(item.deadline), 'd MMM', { locale: ru })
-              : 'без дедлайна'}
-          </span>
-        </div>
-        <button className={styles.scheduleBtn} onClick={onSchedule}>
+        <span className={`${styles.itemTitle} ${item.urgent ? styles.urgent : ''}`}>
+          {item.title}
+        </span>
+        <span className={styles.itemMeta}>
+          {item.deadline
+            ? item.urgent
+              ? `${format(parseISO(item.deadline), 'd MMM', { locale: ru })} · Срочно`
+              : format(parseISO(item.deadline), 'd MMM', { locale: ru })
+            : 'без дедлайна'}
+        </span>
+        <button className={styles.scheduleBtn} onClick={e => { e.stopPropagation(); onSchedule(); }}>
           + В расписание
         </button>
       </div>
+      <span className={styles.catPill}>
+        {(CATEGORIES[item.cat]?.label ?? item.cat).slice(0, 3).toUpperCase()}
+      </span>
     </li>
   );
 }
 
-type Filter = 'all' | 'urgent' | CategoryKey;
+interface InboxPanelProps {
+  filter: Filter;
+  onFilterChange: (f: Filter) => void;
+}
 
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all',       label: 'Все' },
-  { key: 'urgent',    label: 'Срочные' },
-  { key: 'code',      label: 'Кодинг' },
-  { key: 'freelance', label: 'Фриланс' },
-  { key: 'study',     label: 'Учёба' },
-];
-
-export function InboxPanel() {
+export function InboxPanel({ filter, onFilterChange }: InboxPanelProps) {
   const inbox = useAppSelector(s => s.inbox);
-  const [filter, setFilter]       = useState<Filter>('all');
-  const [filterOpen, setFilterOpen] = useState(false);
   const [rescheduling, setRescheduling] = useState(false);
   const [schedulingItem, setSchedulingItem] = useState<InboxItem | null>(null);
 
@@ -84,40 +82,14 @@ export function InboxPanel() {
 
   return (
     <div className={styles.inboxContent}>
-      <div className={styles.head}>
-        <span className="t-h3">Inbox</span>
-        <div className={styles.headRight}>
-          <span className="t-small muted">{inbox.length} задач</span>
-          <button
-            className={`${styles.filterBtn} ${filterOpen ? styles.filterBtnOpen : ''}`}
-            onClick={() => setFilterOpen(o => !o)}
-            aria-expanded={filterOpen}
-            aria-label="Фильтр задач"
-          >
-            <Icon icon={FilterHorizontalIcon} size={14} aria-hidden />
-            {filter !== 'all' && <span className={styles.filterDot} />}
-          </button>
-        </div>
-      </div>
-
-      {filterOpen && (
-        <div className={styles.filters}>
-          {FILTERS.map(f => (
-            <button
-              key={f.key}
-              className={`${styles.chip} ${filter === f.key ? styles.chipActive : ''}`}
-              onClick={() => { setFilter(f.key); setFilterOpen(false); }}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {filter !== 'all' && !filterOpen && (
+      {filter !== 'all' && (
         <div className={styles.activeFilter}>
           <span className={styles.activeFilterLabel}>{activeLabel}</span>
-          <button className={styles.clearFilter} onClick={() => setFilter('all')} aria-label="Сбросить фильтр">×</button>
+          <button
+            className={styles.clearFilter}
+            onClick={() => onFilterChange('all')}
+            aria-label="Сбросить фильтр"
+          >×</button>
         </div>
       )}
 

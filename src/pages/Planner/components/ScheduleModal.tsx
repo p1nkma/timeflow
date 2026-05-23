@@ -197,7 +197,7 @@ export function ScheduleModal({ item, onClose }: Props) {
   const [showCustomDur, setShowCustomDur] = useState(false);
   const customDurInputRef                 = useRef<HTMLInputElement>(null);
 
-  const [mode, setMode]         = useState<SelectedMode>(null);
+  const [mode, setMode]         = useState<SelectedMode>('today');
   const [sheetOpen, setSheetOpen] = useState<SheetOpen>(null);
 
   const [customDate, setCustomDate] = useState(todayIso());
@@ -430,13 +430,11 @@ export function ScheduleModal({ item, onClose }: Props) {
           </div>
 
           {/* CTA */}
-          {mode !== null && (
-            <div className={styles.footer}>
-              <button className={styles.ctaBtn} onClick={handleConfirm}>
-                Поставить в расписание
-              </button>
-            </div>
-          )}
+          <div className={styles.footer}>
+            <button className={styles.ctaBtn} onClick={handleConfirm}>
+              Поставить в расписание
+            </button>
+          </div>
 
         </div>
       </div>

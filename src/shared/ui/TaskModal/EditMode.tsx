@@ -1,5 +1,6 @@
 import { useAppDispatch } from '../../../app/hooks';
 import { updateTask } from '../../../features/tasks';
+import { Icon, Delete01Icon } from '../Icon/Icon';
 import type { Task } from '../../types';
 import { TaskForm } from './TaskForm';
 import { formValuesToTaskPatch, taskToFormValues, useTaskForm } from './useTaskForm';
@@ -9,9 +10,10 @@ interface Props {
   task: Task;
   onSaved: () => void;
   onDiscard: () => void;
+  onDelete: () => void;
 }
 
-export function EditMode({ task, onSaved, onDiscard }: Props) {
+export function EditMode({ task, onSaved, onDiscard, onDelete }: Props) {
   const dispatch = useAppDispatch();
   const form     = useTaskForm(taskToFormValues(task), task.id);
 
@@ -39,6 +41,9 @@ export function EditMode({ task, onSaved, onDiscard }: Props) {
           Сохранить
         </button>
         <button className={styles.btnSecondary} onClick={handleDiscard}>Отмена</button>
+        <button className={`${styles.closeBtn} ${styles.closeBtnDanger}`} onClick={onDelete} aria-label="Удалить задачу" title="Удалить">
+          <Icon icon={Delete01Icon} size={14} />
+        </button>
       </div>
     </div>
   );

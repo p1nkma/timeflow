@@ -1,14 +1,12 @@
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import {
-  toggleTask, updateTask, addTask, startTaskNow,
+  toggleTask, updateTask, startTaskNow, rescheduleTask,
   selectCurrentTask, selectNextTask, selectNowMin,
 } from '../../../features/tasks';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown, fmtRemaining } from '../../../shared/utils/time';
-import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, SparklesIcon, PlusSignIcon } from '../../../shared/ui';
+import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon } from '../../../shared/ui';
 import styles from './HeroFocus.module.css';
-
-const MOCK_TIP = { text: 'У тебя ещё 2 глубоких блока сегодня. После 17:00 — только лёгкое.', taskHint: 'Разбор почты' };
 
 export function HeroFocus() {
   const dispatch = useAppDispatch();
@@ -34,7 +32,10 @@ export function HeroFocus() {
     : `Следующий блок · через ${fmtCountdown(task.start - nowMin)}`;
 
   function handleDone()  { dispatch(toggleTask(task!.id)); }
-  function handleSkip()  { dispatch(toggleTask(task!.id)); }
+  function handleSkip()  {
+    if (!current) return;
+    dispatch(rescheduleTask({ id: current.id, nowMin }));
+  }
   function handleStart() { dispatch(startTaskNow({ id: task!.id, nowMin })); }
   function handleDelay() {
     if (!current) return;
@@ -92,28 +93,6 @@ export function HeroFocus() {
         )}
       </div>
 
-      <div className={styles.tip}>
-        <div className={styles.tipHead}>
-          <Icon icon={SparklesIcon} size={13} />
-          <span className={styles.tipLabel}>Совет дня</span>
-        </div>
-        <p className={styles.tipText}>{MOCK_TIP.text}</p>
-        {MOCK_TIP.taskHint && (
-          <button
-            className={styles.tipAction}
-            onClick={() => dispatch(addTask({
-              title: MOCK_TIP.taskHint,
-              cat: 'study',
-              start: nowMin,
-              end: nowMin + 30,
-              source: 'ai',
-            }))}
-          >
-            <Icon icon={PlusSignIcon} size={12} />
-            {MOCK_TIP.taskHint} — добавить в расписание
-          </button>
-        )}
-      </div>
     </div>
   );
 }

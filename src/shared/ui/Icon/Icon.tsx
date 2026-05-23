@@ -23,6 +23,7 @@ export {
   GraduationScrollIcon,
   Notification01Icon,
   ArrowRight01Icon,
+  ArrowDown01Icon,
   Refresh01Icon,
   FilterHorizontalIcon,
   AlertCircleIcon,

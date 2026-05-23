@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { format, addDays } from 'date-fns';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import {
-  toggleTask, rescheduleTask, reorderTask,
+  toggleTask, rescheduleTask, reorderTask, removeFromSchedule, moveTaskToDate,
   selectAllTasks, selectNowMin,
 } from '../../../features/tasks';
+import { addInboxItem } from '../../../features/inbox';
+import { showToast } from '../../../features/ui';
 import { findFreeSlot, rangeFmt, fmt, fmtCountdown } from '../../utils/time';
 import { Icon, SparklesIcon, LockIcon } from '../Icon/Icon';
 import { TimePicker } from '../TimePicker/TimePicker';
@@ -21,6 +24,23 @@ export function ViewMode({ task, onClose }: Props) {
   const otherTasks  = allTasks.filter(t => t.id !== task.id && !t.done);
   const overdueMins = task.overdue ? Math.max(0, nowMin - task.start) : 0;
   const isOverdue   = task.overdue && !task.done && !task.locked;
+
+  const tomorrowIso  = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+  const tomorrowBusy = allTasks.filter(t => t.date === tomorrowIso && t.id !== task.id);
+
+  function handleMoveToTomorrow() {
+    const newStart = findFreeSlot(tomorrowBusy, dur, 9 * 60, 21 * 60);
+    dispatch(moveTaskToDate({ id: task.id, date: tomorrowIso, newStart }));
+    dispatch(showToast({ message: `Перенесено на завтра, ${fmt(newStart)}`, variant: 'success' }));
+    onClose();
+  }
+
+  function handleReturnToInbox() {
+    dispatch(removeFromSchedule(task.id));
+    dispatch(addInboxItem({ title: task.title, cat: task.cat }));
+    dispatch(showToast({ message: 'Возвращено в Inbox', variant: 'default' }));
+    onClose();
+  }
 
   const suggestedStart = isOverdue
     ? findFreeSlot(otherTasks, dur, nowMin, 23 * 60)
@@ -111,6 +131,14 @@ export function ViewMode({ task, onClose }: Props) {
             onClick={() => { dispatch(toggleTask(task.id)); onClose(); }}
           >
             {task.done ? 'Отменить выполнение' : 'Выполнено'}
+          </button>
+          {!task.done && (
+            <button className={styles.btnSecondary} onClick={handleMoveToTomorrow}>
+              На завтра
+            </button>
+          )}
+          <button className={styles.btnSecondary} onClick={handleReturnToInbox}>
+            В Inbox
           </button>
         </div>
       )}

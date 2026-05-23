@@ -52,6 +52,5 @@
   border-radius: var(--radius-sm);
   background: var(--cat-bg);
   color: var(--cat-text);
-  border: 1px solid var(--cat-border);
   flex-shrink: 0;
 }

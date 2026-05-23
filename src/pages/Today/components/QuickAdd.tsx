@@ -1,20 +1,22 @@
 import { useState } from 'react';
-import { useAppDispatch } from '../../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { addInboxItem } from '../../../features/inbox';
 import styles from './QuickAdd.module.css';
 
 export function QuickAdd() {
   const dispatch = useAppDispatch();
-  const [value, setValue]       = useState('');
+  const planner  = useAppSelector(s => s.planner);
+  const [value, setValue]         = useState('');
   const [confirmed, setConfirmed] = useState(false);
+
+  const defaultCat = planner.enabledCategories[0] ?? 'study';
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const title = value.trim();
     if (!title) return;
-    dispatch(addInboxItem({ title, cat: 'study' }));
+    dispatch(addInboxItem({ title, cat: defaultCat }));
     setValue('');
-    // Кратковременный flash-фидбек: поле окрашивается в зелёный
     setConfirmed(true);
     setTimeout(() => setConfirmed(false), 800);
   }

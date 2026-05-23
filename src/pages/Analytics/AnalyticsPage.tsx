@@ -1,11 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { AIInsightBlock }    from './components/AIInsightBlock';
-import { KpiRow }            from './components/KpiRow';
-import { ActivityChart }     from './components/ActivityChart';
-import { DeepWorkChart }     from './components/DeepWorkChart';
 import { CategoryBreakdown } from './components/CategoryBreakdown';
-import { DonutChart }        from './components/DonutChart';
-import { InsightsList }      from './components/InsightsList';
 import styles from './AnalyticsPage.module.css';
 
 type Period = '7' | '30' | '90';
@@ -66,17 +61,8 @@ export function AnalyticsPage() {
 
       <div ref={contentRef} className={animClass}>
         <div className={styles.content}>
-          <KpiRow period={period} />
+          <CategoryBreakdown period={period} />
           <AIInsightBlock period={period} />
-          <div className={styles.chartsRow}>
-            <ActivityChart period={period} />
-            <DeepWorkChart period={period} />
-          </div>
-          <div className={styles.bottomRow}>
-            <CategoryBreakdown period={period} />
-            <DonutChart period={period} />
-          </div>
-          <InsightsList period={period} />
         </div>
       </div>
     </div>

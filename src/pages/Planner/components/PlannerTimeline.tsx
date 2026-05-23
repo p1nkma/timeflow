@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { format, addDays, subDays, isToday } from 'date-fns';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { ru } from 'date-fns/locale';
 import { useDroppable } from '@dnd-kit/core';
 import { useAppSelector } from '../../../app/hooks';
@@ -13,6 +15,10 @@ import styles from './PlannerTimeline.module.css';
 type ViewMode = 'day' | 'week';
 
 const MAX_VISIBLE = 2;
+
+// Hard ceiling/floor for the universe of possible slots
+const DISPLAY_START = 0;
+const DISPLAY_END   = 24;
 
 function energyColor(hour: number): string {
   if (hour >= 9  && hour < 12) return 'var(--ez-peak)';
@@ -105,22 +111,25 @@ function ContinuationCard({
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
-      <div className={styles.contStripe} />
       <span className={styles.contTitle}>{task.title}</span>
-      <span className={styles.contMeta}>↓ до {endStr} · {durationMin} мин</span>
+      <span className={styles.contMeta}>
+        <HugeiconsIcon icon={ArrowDown01Icon} size={10} strokeWidth={2} color="currentColor" />
+        до {endStr} · {durationMin} мин
+      </span>
     </div>
   );
 }
 
 /* ── Один часовой слот ── */
 function HourSlot({
-  hour, primary, cont, activeId, isNow, nowMin, onTaskClick,
+  hour, primary, cont, activeId, isNow, isOffHours, nowMin, onTaskClick,
 }: {
   hour: number;
   primary: Task[];
   cont: Task[];
   activeId: string | null;
   isNow: boolean;
+  isOffHours: boolean;
   nowMin: number;
   onTaskClick: (id: string) => void;
 }) {
@@ -138,13 +147,19 @@ function HourSlot({
   const hasNext    = page < totalPages - 1;
   const isEmpty   = primary.length === 0 && cont.length === 0;
 
-  const ezColor = energyColor(hour);
+  // Off-hours slots get no energy color — neutral bg only
+  const ezColor = isOffHours ? undefined : energyColor(hour);
 
   return (
     <div
       ref={setNodeRef}
-      className={`${styles.hourRow} ${isNow ? styles.hourRowNow : ''} ${isOver ? styles.hourRowOver : ''}`}
-      style={{ '--ez-color': ezColor } as React.CSSProperties}
+      className={[
+        styles.hourRow,
+        isNow       ? styles.hourRowNow      : '',
+        isOver      ? styles.hourRowOver     : '',
+        isOffHours  ? styles.hourRowOffHours : '',
+      ].filter(Boolean).join(' ')}
+      style={ezColor ? ({ '--ez-color': ezColor } as React.CSSProperties) : undefined}
     >
       <div className={styles.gutter}>
         <span className={`${styles.hourNum} ${isNow ? styles.hourNumNow : ''}`}>{hour}</span>
@@ -230,16 +245,24 @@ export function PlannerTimeline({ selectedTaskId, onTaskSelect }: PlannerTimelin
   const nowHour = Math.floor(nowMin / 60);
   const showNow = isToday(date);
 
-  const hours = useMemo(
-    () => Array.from({ length: endHour - startHour }, (_, i) => i + startHour),
-    [startHour, endHour],
+  // Full display range 6–24; buildSlotMap uses this for mapping tasks to slots
+  const allHours = useMemo(
+    () => Array.from({ length: DISPLAY_END - DISPLAY_START }, (_, i) => i + DISPLAY_START),
+    [],
   );
 
   const realTasks = tasks.filter(t => !t.isBreak);
   const slotMap   = useMemo(
-    () => buildSlotMap(realTasks, hours, startHour, endHour),
-    [realTasks, hours, startHour, endHour],
+    () => buildSlotMap(realTasks, allHours, DISPLAY_START, DISPLAY_END),
+    [realTasks, allHours],
   );
+
+  // Show work window + any hour outside it that has tasks
+  const hours = useMemo(() => allHours.filter(h => {
+    if (h >= startHour && h < endHour) return true;
+    const slot = slotMap.get(h);
+    return !!slot && (slot.primary.length > 0 || slot.cont.length > 0);
+  }), [allHours, startHour, endHour, slotMap]);
 
   return (
     <div className={styles.wrap}>
@@ -251,19 +274,21 @@ export function PlannerTimeline({ selectedTaskId, onTaskSelect }: PlannerTimelin
             {format(date, 'EEEE, d MMMM yyyy', { locale: ru })}
           </span>
           <button className={styles.navBtn} onClick={() => setDate(d => addDays(d, 1))} aria-label="Следующий день">›</button>
-          <button className={styles.todayBtn} onClick={() => setDate(new Date())}>Сегодня</button>
         </div>
-        <div className={styles.modeSwitch}>
-          {(['day', 'week'] as ViewMode[]).map(m => (
-            <button
-              key={m}
-              className={`${styles.modeBtn} ${mode === m ? styles.modeBtnActive : ''}`}
-              onClick={() => setMode(m)}
-              aria-pressed={mode === m}
-            >
-              {m === 'day' ? 'День' : 'Неделя'}
-            </button>
-          ))}
+        <div className={styles.navRight}>
+          <button className={styles.todayBtn} onClick={() => setDate(new Date())}>Сегодня</button>
+          <div className={styles.modeSwitch}>
+            {(['day', 'week'] as ViewMode[]).map(m => (
+              <button
+                key={m}
+                className={`${styles.modeBtn} ${mode === m ? styles.modeBtnActive : ''}`}
+                onClick={() => setMode(m)}
+                aria-pressed={mode === m}
+              >
+                {m === 'day' ? 'День' : 'Неделя'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -280,6 +305,7 @@ export function PlannerTimeline({ selectedTaskId, onTaskSelect }: PlannerTimelin
                 cont={slot.cont}
                 activeId={selectedTaskId}
                 isNow={showNow && h === nowHour}
+                isOffHours={h < startHour || h >= endHour}
                 nowMin={nowMin}
                 onTaskClick={onTaskSelect}
               />

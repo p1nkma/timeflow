@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import { useAppDispatch, useAppSelector } from './hooks';
 import { toggleDarkMode } from '../features/ui';
+import { setNowMin } from '../features/tasks';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 import { BottomNav } from '../components/BottomNav/BottomNav';
 import { Toast, Fab, NewTaskModal } from '../shared/ui';
@@ -19,6 +20,16 @@ export function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
+
+  useEffect(() => {
+    function tick() {
+      const d = new Date();
+      dispatch(setNowMin(d.getHours() * 60 + d.getMinutes()));
+    }
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => clearInterval(id);
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>

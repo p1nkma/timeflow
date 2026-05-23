@@ -21,7 +21,7 @@ const uiSlice = createSlice({
       localStorage.setItem('tf.dark', state.darkMode ? '1' : '0');
       document.documentElement.classList.toggle('dark', state.darkMode);
     },
-    showToast(state, action: PayloadAction<Pick<ToastState, 'message' | 'variant'>>) {
+    showToast(state, action: PayloadAction<Pick<ToastState, 'message' | 'variant' | 'undoId'>>) {
       state.toast = { ...action.payload, id: Date.now() };
     },
     clearToast(state) {

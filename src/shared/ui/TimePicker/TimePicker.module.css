@@ -259,4 +259,4 @@
   transition: opacity 150ms ease-out, transform 100ms ease-out;
 }
 .modeToggle:hover  { opacity: 0.7; }
-.modeToggle:active { transform: scale(0.91); }
+.modeToggle:active { opacity: 0.6; }

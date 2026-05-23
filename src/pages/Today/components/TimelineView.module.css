@@ -171,7 +171,6 @@
 .taskActive {
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
-  border-color: var(--cat-border);
 }
 
 .taskDone { opacity: 0.4; }
@@ -264,7 +263,7 @@
   margin-top: 2px;
   padding: 2px 6px;
   border-radius: var(--radius-sm);
-  background: color-mix(in oklch, var(--cat-border, var(--color-border-strong)) 15%, transparent);
+  background: var(--cat-bg, var(--color-bg-secondary));
   color: var(--cat-text, var(--color-text-secondary));
   font-size: 0.5625rem;
   font-weight: 700;
@@ -311,7 +310,6 @@
   border-radius: var(--radius-sm);
   background: var(--cat-bg);
   color: var(--cat-text);
-  border: 1px solid var(--cat-border);
 }
 
 .drawerClose {
@@ -349,7 +347,6 @@
 .drawerLocked {
   background: var(--cat-fixed-bg);
   color: var(--cat-fixed-text);
-  border: 1px solid var(--cat-fixed-border);
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   font-weight: 600;

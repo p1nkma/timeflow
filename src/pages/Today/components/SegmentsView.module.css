@@ -137,8 +137,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--cat-bg, var(--color-border-strong));
-  border: 1.5px solid var(--cat-border, var(--color-border-strong));
+  background: color-mix(in oklch, var(--cat-border, var(--color-border-strong)) 70%, transparent);
   display: inline-block;
   flex-shrink: 0;
   transition: opacity 150ms;

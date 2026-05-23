@@ -18,6 +18,9 @@ const tasksSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
+    setNowMin(state, action: PayloadAction<number>) {
+      state.nowMin = action.payload;
+    },
     toggleTask(state, action: PayloadAction<string>) {
       const task = state.items.find(t => t.id === action.payload);
       if (task && !task.locked) task.done = !task.done;
@@ -33,8 +36,8 @@ const tasksSlice = createSlice({
     removeFromSchedule(state, action: PayloadAction<string>) {
       state.items = state.items.filter(t => t.id !== action.payload);
     },
-    addTask(state, action: PayloadAction<Omit<Task, 'id' | 'done'> & { done?: boolean }>) {
-      const id = `t${Date.now()}`;
+    addTask(state, action: PayloadAction<Omit<Task, 'id' | 'done'> & { id?: string; done?: boolean }>) {
+      const id = action.payload.id ?? `t${Date.now()}`;
       state.items.push({
         done: false,
         ...action.payload,
@@ -72,6 +75,16 @@ const tasksSlice = createSlice({
         task.overdue = false;
       }
     },
+    moveTaskToDate(state, action: PayloadAction<{ id: string; date: string; newStart: number }>) {
+      const task = state.items.find(t => t.id === action.payload.id);
+      if (task && !task.locked) {
+        const dur = task.end - task.start;
+        task.date  = action.payload.date;
+        task.start = action.payload.newStart;
+        task.end   = action.payload.newStart + dur;
+        task.overdue = false;
+      }
+    },
     // Переносит задачу в конец дня (20:00+) или на ближайший свободный вечерний слот
     moveTaskToEvening(state, action: PayloadAction<string>) {
       const task = state.items.find(t => t.id === action.payload);
@@ -92,5 +105,5 @@ const tasksSlice = createSlice({
   },
 });
 
-export const { toggleTask, updateTask, deleteTask, addTask, reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule } = tasksSlice.actions;
+export const { setNowMin, toggleTask, updateTask, deleteTask, addTask, reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule, moveTaskToDate } = tasksSlice.actions;
 export default tasksSlice.reducer;

@@ -12,7 +12,8 @@ export interface Category {
 }
 
 // ===== Tasks =====
-export type TaskSource = 'user' | 'ai' | 'uni' | 'google';
+export type TaskSource  = 'user' | 'ai' | 'uni' | 'google';
+export type EnergyLevel = 'low' | 'medium' | 'high';
 
 export interface Task {
   id: string;
@@ -26,6 +27,7 @@ export interface Task {
   locked?: boolean;
   overdue?: boolean;
   isBreak?: boolean;
+  energy?: EnergyLevel;
   reason?: string;
   reasonLong?: string;
   notes?: string;
@@ -58,4 +60,5 @@ export interface ToastState {
   message: string;
   variant: ToastVariant;
   id: number;
+  undoId?: string;  // task id to delete on undo
 }

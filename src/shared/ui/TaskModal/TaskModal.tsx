@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { catStyle } from '../../utils/categories';
-import { Icon, Cancel01Icon, Delete01Icon, Edit01Icon, ArrowLeft01Icon } from '../Icon/Icon';
+import { Icon, Cancel01Icon, Delete01Icon, Edit01Icon } from '../Icon/Icon';
 import type { Task } from '../../types';
 import { DeleteConfirm } from './DeleteConfirm';
 import { ViewMode }      from './ViewMode';
@@ -16,10 +17,10 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
   const [showDelete, setShowDelete] = useState(false);
 
   if (showDelete) {
-    return <DeleteConfirm task={task} onClose={onClose} />;
+    return createPortal(<DeleteConfirm task={task} onClose={onClose} />, document.body);
   }
 
-  return (
+  return createPortal(
     <div className={styles.backdrop} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className={styles.modal} role="dialog" aria-modal="true" aria-label={task.title}>
         <div className={styles.header}>
@@ -48,11 +49,6 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
                 <Icon icon={Delete01Icon} size={14} />
               </button>
             </>)}
-            {mode === 'edit' && (
-              <button className={styles.closeBtn} onClick={() => setMode('view')} aria-label="Назад к просмотру">
-                <Icon icon={ArrowLeft01Icon} size={14} />
-              </button>
-            )}
             <button className={styles.closeBtn} onClick={onClose} aria-label="Закрыть">
               <Icon icon={Cancel01Icon} size={14} />
             </button>
@@ -65,10 +61,12 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
             task={task}
             onSaved={() => setMode('view')}
             onDiscard={() => setMode('view')}
+            onDelete={() => setShowDelete(true)}
           />
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

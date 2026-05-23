@@ -43,7 +43,6 @@
   border-radius: var(--radius-full);
   background: var(--cat-bg);
   color: var(--cat-text);
-  border: 1px solid var(--cat-border);
 }
 
 .title {

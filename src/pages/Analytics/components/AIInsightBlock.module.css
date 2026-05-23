@@ -238,4 +238,4 @@
 
 .askSend:disabled { opacity: 0.4; cursor: default; }
 .askSend:not(:disabled):hover { opacity: 0.85; }
-.askSend:not(:disabled):active { transform: scale(0.95); }
+.askSend:not(:disabled):active { opacity: 0.7; }

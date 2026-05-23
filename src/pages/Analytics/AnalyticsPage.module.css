@@ -81,28 +81,12 @@
   gap: var(--space-5);
 }
 
-.chartsRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-}
-
-.bottomRow {
-  display: grid;
-  grid-template-columns: 1fr 240px;
-  gap: var(--space-5);
-  align-items: start;
-}
 
 
 @media (prefers-reduced-motion: reduce) {
   .fadeIn, .fadeOut, .content > * { animation: none; }
 }
 
-@media (max-width: 720px) {
-  .chartsRow { grid-template-columns: 1fr; }
-  .bottomRow { grid-template-columns: 1fr; }
-}
 
 @media (max-width: 600px) {
   .page { padding: 0 var(--space-4) var(--space-7); }
