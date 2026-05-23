@@ -3,9 +3,9 @@ import {
   toggleTask, updateTask, startTaskNow, rescheduleTask,
   selectCurrentTask, selectNextTask, selectNowMin,
 } from '../../../features/tasks';
-import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown, fmtRemaining } from '../../../shared/utils/time';
-import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon } from '../../../shared/ui';
+import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, CategoryChip } from '../../../shared/ui';
 import styles from './HeroFocus.module.css';
 
 export function HeroFocus() {
@@ -24,7 +24,6 @@ export function HeroFocus() {
   }
 
   const isCurrent = !!current;
-  const catLabel  = CATEGORIES[task.cat]?.label ?? task.cat;
 
   // Метка: «Сейчас · осталось X мин» vs «Следующий блок · через X ч Y мин»
   const label = isCurrent
@@ -49,7 +48,7 @@ export function HeroFocus() {
       <div className={styles.meta}>
         <span className={`t-small muted ${styles.label}`}>{label}</span>
         <span className="t-small muted">{dur} мин</span>
-        {task.cat && <span className={styles.catBadge}>{catLabel}</span>}
+        {task.cat && <CategoryChip cat={task.cat} size="sm" variant="pill" />}
       </div>
 
       <h1 className={`t-h1 ${styles.title}`}>{task.title}</h1>

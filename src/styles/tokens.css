@@ -34,30 +34,30 @@
   --color-info-bg:      #E6F1FB;
   --color-info-text:    #0C447C;
 
-  /* Categories — desaturated, sophisticated, muted */
-  --cat-study-bg:         #F5F4FB;  /* приглушённый сизо-лавандовый */
-  --cat-study-border:     #6E67B8;
-  --cat-study-text:       #635D9E;
+  /* Categories — slate monochrome (hue 250, very low chroma) */
+  --cat-study-bg:         oklch(96% 0.008 250);
+  --cat-study-border:     oklch(50% 0.020 250);
+  --cat-study-text:       oklch(42% 0.025 250);
 
-  --cat-code-bg:          #F0F8F4;  /* тихий шалфей */
-  --cat-code-border:      #4A9B7A;
-  --cat-code-text:        #4A8068;
+  --cat-reading-bg:       oklch(94% 0.012 250);
+  --cat-reading-border:   oklch(48% 0.022 250);
+  --cat-reading-text:     oklch(40% 0.028 250);
 
-  --cat-freelance-bg:     #FAF6EE;  /* тёплый песок */
-  --cat-freelance-border: #A87D3A;
-  --cat-freelance-text:   #97743F;
+  --cat-code-bg:          oklch(92% 0.016 250);
+  --cat-code-border:      oklch(46% 0.024 250);
+  --cat-code-text:        oklch(38% 0.030 250);
 
-  --cat-sport-bg:         #F9F2EF;  /* терракота пыльная */
-  --cat-sport-border:     #B05A40;
-  --cat-sport-text:       #9E5640;
+  --cat-freelance-bg:     oklch(90% 0.020 250);
+  --cat-freelance-border: oklch(44% 0.026 250);
+  --cat-freelance-text:   oklch(36% 0.032 250);
 
-  --cat-reading-bg:       #EFF4FB;  /* стальной синий */
-  --cat-reading-border:   #4A72AA;
-  --cat-reading-text:     #4F6E96;
+  --cat-sport-bg:         oklch(87% 0.024 250);
+  --cat-sport-border:     oklch(42% 0.028 250);
+  --cat-sport-text:       oklch(34% 0.034 250);
 
-  --cat-fixed-bg:         #F3F3F0;  /* тёплый камень */
-  --cat-fixed-border:     #88877E;
-  --cat-fixed-text:       #6E6D66;
+  --cat-fixed-bg:         oklch(84% 0.014 250);
+  --cat-fixed-border:     oklch(40% 0.020 250);
+  --cat-fixed-text:       oklch(32% 0.028 250);
 
   /* Space */
   --space-1: 4px;
@@ -134,29 +134,29 @@ html.dark {
   --color-info-bg:      #0A2A4D;
   --color-info-text:    #A9CDF2;
 
-  --cat-study-bg:         #1A1924;
-  --cat-study-border:     #6E67B8;
-  --cat-study-text:       #8A85C0;
+  --cat-study-bg:         oklch(18% 0.010 220);
+  --cat-study-border:     oklch(65% 0.030 220);
+  --cat-study-text:       oklch(70% 0.035 220);
 
-  --cat-code-bg:          #111B17;
-  --cat-code-border:      #4A9B7A;
-  --cat-code-text:        #6BA88C;
+  --cat-reading-bg:       oklch(20% 0.014 220);
+  --cat-reading-border:   oklch(65% 0.030 220);
+  --cat-reading-text:     oklch(70% 0.035 220);
 
-  --cat-freelance-bg:     #1F1A10;
-  --cat-freelance-border: #A87D3A;
-  --cat-freelance-text:   #B59166;
+  --cat-code-bg:          oklch(22% 0.018 220);
+  --cat-code-border:      oklch(68% 0.032 220);
+  --cat-code-text:        oklch(72% 0.038 220);
 
-  --cat-sport-bg:         #1F1513;
-  --cat-sport-border:     #B05A40;
-  --cat-sport-text:       #B8806E;
+  --cat-freelance-bg:     oklch(24% 0.022 220);
+  --cat-freelance-border: oklch(70% 0.034 220);
+  --cat-freelance-text:   oklch(74% 0.040 220);
 
-  --cat-reading-bg:       #111921;
-  --cat-reading-border:   #4A72AA;
-  --cat-reading-text:     #7090B5;
+  --cat-sport-bg:         oklch(26% 0.026 220);
+  --cat-sport-border:     oklch(72% 0.036 220);
+  --cat-sport-text:       oklch(76% 0.042 220);
 
-  --cat-fixed-bg:         #1A1A17;
-  --cat-fixed-border:     #6E6D66;
-  --cat-fixed-text:       #8E8D85;
+  --cat-fixed-bg:         oklch(20% 0.012 220);
+  --cat-fixed-border:     oklch(60% 0.025 220);
+  --cat-fixed-text:       oklch(66% 0.030 220);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.30);

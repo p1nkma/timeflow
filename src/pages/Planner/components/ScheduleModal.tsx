@@ -7,9 +7,9 @@ import { addTask } from '../../../features/tasks';
 import { removeInboxItem } from '../../../features/inbox';
 import { showToast } from '../../../features/ui';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
-import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { catStyle } from '../../../shared/utils/categories';
 import { findFreeSlot, fmt } from '../../../shared/utils/time';
-import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, TimePicker, DatePicker } from '../../../shared/ui';
+import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, TimePicker, DatePicker, CategoryChip } from '../../../shared/ui';
 import type { InboxItem } from '../../../shared/types';
 import styles from './ScheduleModal.module.css';
 
@@ -269,7 +269,6 @@ export function ScheduleModal({ item, onClose }: Props) {
   const isPresetActive    = (v: number) => duration === v && !showCustomDur;
   const isCustomDurActive = showCustomDur || !DURATION_PRESETS.some(p => p.value === duration);
 
-  const catLabel    = CATEGORIES[item.cat].label;
   const dateLabel   = DATE_OPTIONS.find(o => o.value === customDate)?.label ?? customDate;
 
   return (
@@ -290,7 +289,7 @@ export function ScheduleModal({ item, onClose }: Props) {
             <div className={styles.taskCard} style={catStyle(item.cat)}>
               <span className={styles.taskCardTitle}>{item.title}</span>
               <div className={styles.taskCardMeta}>
-                <span className={styles.catChip} style={catStyle(item.cat)}>{catLabel}</span>
+                <CategoryChip cat={item.cat} size="xs" variant="pill" />
                 {item.urgent && <span className={styles.urgentBadge}>Срочно</span>}
                 {item.deadline && (
                   <span className={`${styles.deadlineMeta} ${deadlineOverdue ? styles.deadlineOverdue : ''}`}>

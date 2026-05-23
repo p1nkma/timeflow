@@ -1,7 +1,8 @@
 import { useAppSelector } from '../../../app/hooks';
 import { selectUpcomingTasks, selectCurrentTask, selectNextTask } from '../../../features/tasks';
-import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { catStyle } from '../../../shared/utils/categories';
 import { fmt } from '../../../shared/utils/time';
+import { CategoryChip } from '../../../shared/ui';
 import styles from './UpcomingList.module.css';
 
 interface Props {
@@ -35,7 +36,8 @@ export function UpcomingList({ onTaskClick }: Props) {
           >
             <span className={`t-small ${styles.time}`}>{fmt(t.start)}</span>
             <span className={`t-body-md ${styles.title}`}>{t.title}</span>
-            <span className={styles.badge}>{CATEGORIES[t.cat]?.label ?? t.cat}</span>
+            <CategoryChip cat={t.cat} size="xs" uppercase />
+
           </li>
         ))}
       </ul>

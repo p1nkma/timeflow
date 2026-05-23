@@ -182,15 +182,6 @@
 }
 .taskOverdue .taskTitle { color: var(--color-danger-text) !important; }
 
-/* ── Левый акцент-бордер ── */
-.taskAccent {
-  width: 3px;
-  align-self: stretch;
-  flex-shrink: 0;
-  background: var(--cat-border, var(--color-border-strong));
-  border-radius: 0 2px 2px 0;
-}
-
 /* ── Статус-кружок ── */
 .statusDot {
   width: 16px;

@@ -7,8 +7,9 @@ import { useDroppable } from '@dnd-kit/core';
 import { useAppSelector } from '../../../app/hooks';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { selectWorkWindow } from '../../../features/planner';
-import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt } from '../../../shared/utils/time';
+import { CategoryChip } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './PlannerTimeline.module.css';
 
@@ -63,8 +64,6 @@ function buildSlotMap(
 function TaskCard({
   task, isActive, onClick,
 }: { task: Task; isActive: boolean; nowMin: number; onClick: () => void }) {
-  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
-
   return (
     <div
       className={[
@@ -85,9 +84,12 @@ function TaskCard({
         <span className={styles.taskTitle}>{task.title}</span>
         {task.reason && <span className={styles.taskReason}>{task.reason}</span>}
       </div>
-      <span className={styles.catBadge}>
-        {task.source === 'uni' ? 'ВУЗ' : catLabel}
-      </span>
+      <CategoryChip
+        cat={task.cat}
+        size="xs"
+        uppercase
+        label={task.source === 'uni' ? 'ВУЗ' : undefined}
+      />
     </div>
   );
 }

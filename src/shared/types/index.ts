@@ -9,6 +9,7 @@ export interface Category {
   label: string;
   varPrefix: string;
   cls: string;
+  icon: unknown;
 }
 
 // ===== Tasks =====

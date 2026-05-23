@@ -228,15 +228,6 @@
   opacity: 1;
 }
 
-/* Вертикальная полоска цвета категории */
-.contStripe {
-  width: 3px;
-  height: 100%;
-  flex-shrink: 0;
-  background: var(--cat-border, var(--color-border-strong));
-  opacity: 0.8;
-}
-
 .contTitle {
   flex: 1;
   min-width: 0;

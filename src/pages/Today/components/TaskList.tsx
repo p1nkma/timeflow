@@ -4,9 +4,9 @@ import {
   toggleTask, rescheduleTask, moveTaskToEvening,
   selectAllTasks, selectNowMin,
 } from '../../../features/tasks';
-import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown } from '../../../shared/utils/time';
-import { TaskModal } from '../../../shared/ui';
+import { TaskModal, CategoryChip } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './TaskList.module.css';
 
@@ -15,7 +15,6 @@ function TaskCard({
   task, isActive, isNow, isFocused, nowMin, onClick,
 }: { task: Task; isActive: boolean; isNow: boolean; isFocused?: boolean; nowMin: number; onClick: () => void }) {
   const dispatch = useAppDispatch();
-  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
   const cardRef  = useRef<HTMLDivElement>(null);
   const overdueMins = task.overdue ? nowMin - task.start : 0;
 
@@ -73,9 +72,12 @@ function TaskCard({
           </button>
         </div>
       ) : (
-        <span className={styles.catBadge}>
-          {task.source === 'uni' ? 'ВУЗ' : catLabel}
-        </span>
+        <CategoryChip
+          cat={task.cat}
+          size="xs"
+          uppercase
+          label={task.source === 'uni' ? 'ВУЗ' : undefined}
+        />
       )}
     </div>
   );

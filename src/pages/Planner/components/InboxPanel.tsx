@@ -4,7 +4,7 @@ import { ru } from 'date-fns/locale';
 import { useDraggable } from '@dnd-kit/core';
 import { useAppSelector } from '../../../app/hooks';
 import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
-import { Icon, SparklesIcon } from '../../../shared/ui';
+import { Icon, SparklesIcon, CategoryChip } from '../../../shared/ui';
 import type { CategoryKey, InboxItem } from '../../../shared/types';
 import { ScheduleModal } from './ScheduleModal';
 import styles from './InboxPanel.module.css';
@@ -50,9 +50,7 @@ function DraggableInboxItem({
           + В расписание
         </button>
       </div>
-      <span className={styles.catPill}>
-        {(CATEGORIES[item.cat]?.label ?? item.cat).slice(0, 3).toUpperCase()}
-      </span>
+      <CategoryChip cat={item.cat} size="sm" iconOnly aria-label={CATEGORIES[item.cat]?.label ?? item.cat} />
     </li>
   );
 }

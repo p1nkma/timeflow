@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 import { useAppSelector } from '../../../app/hooks';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { selectWorkWindow } from '../../../features/planner';
-import { catStyle, CATEGORIES } from '../../../shared/utils/categories';
+import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt } from '../../../shared/utils/time';
-import { Icon, SparklesIcon, TaskModal } from '../../../shared/ui';
+import { Icon, SparklesIcon, TaskModal, CategoryChip } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './TimelineView.module.css';
 
@@ -49,8 +49,6 @@ function buildSlotMap(
 function TaskCard({
   task, isActive, onClick,
 }: { task: Task; isActive: boolean; onClick: () => void }) {
-  const catLabel = CATEGORIES[task.cat]?.label ?? task.cat;
-
   return (
     <div
       className={[
@@ -66,15 +64,17 @@ function TaskCard({
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
-      <div className={styles.taskAccent} />
       <div className={styles.taskBody}>
         <span className={styles.taskTime}>{rangeFmt(task.start, task.end)}</span>
         <span className={styles.taskTitle}>{task.title}</span>
         {task.reason && <span className={styles.taskReason}>{task.reason}</span>}
       </div>
-      <span className={styles.catBadge}>
-        {task.source === 'uni' ? 'ВУЗ' : catLabel}
-      </span>
+      <CategoryChip
+        cat={task.cat}
+        size="xs"
+        uppercase
+        label={task.source === 'uni' ? 'ВУЗ' : undefined}
+      />
     </div>
   );
 }
@@ -96,7 +96,6 @@ function ContinuationCard({
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
-      <div className={styles.taskAccent} />
       <span className={styles.contText}>↓ продолжается · до {endStr}</span>
     </div>
   );
