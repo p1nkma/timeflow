@@ -89,12 +89,12 @@ export function AIInsightBlock({ period }: { period: Period }) {
         {/* ── основной контент ── */}
         {loading ? (
           <div className={styles.skeleton}>
-            <div className={`skel ${styles.skelLine}`} style={{ width: '92%' }} />
-            <div className={`skel ${styles.skelLine}`} style={{ width: '68%' }} />
-            <div className={`skel ${styles.skelLine}`} style={{ width: '80%', marginTop: 16 }} />
-            <div className={`skel ${styles.skelLine}`} style={{ width: '55%' }} />
-            <div className={`skel ${styles.skelLine}`} style={{ width: '75%', marginTop: 16 }} />
-            <div className={`skel ${styles.skelLine}`} style={{ width: '40%' }} />
+            <div className={`skel ${styles.skelLine}`} style={{ '--w': '92%' } as React.CSSProperties} />
+            <div className={`skel ${styles.skelLine}`} style={{ '--w': '68%' } as React.CSSProperties} />
+            <div className={`skel ${styles.skelLine} ${styles.skelGap}`} style={{ '--w': '80%' } as React.CSSProperties} />
+            <div className={`skel ${styles.skelLine}`} style={{ '--w': '55%' } as React.CSSProperties} />
+            <div className={`skel ${styles.skelLine} ${styles.skelGap}`} style={{ '--w': '75%' } as React.CSSProperties} />
+            <div className={`skel ${styles.skelLine}`} style={{ '--w': '40%' } as React.CSSProperties} />
           </div>
         ) : (
           <>

@@ -10,7 +10,7 @@
   gap: var(--space-3);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 768px) {
   .grid { grid-template-columns: 1fr; }
 }
 
@@ -56,7 +56,7 @@
   top: -6px;
   width: 96px;
   height: 96px;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
+  background-image: radial-gradient(circle, color-mix(in oklch, var(--color-text-inverse) 15%, transparent) 1px, transparent 1px);
   background-size: 12px 12px;
   pointer-events: none;
   mask-image: radial-gradient(ellipse 80% 80% at 80% 20%, black 20%, transparent 70%);
@@ -74,7 +74,7 @@
   font-weight: 500;
   color: var(--color-text-tertiary);
 }
-.cardDark .cardSub { color: rgba(255,255,255,0.6); }
+.cardDark .cardSub { color: var(--color-on-accent-secondary); }
 
 .count {
   font-size: 0.75rem;
@@ -82,7 +82,7 @@
   color: var(--color-text-tertiary);
   font-variant-numeric: tabular-nums;
 }
-.cardDark .count { color: rgba(255,255,255,0.6); }
+.cardDark .count { color: var(--color-on-accent-secondary); }
 
 /* ── Тело ── */
 .cardBody {
@@ -108,13 +108,13 @@
   letter-spacing: 0.04em;
   font-weight: 500;
 }
-.cardDark .currentReason { color: rgba(255,255,255,0.5); }
+.cardDark .currentReason { color: var(--color-on-accent-tertiary); }
 
 .closed {
   font-size: 0.8125rem;
   color: var(--color-text-tertiary);
 }
-.cardDark .closed { color: rgba(255,255,255,0.5); }
+.cardDark .closed { color: var(--color-on-accent-tertiary); }
 
 .closedSummary {
   display: flex;
@@ -124,7 +124,7 @@
   font-weight: 500;
   color: var(--color-success-text);
 }
-.cardDark .closedSummary { color: rgba(255,255,255,0.75); }
+.cardDark .closedSummary { color: var(--color-on-accent); }
 
 /* ── Dots категорий — всегда цветные ── */
 .dots {

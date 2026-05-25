@@ -32,7 +32,7 @@
   font-weight: 500;
   cursor: pointer;
   border: 1px solid var(--color-border-default);
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
 }
 .btnGenerate:hover {
   background: var(--color-bg-tertiary);

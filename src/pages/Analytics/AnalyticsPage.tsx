@@ -43,7 +43,7 @@ export function AnalyticsPage() {
     <div className={styles.page}>
       <div className={styles.stickyTop}>
         <div className={styles.header}>
-          <h2 className="t-h2">Аналитика</h2>
+          <h1 className="t-h2">Аналитика</h1>
           <div className={styles.periodSwitch}>
             {(['7', '30', '90'] as Period[]).map(p => (
               <button

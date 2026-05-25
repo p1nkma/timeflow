@@ -27,6 +27,7 @@ export {
   Notification01Icon,
   ArrowRight01Icon,
   ArrowDown01Icon,
+  ArrowUp01Icon,
   Refresh01Icon,
   FilterHorizontalIcon,
   AlertCircleIcon,
@@ -36,6 +37,8 @@ export {
   MoreVerticalIcon,
   Edit01Icon,
   ArrowLeft01Icon,
+  Timer01Icon,
+  FireIcon,
 } from '@hugeicons/core-free-icons';
 
 type HugeIconProps = ComponentProps<typeof HugeiconsIcon>;

@@ -139,6 +139,10 @@
   min-width: 0;
 }
 
+.profileName {
+  font-weight: 500;
+}
+
 /* ── Schedule ── */
 .schedule {
   display: flex;

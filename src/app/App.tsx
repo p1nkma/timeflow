@@ -5,7 +5,7 @@ import { toggleDarkMode } from '../features/ui';
 import { setNowMin } from '../features/tasks';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 import { BottomNav } from '../components/BottomNav/BottomNav';
-import { Toast, Fab, NewTaskModal } from '../shared/ui';
+import { Toast, Fab, QuickAddModal } from '../shared/ui';
 import { TodayPage } from '../pages/Today/TodayPage';
 import { PlannerPage } from '../pages/Planner/PlannerPage';
 import { AnalyticsPage } from '../pages/Analytics/AnalyticsPage';
@@ -54,7 +54,7 @@ export function App() {
       <BottomNav />
       <Toast />
       <Fab onClick={() => setShowNewTask(true)} />
-      {showNewTask && <NewTaskModal onClose={() => setShowNewTask(false)} />}
+      {showNewTask && <QuickAddModal onClose={() => setShowNewTask(false)} />}
     </div>
   );
 }

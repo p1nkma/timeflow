@@ -16,7 +16,7 @@ const CHRONOTYPE_OPTIONS: { value: ChronoType; label: string; hint: string }[] =
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className={styles.section}>
-      <h3 className={`t-xs ${styles.sectionTitle}`}>{title}</h3>
+      <h2 className={`t-xs ${styles.sectionTitle}`}>{title}</h2>
       <div className={styles.sectionBody}>{children}</div>
     </section>
   );
@@ -42,7 +42,7 @@ export function SettingsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.stickyTop}>
-        <h2 className="t-h2">Настройки</h2>
+        <h1 className="t-h2">Настройки</h1>
       </div>
 
       <div className={styles.content}>
@@ -52,7 +52,7 @@ export function SettingsPage() {
           <div className={styles.profileCard}>
             <div className={styles.avatar}>МП</div>
             <div className={styles.profileInfo}>
-              <span className="t-body" style={{ fontWeight: 500 }}>Михаил Полунин</span>
+              <span className={`t-body ${styles.profileName}`}>Михаил Полунин</span>
               <span className="t-small muted">poluninmisa140@gmail.com</span>
               <span className="t-small muted">МГТУ · Программная инженерия</span>
             </div>

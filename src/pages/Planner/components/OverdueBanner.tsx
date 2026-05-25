@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { format, addDays } from 'date-fns';
-import { createPortal } from 'react-dom';
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
 import { selectAllTasks, deleteTask, moveTaskToDate } from '../../../features/tasks';
 import { Icon, Cancel01Icon } from '../../../shared/ui/Icon/Icon';
+import { ModalShell } from '../../../shared/ui/ModalShell/ModalShell';
 import { fmt } from '../../../shared/utils/time';
 import type { Task } from '../../../shared/types';
 import styles from './OverdueBanner.module.css';
@@ -22,10 +22,13 @@ function ReschedulePopover({
     onClose();
   }
 
-  return createPortal(
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.popover}>
+  return (
+    <ModalShell
+      onClose={onClose}
+      backdropClassName={styles.backdrop}
+      className={styles.popover}
+      ariaLabel={`Перенести: ${task.title}`}
+    >
         <div className={styles.popoverTitle}>Перенести: {task.title}</div>
         <div className={styles.popoverRow}>
           <span className={styles.popoverLabel}>Дата</span>
@@ -54,9 +57,7 @@ function ReschedulePopover({
           </select>
         </div>
         <button className={styles.confirmBtn} onClick={confirm}>Перенести</button>
-      </div>
-    </>,
-    document.body,
+    </ModalShell>
   );
 }
 

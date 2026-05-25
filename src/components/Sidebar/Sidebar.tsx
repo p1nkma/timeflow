@@ -1,6 +1,6 @@
 import type { IconSvgElement } from '@hugeicons/react';
 import { useNavigate, useLocation } from 'react-router';
-import { StreakBadge, Icon,
+import { Icon,
   Clock01Icon, Calendar03Icon, Analytics01Icon, Setting06Icon } from '../../shared/ui';
 import styles from './Sidebar.module.css';
 
@@ -15,8 +15,6 @@ const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
   { path: '/analytics', label: 'Аналитика',   icon: Analytics01Icon },
   { path: '/settings',  label: 'Настройки',   icon: Setting06Icon },
 ];
-
-const STREAK = 7;
 
 export function Sidebar(_props: SidebarProps) {
   const navigate = useNavigate();
@@ -44,8 +42,6 @@ export function Sidebar(_props: SidebarProps) {
       </nav>
 
       <div className={styles.footer}>
-        {STREAK > 0 && <StreakBadge n={STREAK} />}
-
         <button
           className={styles.userChip}
           onClick={() => navigate('/settings')}

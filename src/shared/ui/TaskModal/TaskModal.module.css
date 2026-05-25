@@ -1,13 +1,12 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: var(--z-modal);
   padding: var(--space-4);
-  backdrop-filter: blur(2px);
 }
 
 .modal {
@@ -77,7 +76,7 @@
   justify-content: center;
   font-size: 1rem;
   line-height: 1;
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
   flex-shrink: 0;
 }
 .closeBtn:hover {
@@ -107,7 +106,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
   flex-shrink: 0;
 }
 .kebabBtn:hover {
@@ -788,7 +787,7 @@ html.dark .deleteWarning {
   font-size: 0.8125rem;
   cursor: pointer;
   min-height: 44px;
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
 }
 .btnSecondary:hover {
   background: var(--color-bg-tertiary);

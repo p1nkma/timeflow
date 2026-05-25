@@ -9,7 +9,7 @@
   border-radius: var(--radius-md);
   font-size: 0.8125rem;
   box-shadow: var(--shadow-md);
-  z-index: 200;
+  z-index: var(--z-toast);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -19,7 +19,7 @@
 
 .undoBtn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid color-mix(in oklch, var(--color-text-inverse) 40%, transparent);
   color: inherit;
   font-size: 0.75rem;
   font-weight: 600;
@@ -30,7 +30,7 @@
   white-space: nowrap;
 }
 .undoBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: color-mix(in oklch, var(--color-text-inverse) 15%, transparent);
 }
 
 @keyframes toast-in {

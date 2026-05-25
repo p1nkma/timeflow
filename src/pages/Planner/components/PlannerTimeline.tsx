@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
 import { format, addDays, subDays, isToday } from 'date-fns';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { ru } from 'date-fns/locale';
 import { useDroppable } from '@dnd-kit/core';
 import { useAppSelector } from '../../../app/hooks';
@@ -9,7 +7,7 @@ import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { selectWorkWindow } from '../../../features/planner';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt } from '../../../shared/utils/time';
-import { CategoryChip } from '../../../shared/ui';
+import { CategoryChip, Icon, ArrowUp01Icon, ArrowDown01Icon } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './PlannerTimeline.module.css';
 
@@ -74,8 +72,8 @@ function TaskCard({
       ].filter(Boolean).join(' ')}
       style={catStyle(task.cat)}
       role="button" tabIndex={0}
-      aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}`}
-      aria-pressed={task.done} aria-expanded={isActive}
+      aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}${task.done ? ', выполнено' : ''}`}
+      aria-expanded={isActive}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
@@ -84,12 +82,14 @@ function TaskCard({
         <span className={styles.taskTitle}>{task.title}</span>
         {task.reason && <span className={styles.taskReason}>{task.reason}</span>}
       </div>
-      <CategoryChip
-        cat={task.cat}
-        size="xs"
-        uppercase
-        label={task.source === 'uni' ? 'ВУЗ' : undefined}
-      />
+      <div className={styles.taskMeta}>
+        <CategoryChip
+          cat={task.cat}
+          size="xs"
+          uppercase
+          label={task.source === 'uni' ? 'ВУЗ' : undefined}
+        />
+      </div>
     </div>
   );
 }
@@ -101,7 +101,6 @@ function ContinuationCard({
   const endH   = Math.floor(task.end / 60);
   const endMin = task.end % 60;
   const endStr = `${endH}:${endMin.toString().padStart(2, '0')}`;
-  const durationMin = task.end - task.start;
 
   return (
     <div
@@ -114,10 +113,7 @@ function ContinuationCard({
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
       <span className={styles.contTitle}>{task.title}</span>
-      <span className={styles.contMeta}>
-        <HugeiconsIcon icon={ArrowDown01Icon} size={10} strokeWidth={2} color="currentColor" />
-        до {endStr} · {durationMin} мин
-      </span>
+      <span className={styles.contMeta}>до {endStr}</span>
     </div>
   );
 }
@@ -209,7 +205,7 @@ function HourSlot({
                       disabled={!hasPrev}
                       aria-label="Предыдущие задачи"
                     >
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 8L6 4L10 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <Icon icon={ArrowUp01Icon} size={12} strokeWidth={1.5} />
                     </button>
                     <button
                       className={styles.pageBtn}
@@ -217,7 +213,7 @@ function HourSlot({
                       disabled={!hasNext}
                       aria-label="Следующие задачи"
                     >
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <Icon icon={ArrowDown01Icon} size={12} strokeWidth={1.5} />
                     </button>
                   </div>
                 )}

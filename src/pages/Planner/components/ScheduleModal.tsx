@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { format, addDays, parseISO, isBefore, startOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
@@ -9,7 +8,7 @@ import { showToast } from '../../../features/ui';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { catStyle } from '../../../shared/utils/categories';
 import { findFreeSlot, fmt } from '../../../shared/utils/time';
-import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, TimePicker, DatePicker, CategoryChip } from '../../../shared/ui';
+import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, TimePicker, DatePicker, CategoryChip, ModalShell } from '../../../shared/ui';
 import type { InboxItem } from '../../../shared/types';
 import styles from './ScheduleModal.module.css';
 
@@ -92,19 +91,13 @@ function Sheet({
   onClose: () => void;
   children: React.ReactNode;
 }) {
-  // Close on Escape
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose(); }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  return createPortal(
-    <div
-      className={styles.sheetBackdrop}
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+  return (
+    <ModalShell
+      onClose={onClose}
+      backdropClassName={styles.sheetBackdrop}
+      className={styles.sheet}
+      ariaLabel={title}
     >
-      <div className={styles.sheet} role="dialog" aria-modal="true" aria-label={title}>
         <div className={styles.sheetHandle} />
         <div className={styles.sheetHeader}>
           <span className={styles.sheetTitle}>{title}</span>
@@ -115,9 +108,7 @@ function Sheet({
         <div className={styles.sheetBody}>
           {children}
         </div>
-      </div>
-    </div>,
-    document.body,
+    </ModalShell>
   );
 }
 
@@ -273,9 +264,12 @@ export function ScheduleModal({ item, onClose }: Props) {
 
   return (
     <>
-      <div className={styles.backdrop} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-        <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Добавить в расписание">
-
+      <ModalShell
+        onClose={onClose}
+        backdropClassName={styles.backdrop}
+        className={styles.modal}
+        ariaLabel="Добавить в расписание"
+      >
           {/* Header */}
           <div className={styles.header}>
             <span className={styles.title}>В расписание</span>
@@ -434,9 +428,7 @@ export function ScheduleModal({ item, onClose }: Props) {
               Поставить в расписание
             </button>
           </div>
-
-        </div>
-      </div>
+      </ModalShell>
 
       {/* Sheets — rendered via portal above everything */}
       {sheetOpen === 'date' && (

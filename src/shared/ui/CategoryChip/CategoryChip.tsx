@@ -37,6 +37,7 @@ export function CategoryChip({
         styles.chip,
         styles[`size_${size}`],
         styles[`variant_${variant}`],
+        iconOnly ? styles.iconOnly : '',
         uppercase ? styles.uppercase : '',
         className ?? '',
       ].filter(Boolean).join(' ')}

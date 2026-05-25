@@ -4,7 +4,7 @@ import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { selectWorkWindow } from '../../../features/planner';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt } from '../../../shared/utils/time';
-import { Icon, SparklesIcon, TaskModal, CategoryChip } from '../../../shared/ui';
+import { Icon, SparklesIcon, ArrowUp01Icon, ArrowDown01Icon, TaskModal, CategoryChip } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './TimelineView.module.css';
 
@@ -59,8 +59,8 @@ function TaskCard({
       ].filter(Boolean).join(' ')}
       style={catStyle(task.cat)}
       role="button" tabIndex={0}
-      aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}`}
-      aria-pressed={task.done} aria-expanded={isActive}
+      aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}${task.done ? ', выполнено' : ''}`}
+      aria-expanded={isActive}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
@@ -69,12 +69,14 @@ function TaskCard({
         <span className={styles.taskTitle}>{task.title}</span>
         {task.reason && <span className={styles.taskReason}>{task.reason}</span>}
       </div>
-      <CategoryChip
-        cat={task.cat}
-        size="xs"
-        uppercase
-        label={task.source === 'uni' ? 'ВУЗ' : undefined}
-      />
+      <div className={styles.taskMeta}>
+        <CategoryChip
+          cat={task.cat}
+          size="xs"
+          uppercase
+          label={task.source === 'uni' ? 'ВУЗ' : undefined}
+        />
+      </div>
     </div>
   );
 }
@@ -140,10 +142,7 @@ function HourSlot({
             )}
             {primary.length > 0 && (
               <div className={styles.pageWrap}>
-                <div
-                  className={styles.taskRow}
-                  style={{ gridTemplateColumns: visible.length === 1 ? '1fr' : '1fr 1fr' }}
-                >
+                <div className={`${styles.taskRow} ${visible.length === 1 ? styles.taskRowSingle : ''}`}>
                   {visible.map(t => (
                     <TaskCard
                       key={t.id} task={t}
@@ -161,7 +160,7 @@ function HourSlot({
                       disabled={!hasPrev}
                       aria-label="Предыдущие задачи"
                     >
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 8L6 4L10 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <Icon icon={ArrowUp01Icon} size={12} strokeWidth={1.5} />
                     </button>
                     <button
                       className={styles.pageBtn}
@@ -169,7 +168,7 @@ function HourSlot({
                       disabled={!hasNext}
                       aria-label="Следующие задачи"
                     >
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <Icon icon={ArrowDown01Icon} size={12} strokeWidth={1.5} />
                     </button>
                   </div>
                 )}

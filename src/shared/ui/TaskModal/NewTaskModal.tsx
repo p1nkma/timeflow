@@ -1,10 +1,10 @@
-import { createPortal } from 'react-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { addTask, selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { addInboxItem } from '../../../features/inbox';
 import { showToast } from '../../../features/ui';
 import { findFreeSlot } from '../../utils/time';
 import { Icon, Cancel01Icon } from '../Icon/Icon';
+import { ModalShell } from '../ModalShell/ModalShell';
 import { TaskForm } from './TaskForm';
 import { TODAY_ISO } from './constants';
 import { formValuesToTaskPatch, useTaskForm } from './useTaskForm';
@@ -59,10 +59,13 @@ export function NewTaskModal({ onClose, defaultDestination = 'schedule' }: Props
     onClose();
   }
 
-  return createPortal(
-    <div className={styles.backdrop} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={styles.newModal} role="dialog" aria-modal="true" aria-label="Новая задача">
-
+  return (
+    <ModalShell
+      onClose={onClose}
+      backdropClassName={styles.backdrop}
+      className={styles.newModal}
+      ariaLabel="Новая задача"
+    >
         {/* Header: title + close */}
         <div className={styles.newHeader}>
           <span className={styles.newHeaderTitle}>Новая задача</span>
@@ -106,8 +109,6 @@ export function NewTaskModal({ onClose, defaultDestination = 'schedule' }: Props
           </button>
           <button className={styles.btnSecondary} onClick={onClose}>Отмена</button>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </ModalShell>
   );
 }

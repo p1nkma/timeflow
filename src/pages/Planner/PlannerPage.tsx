@@ -6,7 +6,7 @@ import {
 import { OverdueBanner }   from './components/OverdueBanner';
 import { PlannerTimeline } from './components/PlannerTimeline';
 import { TaskSidePanel }   from './components/TaskSidePanel';
-import { Icon, SparklesIcon, PlusSignIcon, TaskModal, NewTaskModal } from '../../shared/ui';
+import { Icon, SparklesIcon, PlusSignIcon, TaskModal, QuickAddModal } from '../../shared/ui';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectAllTasks, addTask } from '../../features/tasks';
 import { removeInboxItem } from '../../features/inbox';
@@ -77,7 +77,7 @@ export function PlannerPage() {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className={styles.page}>
         <div className={styles.header}>
-          <h2 className="t-h2">Планировщик</h2>
+          <h1 className="t-h2">Планировщик</h1>
           <div className={styles.headerActions}>
             <button className={styles.btnGenerate} aria-label="Сгенерировать план с помощью ИИ">
               <Icon icon={SparklesIcon} size={15} />
@@ -111,7 +111,7 @@ export function PlannerPage() {
         )}
 
         {showNewTask && (
-          <NewTaskModal onClose={() => setShowNewTask(false)} />
+          <QuickAddModal onClose={() => setShowNewTask(false)} />
         )}
       </div>
 

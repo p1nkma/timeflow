@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { catStyle } from '../../utils/categories';
 import { Icon, Cancel01Icon, Delete01Icon, Edit01Icon } from '../Icon/Icon';
+import { ModalShell } from '../ModalShell/ModalShell';
 import type { Task } from '../../types';
 import { DeleteConfirm } from './DeleteConfirm';
 import { ViewMode }      from './ViewMode';
@@ -17,12 +17,16 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
   const [showDelete, setShowDelete] = useState(false);
 
   if (showDelete) {
-    return createPortal(<DeleteConfirm task={task} onClose={onClose} />, document.body);
+    return <DeleteConfirm task={task} onClose={onClose} />;
   }
 
-  return createPortal(
-    <div className={styles.backdrop} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-label={task.title}>
+  return (
+    <ModalShell
+      onClose={onClose}
+      backdropClassName={styles.backdrop}
+      className={styles.modal}
+      ariaLabel={task.title}
+    >
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <div className={styles.catDot} style={catStyle(task.cat)} />
@@ -64,9 +68,7 @@ export function TaskModal({ task, onClose }: TaskModalProps) {
             onDelete={() => setShowDelete(true)}
           />
         )}
-      </div>
-    </div>,
-    document.body,
+    </ModalShell>
   );
 }
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAppDispatch } from '../../../app/hooks';
 import { deleteTask } from '../../../features/tasks';
 import { Icon, Cancel01Icon, Delete01Icon } from '../Icon/Icon';
+import { ModalShell } from '../ModalShell/ModalShell';
 import type { Task } from '../../types';
 import styles from './TaskModal.module.css';
 
@@ -12,8 +13,12 @@ export function DeleteConfirm({ task, onClose }: Props) {
   const [confirmed, setConfirmed] = useState(false);
 
   return (
-    <div className={styles.backdrop} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Удалить задачу">
+    <ModalShell
+      onClose={onClose}
+      backdropClassName={styles.backdrop}
+      className={styles.modal}
+      ariaLabel="Удалить задачу"
+    >
         <div className={styles.header}>
           <span className={styles.headerTitle}>Удалить задачу</span>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Закрыть">
@@ -50,7 +55,6 @@ export function DeleteConfirm({ task, onClose }: Props) {
           </button>
           <button className={styles.btnSecondary} onClick={onClose}>Отмена</button>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

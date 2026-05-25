@@ -133,7 +133,7 @@
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
 }
 .dateBtn:hover { border-color: var(--color-accent-primary); color: var(--color-text-primary); }
 .dateBtnActive {

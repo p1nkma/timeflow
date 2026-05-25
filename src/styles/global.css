@@ -14,7 +14,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss01", "cv11";
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
 
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }

@@ -56,7 +56,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
 }
 .filterBtn:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
 .filterBtnOpen {
@@ -97,7 +97,7 @@
   background: var(--color-bg-elevated);
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
 }
 .chip:hover { border-color: var(--color-accent-primary); color: var(--color-text-primary); }
 .chipActive {
@@ -118,7 +118,7 @@
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
   min-height: 32px;
 }
 .btnAdd:hover {
