@@ -16,11 +16,6 @@ export const selectNextTask = createSelector(
   (tasks, now) => tasks.filter(t => !t.done && !t.isBreak && t.start > now)[0] ?? null,
 );
 
-export const selectUpcomingTasks = createSelector(
-  selectAllTasks, selectNowMin,
-  (tasks, now) => tasks.filter(t => !t.done && !t.isBreak && t.start > now),
-);
-
 export const selectDoneTasks = createSelector(
   selectAllTasks,
   tasks => tasks.filter(t => t.done && !t.isBreak),

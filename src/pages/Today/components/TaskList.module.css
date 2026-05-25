@@ -1,10 +1,3 @@
-/* ── Корень ── */
-.root {
-  display: flex;
-  gap: var(--space-4);
-  align-items: flex-start;
-}
-
 .list {
   flex: 1;
   min-width: 0;
@@ -58,17 +51,23 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Текущая задача — лёгкий акцент */
+/* Текущая задача — акцентная полоса слева + тинт фона */
 .taskNow {
-  outline: 2px solid color-mix(in oklch, var(--color-accent-primary) 25%, transparent);
-  outline-offset: -1px;
+  border-left: 3px solid var(--color-accent-primary);
+  padding-left: calc(var(--space-3) - 3px);
+  background:
+    linear-gradient(to right,
+      rgba(30, 41, 45, 0.03) 0%,
+      transparent 40%),
+    var(--color-bg-elevated);
+  box-shadow: var(--shadow-sm);
 }
 
 .taskDone { opacity: 0.45; }
 
 /* Задача, переданная из вкладки «Сегменты» — кратковременный пульс-акцент */
 .taskFocused {
-  animation: focusPulse 900ms ease-out forwards;
+  animation: focusPulse 600ms ease-out forwards;
 }
 
 @keyframes focusPulse {
@@ -77,14 +76,12 @@
 }
 
 .taskOverdue {
-  background: color-mix(in oklch, var(--color-danger-bg) 70%, var(--color-danger-text) 5%) !important;
-  border: 2px solid color-mix(in oklch, var(--color-danger-text) 55%, transparent) !important;
-  box-shadow: 0 0 0 1px color-mix(in oklch, var(--color-danger-text) 12%, transparent) !important;
+  background: var(--color-danger-bg);
 }
-.taskOverdue .taskTitle { color: var(--color-danger-text) !important; }
-.taskOverdue .taskTime  { color: var(--color-danger-text) !important; opacity: 0.75; }
+.taskOverdue .taskTitle { color: var(--color-danger-text); }
+.taskOverdue .taskTime  { color: var(--color-danger-text); opacity: 0.75; }
 
-/* ── Статус-кружок ── */
+/* ── Статус-кружок (visible 16px, hit-area 24px) ── */
 .statusDot {
   width: 16px;
   height: 16px;
@@ -95,10 +92,17 @@
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 150ms, border-color 150ms;
+}
+.statusDot::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
 }
 
 .statusDotDone {
@@ -110,7 +114,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: white;
+  background: var(--color-text-inverse);
 }
 
 /* ── Тело карточки ── */
@@ -157,12 +161,17 @@
   flex-shrink: 0;
   align-self: center;
   opacity: 0;
-  transition: opacity 150ms;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 150ms, visibility 0s linear 150ms;
 }
 
 .task:hover .overdueActions,
 .taskActive .overdueActions {
   opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 150ms, visibility 0s linear 0s;
 }
 
 .overdueBtn {
@@ -190,21 +199,6 @@
 .overdueBtnSecondary:hover {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
-}
-
-/* ── Бейдж категории ── */
-.catBadge {
-  flex-shrink: 0;
-  align-self: center;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--cat-bg, var(--color-bg-secondary));
-  color: var(--cat-text, var(--color-text-secondary));
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 /* ── Разделитель выполненных ── */
@@ -243,105 +237,9 @@
   padding: var(--space-6) 0;
 }
 
-/* ── Drawer деталей ── */
-.drawer {
-  width: 280px;
+.taskMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   flex-shrink: 0;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-xl);
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  position: sticky;
-  top: 0;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-md);
 }
-
-@media (max-width: 768px) {
-  .root   { flex-direction: column; }
-  .drawer { width: 100%; position: static; max-height: none; }
-}
-
-.drawerHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.drawerCatBadge {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 3px var(--space-2);
-  border-radius: var(--radius-sm);
-  background: var(--cat-bg);
-  color: var(--cat-text);
-}
-
-.drawerClose {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-md);
-  border: none;
-  background: transparent;
-  color: var(--color-text-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 150ms, color 150ms;
-}
-.drawerClose:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
-
-.drawerTitle { color: var(--color-text-primary); line-height: 1.3; }
-.drawerDone  { opacity: 0.5; color: var(--color-text-tertiary); }
-
-.drawerMeta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.drawerLocked {
-  background: var(--cat-fixed-bg);
-  color: var(--cat-fixed-text);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-}
-
-.drawerAi {
-  background: var(--color-info-bg);
-  color: var(--color-info-text);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-}
-
-.drawerReason { margin: 0; line-height: 1.55; }
-
-.drawerBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-default);
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 150ms;
-  width: 100%;
-  justify-content: center;
-}
-.drawerBtn:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
-.drawerBtnDone { border-color: var(--color-success-text); color: var(--color-success-text); }
-.drawerBtnDone:hover { background: var(--color-success-bg); }

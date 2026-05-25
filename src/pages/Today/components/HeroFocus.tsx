@@ -1,24 +1,53 @@
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import {
   toggleTask, updateTask, startTaskNow, rescheduleTask,
-  selectCurrentTask, selectNextTask, selectNowMin,
+  selectCurrentTask, selectNextTask, selectNowMin, selectRealTasks,
 } from '../../../features/tasks';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown, fmtRemaining } from '../../../shared/utils/time';
 import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, CategoryChip } from '../../../shared/ui';
+import type { EnergyLevel } from '../../../shared/types';
 import styles from './HeroFocus.module.css';
+
+const ENERGY_LABEL: Record<EnergyLevel, string> = {
+  low:    'лёгкая',
+  medium: 'средняя',
+  high:   'тяжёлая',
+};
+
+function EnergyBadge({ level }: { level: EnergyLevel }) {
+  return (
+    <span className={styles.energyBadge} aria-label={`Нагрузка: ${ENERGY_LABEL[level]}`}>
+      {ENERGY_LABEL[level]}
+    </span>
+  );
+}
 
 export function HeroFocus() {
   const dispatch = useAppDispatch();
   const nowMin   = useAppSelector(selectNowMin);
   const current  = useAppSelector(selectCurrentTask);
   const next     = useAppSelector(selectNextTask);
+  const realTasks = useAppSelector(selectRealTasks);
   const task     = current ?? next;
 
   if (!task) {
+    const noPlan = realTasks.length === 0;
     return (
       <div className={styles.hero}>
-        <p className={`${styles.empty} muted t-body`}>На сегодня всё выполнено</p>
+        {noPlan ? (
+          <div className={styles.emptyState}>
+            <p className={`${styles.emptyTitle} t-h3`}>План на сегодня ещё не создан</p>
+            <p className={`${styles.emptySub} muted t-body`}>
+              Сгенерируй план или добавь задачи вручную через «+»
+            </p>
+          </div>
+        ) : (
+          <div className={styles.emptyState}>
+            <p className={`${styles.emptyTitle} t-h3`}>Всё запланированное выполнено</p>
+            <p className={`${styles.emptySub} muted t-body`}>Хороший день. Можно подвести итоги.</p>
+          </div>
+        )}
       </div>
     );
   }
@@ -48,10 +77,11 @@ export function HeroFocus() {
       <div className={styles.meta}>
         <span className={`t-small muted ${styles.label}`}>{label}</span>
         <span className="t-small muted">{dur} мин</span>
+        {task.energy && <EnergyBadge level={task.energy} />}
         {task.cat && <CategoryChip cat={task.cat} size="sm" variant="pill" />}
       </div>
 
-      <h1 className={`t-h1 ${styles.title}`}>{task.title}</h1>
+      <h2 className={`t-h1 ${styles.title}`}>{task.title}</h2>
 
       {task.reason && (
         <p className={`t-body-md muted ${styles.reason}`}>{task.reason}</p>

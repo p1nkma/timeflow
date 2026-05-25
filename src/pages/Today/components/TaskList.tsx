@@ -20,7 +20,8 @@ function TaskCard({
 
   useEffect(() => {
     if (isFocused && cardRef.current) {
-      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      cardRef.current.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
     }
   }, [isFocused]);
 
@@ -37,8 +38,8 @@ function TaskCard({
       ].filter(Boolean).join(' ')}
       style={catStyle(task.cat)}
       role="button" tabIndex={0}
-      aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}`}
-      aria-pressed={task.done} aria-expanded={isActive}
+      aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}${task.done ? ', выполнено' : ''}`}
+      aria-expanded={isActive}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
@@ -72,12 +73,14 @@ function TaskCard({
           </button>
         </div>
       ) : (
-        <CategoryChip
-          cat={task.cat}
-          size="xs"
-          uppercase
-          label={task.source === 'uni' ? 'ВУЗ' : undefined}
-        />
+        <div className={styles.taskMeta}>
+          <CategoryChip
+            cat={task.cat}
+            size="xs"
+            uppercase
+            label={task.source === 'uni' ? 'ВУЗ' : undefined}
+          />
+        </div>
       )}
     </div>
   );
@@ -94,7 +97,7 @@ interface TaskListProps {
   onTaskClick?: (id: string) => void;
 }
 
-const DONE_COLLAPSE_THRESHOLD = 5;
+const DONE_COLLAPSE_THRESHOLD = 3;
 
 /* ── Основной компонент ── */
 export function TaskList({ filterRange, focusTaskId, onFocusConsumed, onTaskClick }: TaskListProps) {
@@ -152,17 +155,21 @@ export function TaskList({ filterRange, focusTaskId, onFocusConsumed, onTaskClic
   const label = filterRange ? filterRange.label : 'Задачи дня';
 
   if (realTasks.length === 0) {
-    return (
-      <div className={styles.empty}>
-        <span className="t-body muted">{filterRange ? 'В этом блоке задач нет' : 'День свободен'}</span>
-      </div>
-    );
+    if (filterRange) {
+      return (
+        <div className={styles.empty}>
+          <span className="t-body muted">В этом блоке задач нет</span>
+        </div>
+      );
+    }
+    // На полном Today empty state уже показан в HeroFocus — здесь не дублируем
+    return null;
   }
 
   return (
     <div className={styles.list}>
         <div className={styles.listHeader}>
-          <span className="t-small muted" style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: 11, fontWeight: 600 }}>
+          <span className="t-xs muted">
             {label}
           </span>
           <span className="t-small muted">

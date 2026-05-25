@@ -4,10 +4,10 @@
 
 :root {
   /* Background — elevation model: higher = lighter */
-  --color-bg-primary:       #f4f8f9;  /* основной фон — мягкий нейтральный */
-  --color-bg-secondary:     #ffffff;  /* карточки — белые, "парят" над фоном */
-  --color-bg-tertiary:      #e0fbfc;  /* сайдбар, акценты, hover — фирменный циан */
-  --color-bg-elevated:      #ffffff;  /* попапы, модалки */
+  --color-bg-primary:       #e6ebee;  /* фон страницы — глубокий, зеркально dark */
+  --color-bg-secondary:     #eef2f4;  /* sidebar, секции — промежуточный слой */
+  --color-bg-tertiary:      #e0fbfc;  /* hover/active — фирменный циан */
+  --color-bg-elevated:      #ffffff;  /* карточки, hero, modal — самый верх */
 
   /* Accent */
   --color-accent-primary:       #1e292d;
@@ -20,9 +20,14 @@
   --color-text-tertiary:    #627781;
   --color-text-inverse:     #ffffff;
 
+  /* Text on dark accent surface (e.g. cardDark) */
+  --color-on-accent:           rgba(255, 255, 255, 0.92);
+  --color-on-accent-secondary: rgba(255, 255, 255, 0.70);
+  --color-on-accent-tertiary:  rgba(255, 255, 255, 0.50);
+
   /* Borders */
-  --color-border-default:   rgba(30, 41, 45, 0.06);
-  --color-border-strong:    rgba(30, 41, 45, 0.15);
+  --color-border-default:   rgba(30, 41, 45, 0.05);
+  --color-border-strong:    rgba(30, 41, 45, 0.12);
 
   /* Semantic */
   --color-success-bg:   #E1F5EE;
@@ -93,6 +98,10 @@
   --sidebar-w: 248px;
   --topbar-h: 64px;
 
+  /* Breakpoints (для документации; @media custom-media пока не поддержано без PostCSS) */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+
   /* Z-index scale */
   --z-base:    1;
   --z-raised:  5;
@@ -101,10 +110,10 @@
   --z-toast:   30;
 
   /* Energy zones — distinct, harmonious, readable */
-  --ez-peak:   #C5EDE0;  /* 9–12  пик: mint-green, свежий и заряженный */
-  --ez-medium: #C5DCF0;  /* 12–17 работа: спокойный синий */
-  --ez-low:    #D8D5F5;  /* 17–20 спад: мягкий лавандовый */
-  --ez-dip:    #F5EDD5;  /* утро/ночь: тёплый бежевый, отдых */
+  --ez-peak:   #D5DFEC;  /* 9–12  Фокус: холодно-голубой */
+  --ez-medium: #D4E7DA;  /* 12–17 Поток: шалфейный */
+  --ez-low:    #C8C2B9;  /* 17–20 Рутина: пыльно-бежевый */
+  --ez-dip:    #F1B8A9;  /* утро/ночь: Перезагрузка, мягкий персиковый */
 }
 
 html.dark {
@@ -121,6 +130,10 @@ html.dark {
   --color-text-secondary:   #9db4c0;
   --color-text-tertiary:    #5c6b73;
   --color-text-inverse:     #253237;
+
+  --color-on-accent:           rgba(37, 50, 55, 0.92);
+  --color-on-accent-secondary: rgba(37, 50, 55, 0.65);
+  --color-on-accent-tertiary:  rgba(37, 50, 55, 0.45);
 
   --color-border-default:   rgba(224, 251, 252, 0.08);
   --color-border-strong:    rgba(224, 251, 252, 0.18);
@@ -165,9 +178,9 @@ html.dark {
 
   --focus-ring: 0 0 0 3px rgba(224, 251, 252, 0.25);
 
-  --ez-peak:   #162E24;  /* пик: глубокий mint-green */
-  --ez-medium: #162333;  /* работа: тёмный navy-blue */
-  --ez-low:    #1E1A30;  /* спад: тёмный лавандовый */
-  --ez-dip:    #282218;  /* отдых: тёмный тёплый беж */
+  --ez-peak:   #0F3D28;  /* пик: obsidian teal */
+  --ez-medium: #0C2240;  /* работа: obsidian navy */
+  --ez-low:    #1C1038;  /* спад: obsidian purple */
+  --ez-dip:    #2E1C0A;  /* отдых: obsidian sienna */
 }
 

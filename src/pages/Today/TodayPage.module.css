@@ -42,7 +42,7 @@
   font-weight: 500;
   cursor: pointer;
   border: 1px solid var(--color-border-default);
-  transition: all 150ms;
+  transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
 }
 .btnGenerate:hover {
   background: var(--color-bg-tertiary);
@@ -58,51 +58,11 @@
 }
 .btnGenerateMorning:hover { opacity: .85; background: var(--color-accent-primary); color: var(--color-text-inverse); }
 
-.btnNewTask {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-accent-primary);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid var(--color-accent-primary);
-  transition: opacity 150ms;
-}
-.btnNewTask:hover { opacity: 0.85; }
-
-/* Фокус: двухколоночный layout */
-.focusLayout {
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: var(--space-5);
-  align-items: start;
-}
-
-.focusLeft {
+/* Single-column контент */
+.content {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-}
-
-.focusRight {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  position: sticky;
-  top: var(--space-5);
-}
-
-@media (max-width: 960px) {
-  .focusLayout { grid-template-columns: 1fr; }
-  .focusRight  { position: static; }
-}
-
-.segmentsLayout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
+  width: 100%;
+  max-width: 1000px;
 }
