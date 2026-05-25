@@ -109,7 +109,7 @@ function renderHintContent(
       return (
         <>
           <p className={styles.text}>
-            Свободно {formatSlotRange(hint.slotStart, hint.slotEnd)} ({formatSlotDuration(hint.slotStart, hint.slotEnd)}).
+            Свободно <span className="t-num">{formatSlotRange(hint.slotStart, hint.slotEnd)}</span> (<span className="t-num">{formatSlotDuration(hint.slotStart, hint.slotEnd)}</span>).
             Поставить сюда <strong>«{hint.inboxItem.title}»</strong>?
           </p>
           <div className={styles.actions}>
@@ -134,7 +134,7 @@ function renderHintContent(
     case 'peak-unused':
       return (
         <p className={styles.text}>
-          Твой пик энергии {formatSlotRange(hint.peakStart, hint.peakEnd)} — а тяжёлых задач в этом окне нет.
+          Твой пик энергии <span className="t-num">{formatSlotRange(hint.peakStart, hint.peakEnd)}</span> — а тяжёлых задач в этом окне нет.
         </p>
       );
   }

@@ -50,14 +50,6 @@
 }
 .btnGenerate:disabled { opacity: .5; cursor: not-allowed; }
 
-/* Утром (план ещё не создан) — primary */
-.btnGenerateMorning {
-  background: var(--color-accent-primary);
-  color: var(--color-text-inverse);
-  border-color: var(--color-accent-primary);
-}
-.btnGenerateMorning:hover { opacity: .85; background: var(--color-accent-primary); color: var(--color-text-inverse); }
-
 /* Single-column контент */
 .content {
   display: flex;

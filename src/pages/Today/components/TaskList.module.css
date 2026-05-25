@@ -63,7 +63,10 @@
   box-shadow: var(--shadow-sm);
 }
 
-.taskDone { opacity: 0.45; }
+.taskDone {
+  opacity: 0.45;
+  transition: opacity 220ms ease, filter 220ms ease;
+}
 
 /* Задача, переданная из вкладки «Сегменты» — кратковременный пульс-акцент */
 .taskFocused {
@@ -105,9 +108,15 @@
   border-radius: 50%;
 }
 
+.statusDot:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
 .statusDotDone {
   background: var(--color-success-text);
   border-color: var(--color-success-text);
+  animation: dotSpring 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .statusDotDone::after {
   content: '';
@@ -115,6 +124,24 @@
   height: 5px;
   border-radius: 50%;
   background: var(--color-text-inverse);
+  animation: dotInnerFade 220ms ease-out 60ms backwards;
+}
+
+@keyframes dotSpring {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@keyframes dotInnerFade {
+  from { opacity: 0; transform: scale(0.3); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusDotDone { animation: none; }
+  .statusDotDone::after { animation: none; }
+  .taskDone { transition: none; }
 }
 
 /* ── Тело карточки ── */

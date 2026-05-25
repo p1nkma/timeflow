@@ -44,10 +44,12 @@ function TaskCard({
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
     >
       <button
+        type="button"
         className={`${styles.statusDot} ${task.done ? styles.statusDotDone : ''}`}
         aria-label={task.done ? 'Отметить невыполненным' : 'Отметить выполненным'}
-        onClick={e => { e.stopPropagation(); if (!task.locked) dispatch(toggleTask(task.id)); }}
-        tabIndex={-1}
+        aria-pressed={task.done}
+        disabled={task.locked}
+        onClick={e => { e.stopPropagation(); dispatch(toggleTask(task.id)); }}
       />
       <div className={styles.taskBody}>
         <span className={styles.taskTime}>{rangeFmt(task.start, task.end)}</span>
@@ -172,7 +174,7 @@ export function TaskList({ filterRange, focusTaskId, onFocusConsumed, onTaskClic
           <span className="t-xs muted">
             {label}
           </span>
-          <span className="t-small muted">
+          <span className="t-small t-num muted">
             {doneTasks.length} / {realTasks.length} выполнено
           </span>
         </div>

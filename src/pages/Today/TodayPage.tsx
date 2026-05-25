@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { useAppSelector } from '../../app/hooks';
-import { selectNowMin } from '../../features/tasks';
 import { Segmented, Icon, SparklesIcon } from '../../shared/ui';
 import { HeroFocus }    from './components/HeroFocus';
 import { TaskList }     from './components/TaskList';
@@ -17,20 +15,9 @@ export function TodayPage() {
   const [tab, setTab]           = useState<Tab>('Фокус');
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
   const [generating, setGenerating]   = useState(false);
-  const nowMin = useAppSelector(selectNowMin);
   const today  = format(new Date(), 'd MMMM, EEE', { locale: ru });
 
-  const nowHour   = Math.floor(nowMin / 60);
-  const isMorning = nowHour < 10;
-  const isEvening = nowHour >= 20;
-
-  const btnLabel = generating
-    ? (isMorning ? 'Генерирую…' : 'Подвожу итоги…')
-    : isMorning
-      ? 'Сгенерировать план'
-      : isEvening
-        ? 'Подвести итоги дня'
-        : 'Перепланировать';
+  const btnLabel = generating ? 'Перепланирую…' : 'Перепланировать';
 
   function handleGenerate() {
     setGenerating(true);
@@ -48,7 +35,7 @@ export function TodayPage() {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h1 className="t-h2">Сегодня</h1>
-          <span className="t-small muted">{today}</span>
+          <span className="t-small t-num muted">{today}</span>
         </div>
         <div className={styles.headerRight}>
           <Segmented
@@ -57,7 +44,7 @@ export function TodayPage() {
             onChange={v => setTab(v as Tab)}
           />
           <button
-            className={`${styles.btnGenerate} ${isMorning ? styles.btnGenerateMorning : ''}`}
+            className={styles.btnGenerate}
             aria-label={btnLabel}
             onClick={handleGenerate}
             disabled={generating}

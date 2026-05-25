@@ -32,6 +32,7 @@ h1, h2, h3, h4 { margin: 0; font-weight: 500; letter-spacing: -0.01em; }
 .t-small { font-size: 0.75rem; line-height: 1.4; }
 .t-xs { font-size: 0.6875rem; line-height: 1.3; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
 .t-mono { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+.t-num  { font-variant-numeric: tabular-nums; }
 
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar { width: 10px; height: 10px; }

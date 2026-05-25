@@ -3,8 +3,9 @@ import {
   toggleTask, updateTask, startTaskNow, rescheduleTask,
   selectCurrentTask, selectNextTask, selectNowMin, selectRealTasks,
 } from '../../../features/tasks';
+import { showToast } from '../../../features/ui';
 import { catStyle } from '../../../shared/utils/categories';
-import { rangeFmt, fmtCountdown, fmtRemaining } from '../../../shared/utils/time';
+import { rangeFmt, fmtCountdown, fmtRemaining, findFreeSlot } from '../../../shared/utils/time';
 import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, CategoryChip } from '../../../shared/ui';
 import type { EnergyLevel } from '../../../shared/types';
 import styles from './HeroFocus.module.css';
@@ -29,6 +30,7 @@ export function HeroFocus() {
   const current  = useAppSelector(selectCurrentTask);
   const next     = useAppSelector(selectNextTask);
   const realTasks = useAppSelector(selectRealTasks);
+  const planner  = useAppSelector(s => s.planner);
   const task     = current ?? next;
 
   if (!task) {
@@ -54,10 +56,10 @@ export function HeroFocus() {
 
   const isCurrent = !!current;
 
-  // Метка: «Сейчас · осталось X мин» vs «Следующий блок · через X ч Y мин»
+  // Метка: «Сейчас · осталось X мин» vs «Следующая задача · через X ч Y мин»
   const label = isCurrent
     ? `Сейчас · ${rangeFmt(task.start, task.end)} · осталось ${fmtRemaining(task.end, nowMin)}`
-    : `Следующий блок · через ${fmtCountdown(task.start - nowMin)}`;
+    : `Следующая задача · через ${fmtCountdown(task.start - nowMin)}`;
 
   function handleDone()  { dispatch(toggleTask(task!.id)); }
   function handleSkip()  {
@@ -67,7 +69,17 @@ export function HeroFocus() {
   function handleStart() { dispatch(startTaskNow({ id: task!.id, nowMin })); }
   function handleDelay() {
     if (!current) return;
-    dispatch(updateTask({ ...current, start: current.start + 15, end: current.end + 15 }));
+    const duration = current.end - current.start;
+    const desiredStart = current.start + 15;
+    const others = realTasks
+      .filter(t => t.id !== current.id)
+      .map(t => ({ start: t.start, end: t.end }));
+    const slot = findFreeSlot(others, duration, desiredStart, planner.workEnd);
+    if (slot + duration > planner.workEnd) {
+      dispatch(showToast({ message: 'Нет свободного места до конца дня', variant: 'error' }));
+      return;
+    }
+    dispatch(updateTask({ ...current, start: slot, end: slot + duration }));
   }
 
   const dur = task.end - task.start;
@@ -75,13 +87,13 @@ export function HeroFocus() {
   return (
     <div className={styles.hero} style={catStyle(task.cat)}>
       <div className={styles.meta}>
-        <span className={`t-small muted ${styles.label}`}>{label}</span>
-        <span className="t-small muted">{dur} мин</span>
+        <span className={`t-small t-num muted ${styles.label}`}>{label}</span>
+        <span className="t-small t-num muted">{dur} мин</span>
         {task.energy && <EnergyBadge level={task.energy} />}
         {task.cat && <CategoryChip cat={task.cat} size="sm" variant="pill" />}
       </div>
 
-      <h2 className={`t-h1 ${styles.title}`}>{task.title}</h2>
+      <h2 className={`t-h2 ${styles.title}`}>{task.title}</h2>
 
       {task.reason && (
         <p className={`t-body-md muted ${styles.reason}`}>{task.reason}</p>
