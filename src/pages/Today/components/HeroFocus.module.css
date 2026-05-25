@@ -46,23 +46,6 @@
   color: var(--cat-text);
 }
 
-/* Energy badge — живёт в одной системе с CategoryChip pill, нейтральный slate */
-.energyBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 8px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  border-radius: var(--radius-full);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  flex-shrink: 0;
-  text-transform: capitalize;
-}
-
 .title {
   color: var(--color-text-primary);
 }
@@ -150,56 +133,3 @@
   margin: 0;
 }
 
-/* ── Встроенный совет дня ── */
-.tip {
-  margin-top: var(--space-1);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.tipHead {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-accent-primary);
-}
-
-.tipLabel {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-
-.tipText {
-  margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.55;
-  color: var(--color-text-primary);
-}
-
-.tipAction {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-accent-primary);
-  background: color-mix(in oklch, var(--color-accent-primary) 8%, transparent);
-  border: 1px solid color-mix(in oklch, var(--color-accent-primary) 30%, transparent);
-  border-radius: var(--radius-md);
-  padding: 5px var(--space-3);
-  cursor: pointer;
-  transition: background 150ms, border-color 150ms, color 150ms;
-  align-self: flex-start;
-}
-.tipAction:hover {
-  background: color-mix(in oklch, var(--color-accent-primary) 16%, transparent);
-  border-color: color-mix(in oklch, var(--color-accent-primary) 55%, transparent);
-}

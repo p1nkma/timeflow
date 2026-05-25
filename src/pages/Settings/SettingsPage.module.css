@@ -184,7 +184,7 @@
   padding: 4px 10px;
   border-radius: var(--radius-full);
   border: 1px solid var(--color-border-default);
-  background: var(--color-bg-primary);
+  background: var(--color-bg-secondary);
   color: var(--color-text-secondary);
   font-size: 0.8125rem;
   cursor: pointer;

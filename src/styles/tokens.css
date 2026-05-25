@@ -97,6 +97,7 @@
   /* Layout */
   --sidebar-w: 248px;
   --topbar-h: 64px;
+  --bottom-nav-h: 64px;
 
   /* Breakpoints (для документации; @media custom-media пока не поддержано без PostCSS) */
   --bp-sm: 480px;
@@ -106,6 +107,7 @@
   --z-base:    1;
   --z-raised:  5;
   --z-overlay: 10;
+  --z-fab:     15;
   --z-modal:   20;
   --z-toast:   30;
 

@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Task } from '../../../shared/types';
-import { findFreeSlot } from '../../../shared/utils/time';
-import { MOCK_TASKS, MOCK_NOW_MIN } from '../../../mocks/tasks';
+import { findFreeSlot, nowMinutes } from '../../../shared/utils/time';
+import { MOCK_TASKS } from '../../../mocks/tasks';
 
 interface TasksState {
   items: Task[];
@@ -11,7 +11,7 @@ interface TasksState {
 
 const initialState: TasksState = {
   items: import.meta.env.DEV ? MOCK_TASKS : [],
-  nowMin: import.meta.env.DEV ? MOCK_NOW_MIN : 0,
+  nowMin: nowMinutes(),
 };
 
 const tasksSlice = createSlice({

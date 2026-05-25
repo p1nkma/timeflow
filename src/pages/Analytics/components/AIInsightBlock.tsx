@@ -78,7 +78,7 @@ export function AIInsightBlock({ period }: { period: Period }) {
 
         {/* ── статус + сводка ── */}
         <div className={styles.statusBar}>
-          <Icon icon={SparklesIcon} size={13} />
+          <Icon icon={SparklesIcon} size={14} />
           <span className={`t-xs ${styles.statusText}`}>ИИ-анализ · {report.date}</span>
         </div>
 
@@ -161,7 +161,7 @@ export function AIInsightBlock({ period }: { period: Period }) {
               ) : (
                 <button className={styles.askToggle} onClick={handleAskOpen}>
                   <span className={styles.askToggleIcon}>
-                    <Icon icon={SparklesIcon} size={13} />
+                    <Icon icon={SparklesIcon} size={14} />
                   </span>
                   <span>Спросить ИИ подробнее</span>
                   <span className={styles.askHint}>↵</span>

@@ -80,7 +80,7 @@ export function PlannerPage() {
           <h1 className="t-h2">Планировщик</h1>
           <div className={styles.headerActions}>
             <button className={styles.btnGenerate} aria-label="Сгенерировать план с помощью ИИ">
-              <Icon icon={SparklesIcon} size={15} />
+              <Icon icon={SparklesIcon} size={14} />
               Сгенерировать
             </button>
             <button
@@ -88,7 +88,7 @@ export function PlannerPage() {
               aria-label="Новая задача"
               onClick={() => setShowNewTask(true)}
             >
-              <Icon icon={PlusSignIcon} size={15} strokeWidth={2} />
+              <Icon icon={PlusSignIcon} size={14} strokeWidth={2} />
               Новая задача
             </button>
           </div>

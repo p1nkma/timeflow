@@ -50,7 +50,7 @@ function SegmentCard({ label, sub, tasks, isNow, isSelected, onClick }: {
           </>
         ) : isClosed ? (
           <div className={styles.closedSummary}>
-            <Icon icon={Tick01Icon} size={13} aria-hidden />
+            <Icon icon={Tick01Icon} size={14} aria-hidden />
             <span>{done} {pluralTasks(done)} выполнено</span>
           </div>
         ) : (

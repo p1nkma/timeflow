@@ -64,13 +64,13 @@ export function ViewMode({ task, onClose }: Props) {
         </span>
         {task.source === 'ai' && (
           <span className={`${styles.badge} ${styles.badgeAi}`}>
-            <Icon icon={SparklesIcon} size={11} />
+            <Icon icon={SparklesIcon} size={12} />
             ИИ
           </span>
         )}
         {task.locked && (
           <span className={`${styles.badge} ${styles.badgeLocked}`}>
-            <Icon icon={LockIcon} size={11} />
+            <Icon icon={LockIcon} size={12} />
             Вуз
           </span>
         )}

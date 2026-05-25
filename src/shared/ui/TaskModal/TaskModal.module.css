@@ -124,7 +124,7 @@
   box-shadow: var(--shadow-lg);
   min-width: 160px;
   overflow: hidden;
-  z-index: 10;
+  z-index: var(--z-raised);
 }
 
 .kebabItem {

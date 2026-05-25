@@ -287,7 +287,7 @@ export function ScheduleModal({ item, onClose }: Props) {
                 {item.urgent && <span className={styles.urgentBadge}>Срочно</span>}
                 {item.deadline && (
                   <span className={`${styles.deadlineMeta} ${deadlineOverdue ? styles.deadlineOverdue : ''}`}>
-                    {deadlineOverdue && <Icon icon={AlertCircleIcon} size={11} className={styles.overdueIcon} />}
+                    {deadlineOverdue && <Icon icon={AlertCircleIcon} size={12} className={styles.overdueIcon} />}
                     {deadlineOverdue ? 'Просрочено · ' : 'до '}
                     {fmtDeadline(item.deadline)}
                   </span>
@@ -340,7 +340,7 @@ export function ScheduleModal({ item, onClose }: Props) {
 
             {/* AI hint */}
             <div className={styles.aiHint}>
-              <Icon icon={dayOver ? AlertCircleIcon : SparklesIcon} size={13} className={styles.aiIcon} />
+              <Icon icon={dayOver ? AlertCircleIcon : SparklesIcon} size={14} className={styles.aiIcon} />
               <span className={styles.aiText}>
                 {dayOver
                   ? 'Рабочий день заканчивается — слот добавится в конец дня.'

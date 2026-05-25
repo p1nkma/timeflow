@@ -4,6 +4,7 @@ import { setChronotype, setWorkHours, toggleCategory } from '../../features/plan
 import { Toggle } from '../../shared/ui';
 import { CATEGORIES } from '../../shared/utils/categories';
 import { fmt } from '../../shared/utils/time';
+import { MOCK_USER } from '../../mocks/user';
 import type { ChronoType, CategoryKey } from '../../shared/types';
 import styles from './SettingsPage.module.css';
 
@@ -50,11 +51,11 @@ export function SettingsPage() {
         {/* ── Профиль ── */}
         <section className={styles.section}>
           <div className={styles.profileCard}>
-            <div className={styles.avatar}>МП</div>
+            <div className={styles.avatar}>{MOCK_USER.initials}</div>
             <div className={styles.profileInfo}>
-              <span className={`t-body ${styles.profileName}`}>Михаил Полунин</span>
-              <span className="t-small muted">poluninmisa140@gmail.com</span>
-              <span className="t-small muted">МГТУ · Программная инженерия</span>
+              <span className={`t-body ${styles.profileName}`}>{MOCK_USER.fullName}</span>
+              <span className="t-small muted">{MOCK_USER.email}</span>
+              <span className="t-small muted">{MOCK_USER.university} · {MOCK_USER.speciality}</span>
             </div>
           </div>
         </section>

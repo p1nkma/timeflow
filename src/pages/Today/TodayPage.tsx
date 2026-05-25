@@ -49,7 +49,7 @@ export function TodayPage() {
             onClick={handleGenerate}
             disabled={generating}
           >
-            <Icon icon={SparklesIcon} size={15} />
+            <Icon icon={SparklesIcon} size={14} />
             {btnLabel}
           </button>
         </div>

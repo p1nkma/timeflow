@@ -6,23 +6,8 @@ import {
 import { showToast } from '../../../features/ui';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown, fmtRemaining, findFreeSlot } from '../../../shared/utils/time';
-import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, CategoryChip } from '../../../shared/ui';
-import type { EnergyLevel } from '../../../shared/types';
+import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, CategoryChip, EnergyBadge } from '../../../shared/ui';
 import styles from './HeroFocus.module.css';
-
-const ENERGY_LABEL: Record<EnergyLevel, string> = {
-  low:    'лёгкая',
-  medium: 'средняя',
-  high:   'тяжёлая',
-};
-
-function EnergyBadge({ level }: { level: EnergyLevel }) {
-  return (
-    <span className={styles.energyBadge} aria-label={`Нагрузка: ${ENERGY_LABEL[level]}`}>
-      {ENERGY_LABEL[level]}
-    </span>
-  );
-}
 
 export function HeroFocus() {
   const dispatch = useAppDispatch();
@@ -109,11 +94,11 @@ export function HeroFocus() {
         {isCurrent ? (
           <>
             <button className={styles.btnPrimary} onClick={handleDone}>
-              <Icon icon={Tick01Icon} size={15} />
+              <Icon icon={Tick01Icon} size={14} />
               Выполнено
             </button>
             <button className={styles.btnSecondary} onClick={handleSkip}>
-              <Icon icon={ArrowRight01Icon} size={15} />
+              <Icon icon={ArrowRight01Icon} size={14} />
               Пропустить
             </button>
             <button className={styles.btnGhost} onClick={handleDelay}>
@@ -124,7 +109,7 @@ export function HeroFocus() {
         ) : (
           <>
             <button className={styles.btnPrimary} onClick={handleStart}>
-              <Icon icon={ArrowRight01Icon} size={15} />
+              <Icon icon={ArrowRight01Icon} size={14} />
               Запустить сейчас
             </button>
             <button className={styles.btnGhost} onClick={handleSkip}>

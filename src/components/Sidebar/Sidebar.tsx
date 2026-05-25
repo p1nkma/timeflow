@@ -2,6 +2,7 @@ import type { IconSvgElement } from '@hugeicons/react';
 import { useNavigate, useLocation } from 'react-router';
 import { Icon,
   Clock01Icon, Calendar03Icon, Analytics01Icon, Setting06Icon } from '../../shared/ui';
+import { MOCK_USER } from '../../mocks/user';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -35,7 +36,7 @@ export function Sidebar(_props: SidebarProps) {
             onClick={() => navigate(path)}
             aria-current={pathname === path ? 'page' : undefined}
           >
-            <Icon icon={icon} size={18} aria-hidden />
+            <Icon icon={icon} size={16} aria-hidden />
             <span>{label}</span>
           </button>
         ))}
@@ -47,10 +48,10 @@ export function Sidebar(_props: SidebarProps) {
           onClick={() => navigate('/settings')}
           aria-label="Открыть настройки профиля"
         >
-          <div className={styles.avatar}>М</div>
+          <div className={styles.avatar}>{MOCK_USER.avatarMono}</div>
           <div className={styles.userInfo}>
-            <div className={styles.userName}>Михаил П.</div>
-            <div className={styles.userRole}>Студент · МГТУ</div>
+            <div className={styles.userName}>{MOCK_USER.shortName}</div>
+            <div className={styles.userRole}>{MOCK_USER.role} · {MOCK_USER.university}</div>
           </div>
         </button>
       </div>

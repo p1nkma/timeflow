@@ -1,8 +1,6 @@
 import type { Task } from '../shared/types';
 import { toMin } from '../shared/utils/time';
 
-export const MOCK_NOW_MIN = toMin(14, 20);
-
 export const MOCK_TASKS: Task[] = [
   { id: 't1',  start: toMin(8,0),   end: toMin(8,30),  title: 'Разбор входящих + план дня',               cat: 'study',     source: 'user',   done: true,  reason: 'Утро, лёгкий старт',               reasonLong: 'Утро ты начинаешь медленнее — лёгкая задача задаёт ритм без сопротивления.' },
   { id: 't2',  start: toMin(8,30),  end: toMin(10,0),  title: 'Матан · подготовка к коллоквиуму',         cat: 'study',     source: 'ai',     done: true,  reason: 'Тяжёлая задача → пик энергии',     reasonLong: 'У тебя пик концентрации с 9 до 11. Самый сложный предмет — сюда.' },

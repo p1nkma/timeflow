@@ -25,7 +25,7 @@ export function BottomNav() {
             onClick={() => navigate(path)}
             aria-current={active ? 'page' : undefined}
           >
-            <Icon icon={icon} size={22} aria-hidden />
+            <Icon icon={icon} size={24} aria-hidden />
             <span className={styles.label}>{label}</span>
           </button>
         );

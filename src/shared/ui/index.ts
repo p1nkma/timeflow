@@ -11,4 +11,5 @@ export { TimePicker } from './TimePicker/TimePicker';
 export { DatePicker } from './TimePicker/DatePicker';
 export { Fab } from './Fab/Fab';
 export { CategoryChip } from './CategoryChip/CategoryChip';
+export { EnergyBadge } from './EnergyBadge/EnergyBadge';
 export { ModalShell } from './ModalShell/ModalShell';
