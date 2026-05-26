@@ -61,5 +61,6 @@ export interface ToastState {
   message: string;
   variant: ToastVariant;
   id: number;
-  undoId?: string;  // task id to delete on undo
+  undoId?: string;
+  undoTask?: Task; // восстанавливаем задачу при undo
 }

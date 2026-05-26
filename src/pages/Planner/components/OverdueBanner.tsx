@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { format, addDays } from 'date-fns';
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
 import { selectAllTasks, deleteTask, moveTaskToDate } from '../../../features/tasks';
-import { Icon, Cancel01Icon } from '../../../shared/ui/Icon/Icon';
+import { showToast } from '../../../features/ui';
+import { Icon, Cancel01Icon, AlertCircleIcon } from '../../../shared/ui/Icon/Icon';
 import { ModalShell } from '../../../shared/ui/ModalShell/ModalShell';
 import { fmt } from '../../../shared/utils/time';
 import type { Task } from '../../../shared/types';
@@ -73,9 +74,7 @@ export function OverdueBanner() {
   return (
     <>
       <div className={styles.banner}>
-        <svg className={styles.icon} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
-        </svg>
+        <Icon icon={AlertCircleIcon} size={16} strokeWidth={2} className={styles.icon} aria-hidden />
         <div className={styles.list}>
           {overdue.map(t => (
             <div key={t.id} className={styles.item}>
@@ -91,7 +90,14 @@ export function OverdueBanner() {
                 <button
                   className={`${styles.actionBtn} ${styles.actionBtnDismiss}`}
                   aria-label="Удалить задачу"
-                  onClick={() => dispatch(deleteTask(t.id))}
+                  onClick={() => {
+                    dispatch(deleteTask(t.id));
+                    dispatch(showToast({
+                      message: `«${t.title}» удалена`,
+                      variant: 'default',
+                      undoTask: t,
+                    }));
+                  }}
                 >
                   <Icon icon={Cancel01Icon} size={12} strokeWidth={2} />
                 </button>

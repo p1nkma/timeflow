@@ -8,7 +8,8 @@ import { showToast } from '../../../features/ui';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { catStyle } from '../../../shared/utils/categories';
 import { findFreeSlot, fmt } from '../../../shared/utils/time';
-import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, TimePicker, DatePicker, CategoryChip, ModalShell } from '../../../shared/ui';
+import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, CategoryChip, ModalShell } from '../../../shared/ui';
+import { DateSheet, TimeSheet } from '../../../shared/ui/DateTimeSheet/DateTimeSheet';
 import type { InboxItem } from '../../../shared/types';
 import styles from './ScheduleModal.module.css';
 
@@ -77,92 +78,6 @@ function PenIcon() {
       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
-  );
-}
-
-// ── Sheet modal (portal) ──────────────────────────────────────────────────────
-
-function Sheet({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <ModalShell
-      onClose={onClose}
-      backdropClassName={styles.sheetBackdrop}
-      className={styles.sheet}
-      ariaLabel={title}
-    >
-        <div className={styles.sheetHandle} />
-        <div className={styles.sheetHeader}>
-          <span className={styles.sheetTitle}>{title}</span>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Закрыть">
-            <Icon icon={Cancel01Icon} size={14} />
-          </button>
-        </div>
-        <div className={styles.sheetBody}>
-          {children}
-        </div>
-    </ModalShell>
-  );
-}
-
-// ── DateSheet ─────────────────────────────────────────────────────────────────
-
-function DateSheet({
-  value,
-  onChange,
-  onClose,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  onClose: () => void;
-}) {
-  const [draft, setDraft] = useState(value);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  return (
-    <Sheet title="Выбрать дату" onClose={onClose}>
-      <DatePicker value={draft} onChange={setDraft} minDate={today} />
-      <button
-        className={styles.sheetConfirmBtn}
-        onClick={() => { onChange(draft); onClose(); }}
-      >
-        Готово
-      </button>
-    </Sheet>
-  );
-}
-
-// ── TimeSheet ─────────────────────────────────────────────────────────────────
-
-function TimeSheet({
-  value,
-  onChange,
-  onClose,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-  onClose: () => void;
-}) {
-  const [draft, setDraft] = useState(value);
-
-  return (
-    <Sheet title="Время начала" onClose={onClose}>
-      <TimePicker value={draft} onChange={setDraft} step={5} />
-      <button
-        className={styles.sheetConfirmBtn}
-        onClick={() => { onChange(draft); onClose(); }}
-      >
-        Готово
-      </button>
-    </Sheet>
   );
 }
 

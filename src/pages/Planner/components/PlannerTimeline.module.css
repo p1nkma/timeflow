@@ -107,11 +107,12 @@
   transition: background 150ms, color 150ms;
   white-space: nowrap;
 }
-.modeBtn:hover { color: var(--color-text-primary); background: var(--color-bg-tertiary); }
+.modeBtn:hover:not(:disabled) { color: var(--color-text-primary); background: var(--color-bg-tertiary); }
+.modeBtn:disabled { opacity: 0.35; cursor: not-allowed; }
 .modeBtnActive {
-  background: var(--color-accent-primary);
-  color: var(--color-text-inverse);
-  box-shadow: var(--shadow-xs);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px rgba(37, 50, 55, 0.06);
 }
 
 /* ── Корень: таймлайн + drawer ── */
@@ -153,6 +154,12 @@
 .hourRowOver {
   background: color-mix(in oklch, var(--color-accent-primary) 10%, var(--color-bg-primary));
   outline: 2px dashed var(--color-accent-primary);
+  outline-offset: -2px;
+}
+
+.hourRowConflict {
+  background: color-mix(in oklch, var(--color-danger-bg) 60%, var(--color-bg-primary));
+  outline: 2px dashed var(--color-danger-text);
   outline-offset: -2px;
 }
 
@@ -335,7 +342,8 @@
   box-shadow: var(--shadow-md);
 }
 
-.taskDone { opacity: 0.4; }
+.taskDone    { opacity: 0.4; }
+.taskDragging { opacity: 0.3; cursor: grabbing; }
 
 .taskOverdue {
   background: var(--color-danger-bg);
@@ -388,7 +396,189 @@
   flex-shrink: 0;
 }
 
-/* mobile collapse of timeline+sidebar */
+/* Сегодня-кнопка — заблокирована когда уже на сегодня */
+.todayBtnActive {
+  opacity: 0.4;
+  cursor: default;
+}
+.todayBtnActive:hover {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+}
+
+/* ── Week wrap ── */
+.weekWrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── Week header (строка с датами) ── */
+.weekHeader {
+  display: grid;
+  grid-template-columns: 48px repeat(7, minmax(100px, 1fr));
+  border-bottom: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised);
+  min-width: 748px;
+}
+
+.weekHeaderGutter {
+  border-right: 1px solid var(--color-border-default);
+}
+
+.weekHeaderCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) 0;
+  gap: 4px;
+  border-right: 1px solid var(--color-border-default);
+  min-height: 52px;
+}
+.weekHeaderCell:last-child { border-right: none; }
+
+.weekHeaderDay {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.weekHeaderDate {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.weekHeaderCellToday .weekHeaderDay { color: var(--color-accent-primary); }
+.weekHeaderCellToday .weekHeaderDate {
+  color: var(--color-text-inverse);
+  background: var(--color-accent-primary);
+}
+
+/* ── Week scroll — горизонтальный скролл если не влезает ── */
+.weekScroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 240px);
+  min-height: 400px;
+}
+
+/* ── Week grid: гутер + 7 колонок ── */
+.weekRoot {
+  display: grid;
+  grid-template-columns: 48px repeat(7, minmax(100px, 1fr));
+  min-width: 748px; /* 48 + 7×100 */
+}
+
+/* ── Time gutter ── */
+.weekGutter {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  position: sticky;
+  left: 0;
+  z-index: var(--z-raised);
+}
+
+/* Высота ячейки гутера = высота hourRow */
+.weekGutterCell {
+  height: 120px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 6px 8px 0 0;
+  border-bottom: 1px solid var(--color-border-default);
+  box-sizing: border-box;
+}
+.weekGutterCell:last-child { border-bottom: none; }
+
+.weekGutterLabel {
+  font-size: 0.875rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+  line-height: 1;
+  user-select: none;
+}
+
+/* ── Колонка одного дня ── */
+.weekDayCol {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-border-default);
+}
+.weekDayCol:last-child { border-right: none; }
+
+/* Лёгкий акцент на колонке сегодня */
+.weekDayColToday .hourRow {
+  background: color-mix(in oklch, var(--ez-color, var(--color-bg-primary)) 40%, color-mix(in oklch, var(--color-bg-tertiary) 15%, var(--color-bg-primary)));
+}
+
+/* ── Compact mode для week: слоты идут вплотную как в Google Calendar ── */
+.hourRowCompact {
+  height: 80px;
+  min-height: 80px;
+  max-height: 80px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--color-border-default);
+  box-shadow: none;
+}
+.hourRowCompact:last-child {
+  border-bottom: none;
+}
+
+/* В compact gutter — меньше шрифт (уже есть в weekGutterLabel) */
+.hourRowCompact .hourNum {
+  font-size: 0.8125rem;
+}
+
+/* ── Empty state Timeline ── */
+.emptyTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+}
+
+.emptyTimelineTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.emptyTimelineText {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+/* mobile */
 @media (max-width: 768px) {
   .root { flex-direction: column; }
+  .weekScroll { max-height: calc(100vh - 200px); }
 }

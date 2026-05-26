@@ -1,20 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { format, parseISO, addDays, isToday, isTomorrow } from 'date-fns';
+import { format, addDays, parseISO, isToday, isTomorrow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { addTask, selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { addInboxItem } from '../../../features/inbox';
 import { showToast } from '../../../features/ui';
 import { findFreeSlot } from '../../utils/time';
-import { CATEGORIES } from '../../utils/categories';
+import { CATEGORIES, catStyle } from '../../utils/categories';
 import { parseQuickAdd } from '../../utils/parseQuickAdd';
 import type { CategoryKey, EnergyLevel } from '../../types';
 import { Icon, Cancel01Icon } from '../Icon/Icon';
-import { DatePicker } from '../TimePicker/DatePicker';
 import { CategoryChip } from '../CategoryChip/CategoryChip';
 import { ModalShell } from '../ModalShell/ModalShell';
+import { DateSheet, TimeSheet, CategorySheet, DurationSheet, EnergySheet } from '../DateTimeSheet/DateTimeSheet';
 import { TODAY_ISO } from './constants';
 import styles from './QuickAddModal.module.css';
+
+function PenIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+    >
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
 
 interface Props {
   onClose: () => void;
@@ -52,7 +63,7 @@ function fmtDuration(min: number): string {
   return `${min}м`;
 }
 
-const DURATION_PRESETS = [15, 30, 45, 60, 90, 120, 180];
+const DURATION_PRESETS = [30, 60, 120];
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -75,7 +86,9 @@ export function QuickAddModal({ onClose }: Props) {
   const [text, setText] = useState('');
   const [notes, setNotes] = useState('');
   const [notesOpen, setNotesOpen] = useState(false);
-  const [popover, setPopover] = useState<null | 'date' | 'time' | 'duration' | 'cat' | 'energy'>(null);
+  const [sheet, setSheet] = useState<null | 'date' | 'time' | 'cat' | 'duration' | 'energy'>(null);
+
+  const tomorrowISO = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 
   const [overrides, setOverrides] = useState<Overrides>({
     date:     initOverride(),
@@ -127,16 +140,6 @@ export function QuickAddModal({ onClose }: Props) {
     return html;
   }, [text, parsed.tokens]);
 
-  // Авто-рост textarea
-  function autoresize() {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    ta.style.height = 'auto';
-    ta.style.height = ta.scrollHeight + 'px';
-  }
-  useEffect(autoresize, [text]);
-
-  // Синхронизация скролла оверлея с textarea
   function syncScroll() {
     if (highlightRef.current && textareaRef.current) {
       highlightRef.current.scrollTop = textareaRef.current.scrollTop;
@@ -163,7 +166,7 @@ export function QuickAddModal({ onClose }: Props) {
         notes:  notes.trim() || undefined,
         id,
       }));
-      dispatch(showToast({ message: 'Задача создана', variant: 'success', undoId: id }));
+      dispatch(showToast({ message: 'Задача создана', variant: 'success' }));
     }
     onClose();
   }
@@ -188,6 +191,7 @@ export function QuickAddModal({ onClose }: Props) {
   const canSubmit = (parsed.title || text.trim()).length > 0;
 
   return (
+    <>
     <ModalShell
       onClose={onClose}
       backdropClassName={styles.backdrop}
@@ -204,11 +208,17 @@ export function QuickAddModal({ onClose }: Props) {
 
         <div className={styles.body}>
           <div className={styles.inputWrap}>
+            {/* спейсер — растягивает контейнер */}
             <div
-              ref={highlightRef}
               className={styles.highlight}
               aria-hidden
-              dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+            >{text || ' '}</div>
+            {/* видимый overlay с подсветкой */}
+            <div
+              ref={highlightRef}
+              className={styles.highlightOverlay}
+              aria-hidden
+              dangerouslySetInnerHTML={{ __html: highlightedHtml || '' }}
             />
             <textarea
               ref={textareaRef}
@@ -227,76 +237,52 @@ export function QuickAddModal({ onClose }: Props) {
           </div>
 
           <div className={styles.chips}>
-            {/* Группа «когда»: дата + время */}
-            <div className={`${styles.whenGroup} ${(popover === 'date' || popover === 'time') ? styles.whenGroupActive : ''}`}>
-              <ChipWithPopover
-                state={finalDate ? 'filled' : 'empty'}
-                open={popover === 'date'}
-                label={finalDate ? fmtDate(finalDate) : '+ Дата'}
-                onToggle={() => setPopover(p => p === 'date' ? null : 'date')}
+            {/* Дата */}
+            <div className={`${styles.whenGroup} ${(sheet === 'date' || sheet === 'time') ? styles.whenGroupActive : ''}`}>
+              <button
+                type="button"
+                className={`${styles.chip} ${finalDate ? styles.chipFilled : styles.chipEmpty}`}
+                onClick={() => setSheet('date')}
               >
-                {popover === 'date' && (
-                  <DatePopover
-                    value={finalDate ?? TODAY_ISO()}
-                    hasDate={Boolean(finalDate)}
-                    onPick={iso => setOverride('date', iso)}
-                    onClear={() => clearOverride('date')}
-                  />
-                )}
-              </ChipWithPopover>
+                <span>{finalDate ? fmtDate(finalDate) : '+ Дата'}</span>
+              </button>
               <span className={styles.whenDivider} aria-hidden />
-              <ChipWithPopover
-                state={goesToInbox ? 'empty' : 'filled'}
-                open={popover === 'time'}
-                label={goesToInbox ? '+ Время' : fmtTime(finalStart)}
-                onToggle={() => setPopover(p => p === 'time' ? null : 'time')}
+              <button
+                type="button"
+                className={`${styles.chip} ${!goesToInbox ? styles.chipFilled : styles.chipEmpty}`}
+                onClick={() => setSheet('time')}
               >
-                {popover === 'time' && (
-                  <TimePopover value={finalStart} onPick={v => setOverride('start', v)} />
-                )}
-              </ChipWithPopover>
+                <span>{goesToInbox ? '+ Время' : fmtTime(finalStart)}</span>
+              </button>
             </div>
 
-            {/* Длительность */}
-            <ChipWithPopover
-              state="filled"
-              open={popover === 'duration'}
-              label={fmtDuration(finalDuration)}
-              onToggle={() => setPopover(p => p === 'duration' ? null : 'duration')}
+            {/* Длительность — открывает sheet */}
+            <button
+              type="button"
+              className={`${styles.chip} ${styles.chipFilled} ${sheet === 'duration' ? styles.chipOpen : ''}`}
+              onClick={() => setSheet('duration')}
             >
-              {popover === 'duration' && (
-                <DurationPopover value={finalDuration} onPick={v => setOverride('duration', v)} />
-              )}
-            </ChipWithPopover>
+              <span>{fmtDuration(finalDuration)}</span>
+            </button>
 
             {/* Категория */}
-            <ChipWithPopover
-              state="filled"
-              open={popover === 'cat'}
-              label={CATEGORIES[finalCat].label}
-              onToggle={() => setPopover(p => p === 'cat' ? null : 'cat')}
-              prefix={<CategoryChip cat={finalCat} size="sm" iconOnly aria-hidden />}
+            <button
+              type="button"
+              className={`${styles.chip} ${styles.chipFilled}`}
+              onClick={() => setSheet('cat')}
             >
-              {popover === 'cat' && (
-                <CatPopover value={finalCat} onPick={v => setOverride('cat', v)} />
-              )}
-            </ChipWithPopover>
+              <CategoryChip cat={finalCat} size="sm" iconOnly aria-hidden />
+              <span>{CATEGORIES[finalCat].label}</span>
+            </button>
 
             {/* Нагрузка */}
-            <ChipWithPopover
-              state={finalEnergy ? 'filled' : 'empty'}
-              open={popover === 'energy'}
-              label={finalEnergy ? `Нагрузка: ${energyLabel(finalEnergy)}` : '+ Нагрузка'}
-              onToggle={() => setPopover(p => p === 'energy' ? null : 'energy')}
+            <button
+              type="button"
+              className={`${styles.chip} ${finalEnergy ? styles.chipFilled : styles.chipEmpty} ${sheet === 'energy' ? styles.chipOpen : ''}`}
+              onClick={() => setSheet('energy')}
             >
-              {popover === 'energy' && (
-                <EnergyPopover
-                  value={finalEnergy}
-                  onPick={v => setOverride('energy', v)}
-                  onClear={() => clearOverride('energy')}
-                />
-              )}
-            </ChipWithPopover>
+              <span>{finalEnergy ? `Нагрузка: ${energyLabel(finalEnergy)}` : '+ Нагрузка'}</span>
+            </button>
           </div>
 
           {notesOpen ? (
@@ -335,6 +321,44 @@ export function QuickAddModal({ onClose }: Props) {
         </div>
       </div>
     </ModalShell>
+
+      {sheet === 'date' && (
+        <DateSheet
+          value={finalDate ?? TODAY_ISO()}
+          onChange={iso => { setOverride('date', iso); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'time' && (
+        <TimeSheet
+          value={finalStart}
+          onChange={v => { setOverride('start', v); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'cat' && (
+        <CategorySheet
+          value={finalCat}
+          onChange={v => setOverride('cat', v)}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'duration' && (
+        <DurationSheet
+          value={finalDuration}
+          onChange={v => { setOverride('duration', v); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'energy' && (
+        <EnergySheet
+          value={finalEnergy}
+          onChange={v => { setOverride('energy', v); setSheet(null); }}
+          onClear={() => { clearOverride('energy'); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+    </>
   );
 }
 
@@ -367,49 +391,59 @@ function ChipWithPopover({
   );
 }
 
-/* ── Popovers ── */
-function DatePopover({
-  value, hasDate, onPick, onClear,
-}: { value: string; hasDate: boolean; onPick: (iso: string) => void; onClear: () => void }) {
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const fmtIso = (d: Date) => format(d, 'yyyy-MM-dd');
+/* ── When Popover ── */
+function WhenPopover({
+  finalDate, finalStart, tomorrowISO,
+  onToday, onTomorrow, onPickDate, onPickTime, onClear,
+}: {
+  finalDate?: string;
+  finalStart: number;
+  tomorrowISO: string;
+  onToday: () => void;
+  onTomorrow: () => void;
+  onPickDate: () => void;
+  onPickTime: () => void;
+  onClear: () => void;
+}) {
+  const todayISO = TODAY_ISO();
+  const isToday_ = finalDate === todayISO;
+  const isTomorrow_ = finalDate === tomorrowISO;
+
   return (
     <div className={styles.popover}>
-      <button className={styles.popoverItem} onClick={() => onPick(fmtIso(today))}>Сегодня</button>
-      <button className={styles.popoverItem} onClick={() => onPick(fmtIso(addDays(today, 1)))}>Завтра</button>
-      <button className={styles.popoverItem} onClick={() => onPick(fmtIso(addDays(today, 2)))}>Послезавтра</button>
-      {hasDate && (
+      <button
+        className={`${styles.popoverItem} ${isToday_ ? styles.popoverItemActive : ''}`}
+        onClick={onToday}
+      >
+        Сегодня
+        <span className={styles.whenOptTime}>{fmtTime(finalStart)}</span>
+      </button>
+      <button
+        className={`${styles.popoverItem} ${isTomorrow_ ? styles.popoverItemActive : ''}`}
+        onClick={onTomorrow}
+      >
+        Завтра
+      </button>
+      <div className={styles.popoverDivider} />
+      <button className={styles.popoverItem} onClick={onPickDate}>
+        Выбрать дату…
+      </button>
+      <button className={styles.popoverItem} onClick={onPickTime}>
+        Выбрать время…
+      </button>
+      {finalDate && (
         <>
           <div className={styles.popoverDivider} />
-          <button className={styles.popoverItem} onClick={onClear}>Без даты → Inbox</button>
+          <button className={`${styles.popoverItem} ${styles.popoverItemClear}`} onClick={onClear}>
+            Убрать дату
+          </button>
         </>
       )}
-      <div className={styles.popoverDivider} />
-      <div className={styles.popoverDateInner}>
-        <DatePicker value={value} onChange={onPick} minDate={today} />
-      </div>
     </div>
   );
 }
 
-function TimePopover({ value, onPick }: { value: number; onPick: (m: number) => void }) {
-  const slots: number[] = [];
-  for (let h = 6; h < 24; h++) for (const m of [0, 30]) slots.push(h * 60 + m);
-  return (
-    <div className={styles.popover}>
-      {slots.map(s => (
-        <button
-          key={s}
-          className={`${styles.popoverItem} ${s === value ? styles.popoverItemActive : ''}`}
-          onClick={() => onPick(s)}
-        >
-          {fmtTime(s)}
-        </button>
-      ))}
-    </div>
-  );
-}
-
+/* ── Popovers ── */
 function DurationPopover({ value, onPick }: { value: number; onPick: (m: number) => void }) {
   return (
     <div className={styles.popover}>
@@ -428,17 +462,21 @@ function DurationPopover({ value, onPick }: { value: number; onPick: (m: number)
 
 function CatPopover({ value, onPick }: { value: CategoryKey; onPick: (c: CategoryKey) => void }) {
   return (
-    <div className={styles.popover}>
-      {(Object.keys(CATEGORIES) as CategoryKey[]).map(key => (
-        <button
-          key={key}
-          className={`${styles.popoverItem} ${key === value ? styles.popoverItemActive : ''}`}
-          onClick={() => onPick(key)}
-        >
-          <CategoryChip cat={key} size="sm" iconOnly aria-hidden />
-          {CATEGORIES[key].label}
-        </button>
-      ))}
+    <div className={styles.catPopover}>
+      {(Object.keys(CATEGORIES) as CategoryKey[]).map(key => {
+        const active = key === value;
+        return (
+          <button
+            key={key}
+            className={`${styles.catItem} ${active ? styles.catItemActive : ''}`}
+            style={catStyle(key)}
+            onClick={() => onPick(key)}
+          >
+            <CategoryChip cat={key} size="md" iconOnly aria-hidden />
+            {CATEGORIES[key].label}
+          </button>
+        );
+      })}
     </div>
   );
 }

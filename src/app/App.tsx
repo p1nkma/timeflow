@@ -15,7 +15,8 @@ import styles from './App.module.css';
 export function App() {
   const dispatch = useAppDispatch();
   const { darkMode } = useAppSelector(s => s.ui);
-  const [showNewTask, setShowNewTask] = useState(false);
+  const [showNewTask, setShowNewTask]       = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -32,11 +33,13 @@ export function App() {
   }, [dispatch]);
 
   return (
-    <div className={styles.app}>
+    <div className={`${styles.app} ${sidebarCollapsed ? styles.appCollapsed : ''}`}>
       <div className={styles.sidebar}>
         <Sidebar
           darkMode={darkMode}
           onDarkToggle={() => dispatch(toggleDarkMode())}
+          collapsed={sidebarCollapsed}
+          onCollapseToggle={() => setSidebarCollapsed(c => !c)}
         />
       </div>
 

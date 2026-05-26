@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { clearToast } from '../../../features/ui';
-import { deleteTask } from '../../../features/tasks';
+import { addTask } from '../../../features/tasks';
 import { Icon, Tick01Icon } from '../Icon/Icon';
 import styles from './Toast.module.css';
 
@@ -18,7 +18,7 @@ export function Toast() {
   if (!toast) return null;
 
   function handleUndo() {
-    if (toast?.undoId) dispatch(deleteTask(toast.undoId));
+    if (toast?.undoTask) dispatch(addTask(toast.undoTask));
     dispatch(clearToast());
   }
 

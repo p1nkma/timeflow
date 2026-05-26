@@ -70,11 +70,13 @@ export function InboxPanel({ filter, onFilterChange }: InboxPanelProps) {
     setTimeout(() => setRescheduling(false), 2000);
   }
 
-  const filtered = inbox.filter(item => {
-    if (filter === 'all')    return true;
-    if (filter === 'urgent') return item.urgent;
-    return item.cat === filter;
-  });
+  const filtered = inbox
+    .filter(item => {
+      if (filter === 'all')    return true;
+      if (filter === 'urgent') return item.urgent;
+      return item.cat === filter;
+    })
+    .sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0));
 
   const activeLabel = FILTERS.find(f => f.key === filter)?.label;
 
@@ -100,7 +102,16 @@ export function InboxPanel({ filter, onFilterChange }: InboxPanelProps) {
           />
         ))}
         {filtered.length === 0 && (
-          <li className="t-small muted" style={{ padding: 'var(--space-3)' }}>Пусто</li>
+          <li className={styles.emptyState}>
+            {filter !== 'all' ? (
+              <span className={styles.emptyText}>Нет задач в этой категории</span>
+            ) : (
+              <>
+                <span className={styles.emptyTitle}>Inbox пуст</span>
+                <span className={styles.emptyText}>Записывайте идеи и задачи,<br />когда не знаете когда их делать</span>
+              </>
+            )}
+          </li>
         )}
       </ul>
 

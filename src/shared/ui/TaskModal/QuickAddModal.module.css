@@ -69,15 +69,29 @@
 /* ── Input area: overlay highlight + textarea ── */
 .inputWrap {
   position: relative;
-  min-height: 64px;
-  font-size: 1.375rem;
+  font-size: 1.25rem;
   font-weight: 500;
-  line-height: 1.35;
+  line-height: 1.4;
   letter-spacing: -0.01em;
   font-family: inherit;
 }
 
-.highlight,
+.highlight {
+  /* невидимый дубль — растягивает контейнер под высоту текста */
+  visibility: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-height: 1.4em;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  pointer-events: none;
+  user-select: none;
+}
+
 .textarea {
   position: absolute;
   inset: 0;
@@ -91,25 +105,39 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: break-word;
-}
-
-.highlight {
-  color: var(--color-text-primary);
-  pointer-events: none;
-  user-select: none;
-}
-
-.textarea {
   color: transparent;
   caret-color: var(--color-text-primary);
   resize: none;
   outline: none;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  -webkit-appearance: none;
 }
+.textarea:focus { outline: none; border: none; box-shadow: none; }
 
 .textarea::placeholder {
   color: var(--color-text-tertiary);
   opacity: 0.6;
+}
+
+/* реальный highlight — поверх textarea, абсолютный */
+.highlightOverlay {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  color: var(--color-text-primary);
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
 }
 
 /* ── Подсказка синтаксиса под полем ── */
@@ -132,17 +160,17 @@
 
 /* ── Highlight markers ── */
 .mark {
-  border-radius: 4px;
-  padding: 1px 3px;
-  margin: 0 -3px;
-  font-weight: 600;
+  border-radius: 3px;
+  padding: 1px 2px;
+  margin: 0 -2px;
+  font-weight: inherit;
 }
 
-.markDate     { background: color-mix(in oklch, var(--color-info-bg)    65%, transparent); color: var(--color-info-text); }
-.markTime     { background: color-mix(in oklch, var(--cat-study-bg)     75%, transparent); color: var(--cat-study-text); }
-.markDuration { background: color-mix(in oklch, var(--cat-reading-bg)   75%, transparent); color: var(--cat-reading-text); }
-.markCategory { background: color-mix(in oklch, var(--cat-code-bg)      75%, transparent); color: var(--cat-code-text); }
-.markEnergy   { background: color-mix(in oklch, var(--color-warning-bg) 75%, transparent); color: var(--color-warning-text); }
+.markDate     { background: color-mix(in oklch, var(--color-info-bg)    50%, transparent); color: var(--color-info-text); }
+.markTime     { background: color-mix(in oklch, var(--cat-study-bg)     50%, transparent); color: var(--cat-study-text); }
+.markDuration { background: color-mix(in oklch, var(--cat-reading-bg)   50%, transparent); color: var(--cat-reading-text); }
+.markCategory { background: color-mix(in oklch, var(--cat-code-bg)      50%, transparent); color: var(--cat-code-text); }
+.markEnergy   { background: color-mix(in oklch, var(--color-warning-bg) 50%, transparent); color: var(--color-warning-text); }
 
 /* ── Hint row ── */
 .hint {
@@ -266,7 +294,7 @@
 
 .popover {
   position: absolute;
-  top: calc(100% + 6px);
+  bottom: calc(100% + 6px);
   left: 0;
   z-index: var(--z-raised);
   background: var(--color-bg-elevated);
@@ -300,9 +328,62 @@
 
 .popoverDateInner { padding: 4px; }
 .energyDots { font-family: var(--font-mono); }
+
+.catPopover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: var(--z-raised);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 220px;
+}
+
+.catItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 120ms;
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+}
+.catItem:hover { background: var(--color-bg-tertiary); }
+
+.catItemActive {
+  background: color-mix(in oklch, var(--cat-bg) 70%, transparent);
+  color: var(--cat-text);
+  font-weight: 600;
+}
+
+.whenOptTime {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-tertiary);
+}
+
+.popoverItemClear { color: var(--color-danger-text); }
 .popoverItemActive {
   background: color-mix(in oklch, var(--color-accent-primary) 12%, transparent);
   font-weight: 500;
+}
+
+.popoverItemCatActive {
+  font-weight: 500;
+  color: var(--cat-text);
 }
 
 .popoverDivider {
@@ -322,6 +403,77 @@
   outline: none;
 }
 .popoverInput:focus { border-color: var(--color-accent-primary); }
+
+/* ── Duration inline presets ── */
+.durRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.durChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms, color 150ms;
+  white-space: nowrap;
+}
+.durChip:hover { border-color: var(--color-border-strong); color: var(--color-text-primary); }
+
+.durChipActive {
+  border-color: var(--color-accent-primary);
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  font-weight: 600;
+}
+.durChipActive:hover { border-color: var(--color-accent-primary); }
+
+.durChipCustom { padding: 0; overflow: hidden; }
+
+.durCustomWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 10px;
+}
+
+.durCustomInput {
+  width: 40px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  outline: none;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+.durCustomInput::-webkit-inner-spin-button,
+.durCustomInput::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.durCustomUnit {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.durCustomBtn {
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  font-size: 0.8125rem;
+}
+.durCustomBtn:hover { color: var(--color-text-primary); }
 
 /* ── Disclosure (notes) ── */
 .disclosureBtn {

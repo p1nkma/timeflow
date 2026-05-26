@@ -1,14 +1,10 @@
 import { useState } from 'react';
-import { Icon, PlusSignIcon, FilterHorizontalIcon } from '../../../shared/ui';
+import { Icon, FilterHorizontalIcon } from '../../../shared/ui';
 import { useAppSelector } from '../../../app/hooks';
 import { InboxPanel, FILTERS, type Filter } from './InboxPanel';
 import styles from './TaskSidePanel.module.css';
 
-interface Props {
-  onNewTask: () => void;
-}
-
-export function TaskSidePanel({ onNewTask }: Props) {
+export function TaskSidePanel() {
   const count = useAppSelector(s => s.inbox.length);
   const [filter, setFilter]         = useState<Filter>('all');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -29,10 +25,6 @@ export function TaskSidePanel({ onNewTask }: Props) {
           >
             <Icon icon={FilterHorizontalIcon} size={14} aria-hidden />
             {filter !== 'all' && <span className={styles.filterDot} />}
-          </button>
-          <button className={styles.btnAdd} onClick={onNewTask} aria-label="Добавить задачу">
-            <Icon icon={PlusSignIcon} size={16} />
-            Задача
           </button>
         </div>
       </div>

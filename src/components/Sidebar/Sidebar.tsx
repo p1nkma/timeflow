@@ -8,6 +8,8 @@ import styles from './Sidebar.module.css';
 interface SidebarProps {
   darkMode?: boolean;
   onDarkToggle?: () => void;
+  collapsed?: boolean;
+  onCollapseToggle?: () => void;
 }
 
 const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
@@ -17,15 +19,25 @@ const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
   { path: '/settings',  label: 'Настройки',   icon: Setting06Icon },
 ];
 
-export function Sidebar(_props: SidebarProps) {
+export function Sidebar({ collapsed = false, onCollapseToggle }: SidebarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   return (
-    <aside className={styles.sidebar} aria-label="Навигация">
+    <aside
+      className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}
+      aria-label="Навигация"
+    >
       <div className={styles.brand}>
-        <div className={styles.brandMark}>TF</div>
-        <span className={styles.brandName}>TimeFlow</span>
+        <button
+          className={styles.brandMark}
+          onClick={onCollapseToggle}
+          aria-label={collapsed ? 'Развернуть меню' : 'Свернуть меню'}
+          title={collapsed ? 'Развернуть' : 'Свернуть'}
+        >
+          TF
+        </button>
+        {!collapsed && <span className={styles.brandName}>TimeFlow</span>}
       </div>
 
       <nav className={styles.nav}>
@@ -35,9 +47,10 @@ export function Sidebar(_props: SidebarProps) {
             className={`${styles.navItem} ${pathname === path ? styles.active : ''}`}
             onClick={() => navigate(path)}
             aria-current={pathname === path ? 'page' : undefined}
+            title={collapsed ? label : undefined}
           >
             <Icon icon={icon} size={16} aria-hidden />
-            <span>{label}</span>
+            {!collapsed && <span>{label}</span>}
           </button>
         ))}
       </nav>
@@ -47,12 +60,15 @@ export function Sidebar(_props: SidebarProps) {
           className={styles.userChip}
           onClick={() => navigate('/settings')}
           aria-label="Открыть настройки профиля"
+          title={collapsed ? `${MOCK_USER.shortName} — настройки` : undefined}
         >
           <div className={styles.avatar}>{MOCK_USER.avatarMono}</div>
-          <div className={styles.userInfo}>
-            <div className={styles.userName}>{MOCK_USER.shortName}</div>
-            <div className={styles.userRole}>{MOCK_USER.role} · {MOCK_USER.university}</div>
-          </div>
+          {!collapsed && (
+            <div className={styles.userInfo}>
+              <div className={styles.userName}>{MOCK_USER.shortName}</div>
+              <div className={styles.userRole}>{MOCK_USER.role} · {MOCK_USER.university}</div>
+            </div>
+          )}
         </button>
       </div>
     </aside>
