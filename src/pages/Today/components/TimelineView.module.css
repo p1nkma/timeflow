@@ -19,32 +19,26 @@
   align-items: stretch;
   min-height: 76px;
   gap: var(--space-2);
-  padding: var(--space-1) 0;
+  padding: var(--space-1) var(--space-2);
   position: relative;
+  background: color-mix(in srgb, var(--ez-color) 35%, transparent);
+  border-radius: var(--radius-lg);
 }
 
 .hourRowNow {
-  background: color-mix(in oklch, var(--color-accent-primary) 4%, transparent);
-  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--color-accent-primary) 10%, transparent), transparent 60%),
+    color-mix(in srgb, var(--ez-color) 55%, transparent);
 }
 
 /* ── Левая колонка ── */
 .hourGutter {
-  width: 52px;
+  width: 40px;
   flex-shrink: 0;
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  justify-content: center;
   padding-top: 6px;
-}
-
-.energyBar {
-  width: 4px;
-  border-radius: 2px;
-  align-self: stretch;
-  min-height: 24px;
-  flex-shrink: 0;
-  opacity: 0.75;
 }
 
 .hourNum {

@@ -2,7 +2,7 @@
 export type Page = 'today' | 'planner' | 'analytics' | 'settings';
 
 // ===== Categories =====
-export type CategoryKey = 'study' | 'code' | 'freelance' | 'sport' | 'reading' | 'fixed';
+export type CategoryKey = string;
 
 export interface Category {
   key: CategoryKey;
@@ -10,6 +10,13 @@ export interface Category {
   varPrefix: string;
   cls: string;
   icon: unknown;
+}
+
+export interface CustomCategory {
+  key: string;       // 'custom_<timestamp>'
+  label: string;
+  iconName: string;  // key in ICON_MAP
+  color: string;     // hex, e.g. '#6366f1'
 }
 
 // ===== Tasks =====

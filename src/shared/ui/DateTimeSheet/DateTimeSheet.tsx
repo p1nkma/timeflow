@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Icon, Cancel01Icon } from '../Icon/Icon';
+import { Icon, Cancel01Icon, PlusSignIcon } from '../Icon/Icon';
 import { TimePicker } from '../TimePicker/TimePicker';
 import { DatePicker } from '../TimePicker/DatePicker';
 import { CategoryChip } from '../CategoryChip/CategoryChip';
 import { ModalShell } from '../ModalShell/ModalShell';
-import { CATEGORIES, catStyle } from '../../utils/categories';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { addCategory } from '../../../features/categories';
+import { CATEGORIES, catStyle, ICON_OPTIONS, COLOR_OPTIONS, ICON_MAP } from '../../utils/categories';
 import type { CategoryKey } from '../../types';
 import styles from './DateTimeSheet.module.css';
 
@@ -71,6 +74,7 @@ export function TimeSheet({ value, onChange, onClose }: {
 }
 
 const DUR_PRESETS = [
+  { value: 15,  label: '15 мин' },
   { value: 30,  label: '30 мин' },
   { value: 60,  label: '1 час' },
   { value: 120, label: '2 часа' },
@@ -82,12 +86,18 @@ export function DurationSheet({ value, onChange, onClose }: {
   onClose: () => void;
 }) {
   const [custom, setCustom] = useState(false);
-  const [draft, setDraft] = useState(value);
+  const [draft, setDraft] = useState(String(value));
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { if (custom) inputRef.current?.focus(); }, [custom]);
 
   const isPreset = DUR_PRESETS.some(p => p.value === value);
+  const draftNum = parseInt(draft, 10);
+  const draftValid = !isNaN(draftNum) && draftNum >= 1 && draftNum <= 720;
+
+  function confirmCustom() {
+    if (draftValid) { onChange(draftNum); onClose(); }
+  }
 
   return (
     <Sheet title="Длительность" onClose={onClose}>
@@ -109,11 +119,11 @@ export function DurationSheet({ value, onChange, onClose }: {
                 type="number"
                 className={styles.durCustomInput}
                 value={draft}
-                min={5}
+                min={1}
                 max={720}
-                onChange={e => { const v = Number(e.target.value); if (v > 0 && v <= 720) setDraft(v); }}
+                onChange={e => setDraft(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === 'Enter') { onChange(draft); onClose(); }
+                  if (e.key === 'Enter') confirmCustom();
                   if (e.key === 'Escape') setCustom(false);
                 }}
                 aria-label="Длительность в минутах"
@@ -121,14 +131,14 @@ export function DurationSheet({ value, onChange, onClose }: {
               <span className={styles.durCustomUnit}>мин</span>
             </span>
           ) : (
-            <button className={styles.durCustomBtn} onClick={() => setCustom(true)}>
+            <button className={styles.durCustomBtn} onClick={() => { setDraft(String(value)); setCustom(true); }}>
               {isPreset ? <PenIconSmall /> : `${value} мин`}
             </button>
           )}
         </span>
       </div>
       {custom && (
-        <button className={styles.confirmBtn} onClick={() => { onChange(draft); onClose(); }}>
+        <button className={styles.confirmBtn} onClick={confirmCustom} disabled={!draftValid}>
           Готово
         </button>
       )}
@@ -160,7 +170,7 @@ export function EnergySheet({ value, onChange, onClear, onClose }: {
   onClose: () => void;
 }) {
   return (
-    <Sheet title="Нагрузка" onClose={onClose}>
+    <Sheet title="Сложность" onClose={onClose}>
       <div className={styles.energyList}>
         {ENERGY_ITEMS.map(it => (
           <button
@@ -253,10 +263,96 @@ export function CategorySheet({ value, onChange, onClose }: {
   onChange: (v: CategoryKey) => void;
   onClose: () => void;
 }) {
+  const dispatch         = useAppDispatch();
+  const customCats       = useAppSelector(s => s.categories);
+  const [creating, setCreating] = useState(false);
+
+  // form state
+  const [newLabel, setNewLabel]   = useState('');
+  const [newIcon,  setNewIcon]    = useState(ICON_OPTIONS[0].name);
+  const [newColor, setNewColor]   = useState(COLOR_OPTIONS[0]);
+  const labelRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { if (creating) labelRef.current?.focus(); }, [creating]);
+
+  function handleCreate() {
+    const label = newLabel.trim();
+    if (!label) return;
+    const key = `custom_${Date.now()}`;
+    dispatch(addCategory({ key, label, iconName: newIcon, color: newColor }));
+    onChange(key);
+    onClose();
+  }
+
+  if (creating) {
+    return (
+      <Sheet title="Новая категория" onClose={() => setCreating(false)}>
+        <div className={styles.newCatForm}>
+          {/* Preview */}
+          <div className={styles.newCatPreview} style={catStyle('__preview', { key: '__preview', label: newLabel || 'Название', iconName: newIcon, color: newColor })}>
+            <HugeiconsIcon icon={ICON_MAP[newIcon] as never} size={28} strokeWidth={1.5} color="currentColor" />
+            <span className={styles.newCatPreviewLabel}>{newLabel || 'Название'}</span>
+          </div>
+
+          {/* Name */}
+          <input
+            ref={labelRef}
+            className={styles.newCatInput}
+            placeholder="Название категории"
+            value={newLabel}
+            onChange={e => setNewLabel(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
+            maxLength={24}
+          />
+
+          {/* Icon picker */}
+          <p className={styles.newCatSectionLabel}>Иконка</p>
+          <div className={styles.iconGrid}>
+            {ICON_OPTIONS.map(opt => (
+              <button
+                key={opt.name}
+                type="button"
+                className={`${styles.iconBtn} ${newIcon === opt.name ? styles.iconBtnActive : ''}`}
+                onClick={() => setNewIcon(opt.name)}
+                title={opt.label}
+                style={newIcon === opt.name ? { borderColor: newColor, background: `color-mix(in oklch, ${newColor} 15%, transparent)` } : undefined}
+              >
+                <HugeiconsIcon icon={opt.icon as never} size={20} strokeWidth={1.5} color={newIcon === opt.name ? newColor : 'currentColor'} />
+              </button>
+            ))}
+          </div>
+
+          {/* Color picker */}
+          <p className={styles.newCatSectionLabel}>Цвет</p>
+          <div className={styles.colorGrid}>
+            {COLOR_OPTIONS.map(hex => (
+              <button
+                key={hex}
+                type="button"
+                className={`${styles.colorBtn} ${newColor === hex ? styles.colorBtnActive : ''}`}
+                style={{ background: hex }}
+                onClick={() => setNewColor(hex)}
+                aria-label={hex}
+              />
+            ))}
+          </div>
+
+          <button
+            className={styles.confirmBtn}
+            onClick={handleCreate}
+            disabled={!newLabel.trim()}
+          >
+            Создать категорию
+          </button>
+        </div>
+      </Sheet>
+    );
+  }
+
   return (
     <Sheet title="Категория" onClose={onClose}>
       <div className={styles.catGrid}>
-        {(Object.keys(CATEGORIES) as CategoryKey[]).map(key => {
+        {Object.keys(CATEGORIES).map(key => {
           const active = key === value;
           return (
             <button
@@ -270,6 +366,28 @@ export function CategorySheet({ value, onChange, onClose }: {
             </button>
           );
         })}
+        {customCats.map(c => {
+          const active = c.key === value;
+          return (
+            <button
+              key={c.key}
+              className={`${styles.catGridItem} ${active ? styles.catGridItemActive : ''}`}
+              style={catStyle(c.key, c)}
+              onClick={() => { onChange(c.key); onClose(); }}
+            >
+              <CategoryChip cat={c.key} size="md" iconOnly aria-hidden />
+              <span className={styles.catGridLabel}>{c.label}</span>
+            </button>
+          );
+        })}
+        {/* Кнопка создания */}
+        <button
+          className={`${styles.catGridItem} ${styles.catGridItemNew}`}
+          onClick={() => setCreating(true)}
+        >
+          <span className={styles.catGridNewIcon}><Icon icon={PlusSignIcon} size={18} /></span>
+          <span className={styles.catGridLabel}>Новая</span>
+        </button>
       </div>
     </Sheet>
   );

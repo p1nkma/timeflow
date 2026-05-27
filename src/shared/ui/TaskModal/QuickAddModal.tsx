@@ -113,16 +113,25 @@ export function QuickAddModal({ onClose }: Props) {
   const finalEnergy: EnergyLevel | undefined =
     overrides.energy.explicit ? overrides.energy.value : (overrides.energy.value ?? parsed.energy);
 
-  const finalStart: number = (() => {
-    if (overrides.start.value !== undefined) return overrides.start.value;
-    if (parsed.start !== undefined) return parsed.start;
+  // Явно заданное время (пользователем или из текста) — без авто-вычисления
+  const explicitStart: number | undefined =
+    overrides.start.explicit ? overrides.start.value
+    : parsed.start !== undefined ? parsed.start
+    : undefined;
+
+  // Авто-слот считается только в момент сабмита
+  function resolveStart(): number {
+    if (explicitStart !== undefined) return explicitStart;
     const dateISO = finalDate ?? TODAY_ISO();
     const busy = allTasks.filter(t => (t.date ?? TODAY_ISO()) === dateISO);
     const minStart = dateISO === TODAY_ISO() ? Math.max(nowMin, planner.workStart) : planner.workStart;
     return findFreeSlot(busy, finalDuration, minStart, planner.workEnd);
-  })();
+  }
 
-  const goesToInbox = !finalDate && !overrides.start.value && parsed.start === undefined;
+  // Для отображения в чипе — только явное время
+  const finalStart = explicitStart;
+
+  const goesToInbox = !finalDate && explicitStart === undefined;
 
   // Подсветка: строим HTML с <mark> поверх токенов
   const highlightedHtml = useMemo(() => {
@@ -154,12 +163,13 @@ export function QuickAddModal({ onClose }: Props) {
       dispatch(addInboxItem({ title: titleSource, cat: finalCat }));
       dispatch(showToast({ message: 'Добавлено в Inbox', variant: 'default' }));
     } else {
+      const start = resolveStart();
       const id = `t${Date.now()}`;
       dispatch(addTask({
         title:  titleSource,
         date:   finalDate ?? TODAY_ISO(),
-        start:  finalStart,
-        end:    finalStart + finalDuration,
+        start,
+        end:    start + finalDuration,
         cat:    finalCat,
         source: 'user',
         energy: finalEnergy,
@@ -172,7 +182,7 @@ export function QuickAddModal({ onClose }: Props) {
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey && sheet === null) {
       e.preventDefault();
       handleSubmit();
     }
@@ -180,12 +190,10 @@ export function QuickAddModal({ onClose }: Props) {
 
   function setOverride<K extends keyof Overrides>(key: K, value: Overrides[K]['value']) {
     setOverrides(p => ({ ...p, [key]: { value, explicit: true } }));
-    setPopover(null);
   }
 
   function clearOverride<K extends keyof Overrides>(key: K) {
     setOverrides(p => ({ ...p, [key]: { value: undefined, explicit: true } }));
-    setPopover(null);
   }
 
   const canSubmit = (parsed.title || text.trim()).length > 0;
@@ -249,10 +257,10 @@ export function QuickAddModal({ onClose }: Props) {
               <span className={styles.whenDivider} aria-hidden />
               <button
                 type="button"
-                className={`${styles.chip} ${!goesToInbox ? styles.chipFilled : styles.chipEmpty}`}
+                className={`${styles.chip} ${finalStart !== undefined ? styles.chipFilled : styles.chipEmpty}`}
                 onClick={() => setSheet('time')}
               >
-                <span>{goesToInbox ? '+ Время' : fmtTime(finalStart)}</span>
+                <span>{finalStart !== undefined ? fmtTime(finalStart) : '+ Время'}</span>
               </button>
             </div>
 
@@ -281,7 +289,7 @@ export function QuickAddModal({ onClose }: Props) {
               className={`${styles.chip} ${finalEnergy ? styles.chipFilled : styles.chipEmpty} ${sheet === 'energy' ? styles.chipOpen : ''}`}
               onClick={() => setSheet('energy')}
             >
-              <span>{finalEnergy ? `Нагрузка: ${energyLabel(finalEnergy)}` : '+ Нагрузка'}</span>
+              <span>{finalEnergy ? `Сложность: ${energyLabel(finalEnergy)}` : '+ Сложность'}</span>
             </button>
           </div>
 
@@ -316,7 +324,7 @@ export function QuickAddModal({ onClose }: Props) {
             type="button"
           >
             {goesToInbox ? 'Добавить в Inbox' : 'Добавить в расписание'}
-            <span className={styles.submitKbd}>⌘↵</span>
+            <span className={styles.submitKbd}>↵</span>
           </button>
         </div>
       </div>
@@ -331,7 +339,7 @@ export function QuickAddModal({ onClose }: Props) {
       )}
       {sheet === 'time' && (
         <TimeSheet
-          value={finalStart}
+          value={finalStart ?? Math.max(nowMin, planner.workStart)}
           onChange={v => { setOverride('start', v); setSheet(null); }}
           onClose={() => setSheet(null)}
         />

@@ -39,6 +39,10 @@ export {
   ArrowLeft01Icon,
   Timer01Icon,
   FireIcon,
+  PlayIcon,
+  NextIcon,
+  HourglassIcon,
+  CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons';
 
 type HugeIconProps = ComponentProps<typeof HugeiconsIcon>;

@@ -16,7 +16,7 @@ export function EnergyBadge({ level, className }: Props) {
   return (
     <span
       className={`${styles.badge} ${className ?? ''}`}
-      aria-label={`Нагрузка: ${ENERGY_LABEL[level]}`}
+      aria-label={`Сложность: ${ENERGY_LABEL[level]}`}
     >
       {ENERGY_LABEL[level]}
     </span>

@@ -1,16 +1,18 @@
 import { useRef, useEffect, useCallback } from 'react';
 import styles from './TimePicker.module.css';
 
-export const ITEM_H  = 44; // px per row
-export const VISIBLE = 5;  // rows visible, centre = selected
+export const ITEM_H  = 44;
+export const VISIBLE = 5;
 
 interface Props<T extends number | string> {
   items: T[];
   selected: T;
   onSelect: (v: T) => void;
   formatItem?: (v: T) => string;
-  width?: number; // px, default 80
+  width?: number;
 }
+
+const COPIES = 3;
 
 export function DrumColumn<T extends number | string>({
   items,
@@ -19,45 +21,114 @@ export function DrumColumn<T extends number | string>({
   formatItem,
   width = 80,
 }: Props<T>) {
-  const listRef    = useRef<HTMLUListElement>(null);
-  const scrolling  = useRef(false);
-  const rafRef     = useRef<number>(0);
+  const listRef     = useRef<HTMLUListElement>(null);
+  const isJumping   = useRef(false);
+  const rafRef      = useRef<number>(0);
+  const lastIdx     = useRef(-1);
 
-  const scrollTo = useCallback((idx: number, smooth: boolean) => {
+  const pad = Math.floor(VISIBLE / 2);
+  const n   = items.length;
+  const label = (v: T) => formatItem ? formatItem(v) : String(v);
+  const selectedIdx = items.indexOf(selected);
+
+  const rowToIdx = (row: number) => {
+    const offset = row - pad;
+    if (offset < 0 || offset >= n * COPIES) return -1;
+    return ((offset % n) + n) % n;
+  };
+
+  const scrollToRow = useCallback((row: number, smooth: boolean) => {
     const el = listRef.current;
     if (!el) return;
-    el.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'instant' });
+    el.scrollTo({ top: row * ITEM_H, behavior: smooth ? 'smooth' : 'instant' });
   }, []);
 
-  // Mount: jump to initial position
+  const jumpToMiddle = useCallback((idx: number) => {
+    isJumping.current = true;
+    scrollToRow(pad + n + idx, false);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { isJumping.current = false; });
+    });
+  }, [n, pad, scrollToRow]);
+
+  // Mount
   useEffect(() => {
-    const idx = items.indexOf(selected);
-    if (idx >= 0) scrollTo(idx, false);
+    if (selectedIdx >= 0) {
+      lastIdx.current = selectedIdx;
+      jumpToMiddle(selectedIdx);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // External value change: scroll smoothly
+  // External value change
   useEffect(() => {
-    if (scrolling.current) return;
-    const idx = items.indexOf(selected);
-    if (idx >= 0) scrollTo(idx, true);
-  }, [selected, items, scrollTo]);
+    if (isJumping.current) return;
+    if (selectedIdx < 0) return;
+    const el = listRef.current;
+    if (!el) return;
+    const currentRow = Math.round(el.scrollTop / ITEM_H);
+    const starts = [pad, pad + n, pad + 2 * n];
+    const nearest = starts.reduce((best, s) =>
+      Math.abs(s + selectedIdx - currentRow) < Math.abs(best + selectedIdx - currentRow) ? s : best
+    );
+    scrollToRow(nearest + selectedIdx, true);
+  }, [selected, selectedIdx, n, pad, scrollToRow]);
 
   function handleScroll() {
-    scrolling.current = true;
+    if (isJumping.current) return;
+
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       const el = listRef.current;
-      if (!el) return;
-      const idx     = Math.round(el.scrollTop / ITEM_H);
-      const clamped = Math.max(0, Math.min(idx, items.length - 1));
-      onSelect(items[clamped]);
-      scrolling.current = false;
+      if (!el || isJumping.current) return;
+
+      const row = Math.round(el.scrollTop / ITEM_H);
+      const idx = rowToIdx(row);
+      if (idx < 0) return;
+
+      // Update selected immediately so highlight tracks scroll in real time
+      if (idx !== lastIdx.current) {
+        lastIdx.current = idx;
+        onSelect(items[idx]);
+      }
     });
   }
 
-  const pad = Math.floor(VISIBLE / 2);
-  const label = (v: T) => formatItem ? formatItem(v) : String(v);
+  // scrollend: only used to wrap to middle copy if needed — no value change here
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+
+    function onScrollEnd() {
+      if (isJumping.current) return;
+      const el2 = listRef.current;
+      if (!el2) return;
+      const row    = Math.round(el2.scrollTop / ITEM_H);
+      const offset = row - pad;
+      if (offset < 0 || offset >= n * COPIES) return;
+      const copyIndex = Math.floor(offset / n);
+      const idx = ((offset % n) + n) % n;
+      if (copyIndex !== 1) jumpToMiddle(idx);
+    }
+
+    const supportsScrollEnd = 'onscrollend' in el;
+    if (supportsScrollEnd) {
+      el.addEventListener('scrollend', onScrollEnd);
+      return () => el.removeEventListener('scrollend', onScrollEnd);
+    } else {
+      let timer: ReturnType<typeof setTimeout>;
+      function fallback() {
+        if (isJumping.current) return;
+        clearTimeout(timer);
+        timer = setTimeout(onScrollEnd, 120);
+      }
+      el.addEventListener('scroll', fallback, { passive: true });
+      return () => { el.removeEventListener('scroll', fallback); clearTimeout(timer); };
+    }
+  }, [jumpToMiddle, n, pad]);
+
+  const allItems: T[] = [];
+  for (let c = 0; c < COPIES; c++) for (const v of items) allItems.push(v);
 
   return (
     <div className={styles.drumColumn} style={{ width }}>
@@ -69,13 +140,13 @@ export function DrumColumn<T extends number | string>({
         {Array.from({ length: pad }).map((_, i) => (
           <li key={`pt${i}`} className={styles.drumPad} aria-hidden />
         ))}
-        {items.map(v => (
+        {allItems.map((v, i) => (
           <li
-            key={String(v)}
+            key={i}
             className={`${styles.drumItem} ${v === selected ? styles.drumItemActive : ''}`}
             onClick={() => {
-              scrollTo(items.indexOf(v), true);
               onSelect(v);
+              scrollToRow(pad + n + items.indexOf(v), true);
             }}
           >
             {label(v)}

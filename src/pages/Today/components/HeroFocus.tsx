@@ -6,7 +6,7 @@ import {
 import { showToast } from '../../../features/ui';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown, fmtRemaining, findFreeSlot } from '../../../shared/utils/time';
-import { Icon, Tick01Icon, ArrowRight01Icon, Coffee01Icon, CategoryChip, EnergyBadge } from '../../../shared/ui';
+import { CategoryChip, EnergyBadge } from '../../../shared/ui';
 import styles from './HeroFocus.module.css';
 
 export function HeroFocus() {
@@ -94,22 +94,18 @@ export function HeroFocus() {
         {isCurrent ? (
           <>
             <button className={styles.btnPrimary} onClick={handleDone}>
-              <Icon icon={Tick01Icon} size={14} />
               Выполнено
             </button>
             <button className={styles.btnSecondary} onClick={handleSkip}>
-              <Icon icon={ArrowRight01Icon} size={14} />
               Пропустить
             </button>
             <button className={styles.btnGhost} onClick={handleDelay}>
-              <Icon icon={Coffee01Icon} size={14} />
               Отложить 15 мин
             </button>
           </>
         ) : (
           <>
             <button className={styles.btnPrimary} onClick={handleStart}>
-              <Icon icon={ArrowRight01Icon} size={14} />
               Запустить сейчас
             </button>
             <button className={styles.btnGhost} onClick={handleSkip}>

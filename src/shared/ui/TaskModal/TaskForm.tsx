@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { createPortal } from 'react-dom';
-import { format, parseISO } from 'date-fns';
-import { ru } from 'date-fns/locale';
 import { useNavigate } from 'react-router';
 import type { CategoryKey, EnergyLevel } from '../../types';
-import { DatePicker } from '../TimePicker/DatePicker';
-import { Icon, Cancel01Icon } from '../Icon/Icon';
-import { CAT_OPTIONS, DURATION_OPTIONS, TIME_OPTIONS } from './constants';
+import { DateSheet, TimeSheet, DurationSheet, CategorySheet } from '../DateTimeSheet/DateTimeSheet';
 import type { TaskFormValues } from './useTaskForm';
 import styles from './TaskModal.module.css';
+import { format, parseISO } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import { fmt } from '../../utils/time';
 
 interface Props {
   values: TaskFormValues;
@@ -25,6 +23,14 @@ const ENERGY_OPTIONS: { value: EnergyLevel; label: string }[] = [
   { value: 'high',   label: 'Тяжёлая' },
 ];
 
+function fmtDuration(min: number): string {
+  if (min < 60) return `${min} мин`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (m === 0) return h === 1 ? '1 час' : `${h} ч`;
+  return `${h} ч ${m} мин`;
+}
+
 function fmtDateRu(iso: string): string {
   try { return format(parseISO(iso), 'd MMM yyyy', { locale: ru }); }
   catch { return iso; }
@@ -34,21 +40,14 @@ export function TaskForm({
   values, update, autoFocusTitle, titlePlaceholder, notesLabel = 'Заметки', onSubmitOnEnter,
 }: Props) {
   const navigate = useNavigate();
-  const [dateSheetOpen, setDateSheetOpen] = useState(false);
-  const [dateDraft, setDateDraft]         = useState(values.date);
-  const [extraOpen, setExtraOpen]         = useState(false);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const [sheet, setSheet] = useState<null | 'date' | 'time' | 'duration' | 'cat'>(null);
 
   const isSchedule = values.destination === 'schedule';
   const isInbox    = values.destination === 'inbox';
-
-  function openDateSheet() { setDateDraft(values.date); setDateSheetOpen(true); }
-  function confirmDate()   { update('date', dateDraft); setDateSheetOpen(false); }
+  const [extraOpen, setExtraOpen] = useState(false);
 
   return (
     <>
-      {/* Title — always visible, big and airy */}
       <input
         className={styles.titleInput}
         placeholder={titlePlaceholder ?? 'Что нужно сделать?'}
@@ -58,50 +57,40 @@ export function TaskForm({
         autoFocus={autoFocusTitle}
       />
 
-      {/* Schedule fields */}
       {isSchedule && (
         <div className={styles.fieldGroup}>
           <div className={styles.row2}>
             <div className={styles.fieldInline}>
               <span className={styles.fieldLabel}>Дата</span>
-              <button type="button" className={styles.fieldControl} onClick={openDateSheet}>
+              <button type="button" className={styles.fieldControl} onClick={() => setSheet('date')}>
                 {fmtDateRu(values.date)}
               </button>
             </div>
             <div className={styles.fieldInline}>
               <span className={styles.fieldLabel}>Начало</span>
-              <select
-                className={styles.fieldControl}
-                value={values.start}
-                onChange={e => update('start', Number(e.target.value))}
-              >
-                {TIME_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <button type="button" className={styles.fieldControl} onClick={() => setSheet('time')}>
+                {fmt(values.start)}
+              </button>
             </div>
           </div>
 
           <div className={styles.row2}>
             <div className={styles.fieldInline}>
               <span className={styles.fieldLabel}>Длительность</span>
-              <select
-                className={styles.fieldControl}
-                value={values.duration}
-                onChange={e => update('duration', Number(e.target.value))}
-              >
-                {DURATION_OPTIONS.map(d => (
-                  <option key={d} value={d}>{d < 60 ? `${d} мин` : `${d / 60} ч`}</option>
-                ))}
-              </select>
+              <button type="button" className={styles.fieldControl} onClick={() => setSheet('duration')}>
+                {fmtDuration(values.duration)}
+              </button>
             </div>
             <div className={styles.fieldInline}>
               <span className={styles.fieldLabel}>Категория</span>
-              <select
-                className={styles.fieldControl}
-                value={values.cat}
-                onChange={e => update('cat', e.target.value as CategoryKey)}
-              >
-                {CAT_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
-              </select>
+              <button type="button" className={styles.fieldControl} onClick={() => setSheet('cat')}>
+                {values.cat === 'study'     ? 'Учёба'
+                : values.cat === 'code'     ? 'Кодинг'
+                : values.cat === 'freelance'? 'Фриланс'
+                : values.cat === 'sport'    ? 'Спорт'
+                : values.cat === 'reading'  ? 'Чтение'
+                : 'Вуз'}
+              </button>
               <button
                 type="button"
                 className={styles.newCatBtn}
@@ -112,9 +101,8 @@ export function TaskForm({
             </div>
           </div>
 
-          {/* Energy — full width segmented */}
           <div className={styles.fieldInlineFull}>
-            <span className={styles.fieldLabel}>Нагрузка</span>
+            <span className={styles.fieldLabel}>Сложность</span>
             <div className={styles.energyGroup}>
               {ENERGY_OPTIONS.map(o => (
                 <button
@@ -131,7 +119,6 @@ export function TaskForm({
         </div>
       )}
 
-      {/* Inbox: extra fields behind disclosure */}
       {isInbox && (
         <div className={styles.fieldGroup}>
           <button
@@ -147,13 +134,14 @@ export function TaskForm({
             <div className={styles.extraFields}>
               <div className={styles.fieldInline}>
                 <span className={styles.fieldLabel}>Категория</span>
-                <select
-                  className={styles.fieldControl}
-                  value={values.cat}
-                  onChange={e => update('cat', e.target.value as CategoryKey)}
-                >
-                  {CAT_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
-                </select>
+                <button type="button" className={styles.fieldControl} onClick={() => setSheet('cat')}>
+                  {values.cat === 'study'     ? 'Учёба'
+                  : values.cat === 'code'     ? 'Кодинг'
+                  : values.cat === 'freelance'? 'Фриланс'
+                  : values.cat === 'sport'    ? 'Спорт'
+                  : values.cat === 'reading'  ? 'Чтение'
+                  : 'Вуз'}
+                </button>
               </div>
               <div className={styles.fieldInlineFull}>
                 <span className={styles.fieldLabel}>{notesLabel}</span>
@@ -169,7 +157,6 @@ export function TaskForm({
         </div>
       )}
 
-      {/* Notes for schedule mode */}
       {isSchedule && (
         <div className={styles.fieldInlineFull}>
           <span className={styles.fieldLabel}>{notesLabel}</span>
@@ -182,28 +169,33 @@ export function TaskForm({
         </div>
       )}
 
-      {dateSheetOpen && createPortal(
-        <div
-          className={styles.sheetBackdrop}
-          onClick={e => { if (e.target === e.currentTarget) setDateSheetOpen(false); }}
-        >
-          <div className={styles.sheet} role="dialog" aria-modal="true" aria-label="Выбрать дату">
-            <div className={styles.sheetHandle} />
-            <div className={styles.sheetHeader}>
-              <span className={styles.sheetTitle}>Выбрать дату</span>
-              <button className={styles.closeBtn} onClick={() => setDateSheetOpen(false)} aria-label="Закрыть">
-                <Icon icon={Cancel01Icon} size={14} />
-              </button>
-            </div>
-            <div className={styles.sheetBody}>
-              <DatePicker value={dateDraft} onChange={setDateDraft} minDate={today} />
-              <button className={styles.sheetConfirmBtn} onClick={confirmDate}>
-                Готово
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body,
+      {sheet === 'date' && (
+        <DateSheet
+          value={values.date}
+          onChange={v => { update('date', v); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'time' && (
+        <TimeSheet
+          value={values.start}
+          onChange={v => { update('start', v); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'duration' && (
+        <DurationSheet
+          value={values.duration}
+          onChange={v => { update('duration', v); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+      {sheet === 'cat' && (
+        <CategorySheet
+          value={values.cat as CategoryKey}
+          onChange={v => { update('cat', v); setSheet(null); }}
+          onClose={() => setSheet(null)}
+        />
       )}
     </>
   );

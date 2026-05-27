@@ -102,8 +102,11 @@ const tasksSlice = createSlice({
       task.end     = newStart + dur;
       task.overdue = false;
     },
+    resetTasks(state) {
+      state.items = [...MOCK_TASKS];
+    },
   },
 });
 
-export const { setNowMin, toggleTask, updateTask, deleteTask, addTask, reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule, moveTaskToDate } = tasksSlice.actions;
+export const { setNowMin, toggleTask, updateTask, deleteTask, addTask, reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule, moveTaskToDate, resetTasks } = tasksSlice.actions;
 export default tasksSlice.reducer;

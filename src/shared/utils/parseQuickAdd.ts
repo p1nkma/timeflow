@@ -78,9 +78,10 @@ export function parseQuickAdd(input: string, now: Date = new Date()): ParsedQuic
   const matches: Match[] = [];
 
   // ── Даты ──
-  const reToday = /\b(сегодня)\b/g;
-  const reTomorrow = /\b(завтра)\b/g;
-  const reDayAfter = /\b(послезавтра)\b/g;
+  // \b не работает с кириллицей — используем Unicode lookaround
+  const reToday    = /(?<!\p{L})(сегодня)(?!\p{L})/gu;
+  const reTomorrow = /(?<!\p{L})(завтра)(?!\p{L})/gu;
+  const reDayAfter = /(?<!\p{L})(послезавтра)(?!\p{L})/gu;
 
   for (const m of lower.matchAll(reToday)) {
     matches.push({
@@ -102,7 +103,7 @@ export function parseQuickAdd(input: string, now: Date = new Date()): ParsedQuic
   }
 
   // "след(ующий) пн", "след пятницу"
-  const reNextWeekday = /\b(след(?:ующ(?:ий|ую|ая|ее))?|сл\.?)\s+(пн|пон|понедельник|вт|вто|вторник|ср|сре|среда|среду|чт|чет|четверг|пт|пят|пятница|пятницу|сб|суб|суббота|субботу|вс|воск|воскресенье)\b/g;
+  const reNextWeekday = /(?<!\p{L})(след(?:ующ(?:ий|ую|ая|ее))?|сл\.?)\s+(пн|пон|понедельник|вт|вто|вторник|ср|сре|среда|среду|чт|чет|четверг|пт|пят|пятница|пятницу|сб|суб|суббота|субботу|вс|воск|воскресенье)(?!\p{L})/gu;
   for (const m of lower.matchAll(reNextWeekday)) {
     const wd = WEEKDAYS[m[2]] ?? WEEKDAYS[m[2].slice(0, 2)];
     if (wd === undefined) continue;
@@ -114,7 +115,7 @@ export function parseQuickAdd(input: string, now: Date = new Date()): ParsedQuic
   }
 
   // одиночный день недели: "в пятницу", "пн"
-  const reWeekday = /\b(в\s+)?(понедельник|вторник|сред[аеуы]|четверг|пятниц[ауы]|суббот[ауы]|воскресенье|пн|вт|ср|чт|пт|сб|вс)\b/g;
+  const reWeekday = /(?<!\p{L})(в\s+)?(понедельник|вторник|сред[аеуы]|четверг|пятниц[ауы]|суббот[ауы]|воскресенье|пн|вт|ср|чт|пт|сб|вс)(?!\p{L})/gu;
   for (const m of lower.matchAll(reWeekday)) {
     if (matches.some(x => x.start <= m.index! && x.end > m.index!)) continue;
     const raw = m[2];
@@ -199,7 +200,7 @@ export function parseQuickAdd(input: string, now: Date = new Date()): ParsedQuic
   // ── Категория ──
   const aliasKeys = Object.keys(CATEGORY_ALIASES).sort((a, b) => b.length - a.length);
   const aliasPattern = aliasKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  const reCat = new RegExp(`#(${aliasPattern})\\b`, 'gu');
+  const reCat = new RegExp(`#(${aliasPattern})(?!\\p{L})`, 'gu');
   for (const m of lower.matchAll(reCat)) {
     const cat = CATEGORY_ALIASES[m[1]];
     if (!cat) continue;

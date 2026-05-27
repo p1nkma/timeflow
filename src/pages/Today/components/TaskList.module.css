@@ -51,10 +51,8 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Текущая задача — акцентная полоса слева + тинт фона */
+/* Текущая задача — тинт фона */
 .taskNow {
-  border-left: 3px solid var(--color-accent-primary);
-  padding-left: calc(var(--space-3) - 3px);
   background:
     linear-gradient(to right,
       rgba(30, 41, 45, 0.03) 0%,

@@ -119,9 +119,11 @@ function HourSlot({
   const isEmpty   = primary.length === 0 && cont.length === 0;
 
   return (
-    <div className={`${styles.hourRow} ${isNow ? styles.hourRowNow : ''}`}>
+    <div
+      className={`${styles.hourRow} ${isNow ? styles.hourRowNow : ''}`}
+      style={{ ['--ez-color' as string]: energyColor(hour) }}
+    >
       <div className={styles.hourGutter}>
-        <div className={styles.energyBar} style={{ background: energyColor(hour) }} />
         <span className={styles.hourNum}>{hour}</span>
       </div>
       <div className={styles.slotContent}>

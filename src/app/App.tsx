@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import { useAppDispatch, useAppSelector } from './hooks';
-import { toggleDarkMode } from '../features/ui';
-import { setNowMin } from '../features/tasks';
+import { toggleDarkMode, showToast } from '../features/ui';
+import { setNowMin, resetTasks } from '../features/tasks';
+import { resetInbox } from '../features/inbox';
 import { Sidebar } from '../components/Sidebar/Sidebar';
 import { BottomNav } from '../components/BottomNav/BottomNav';
 import { Toast, Fab, QuickAddModal } from '../shared/ui';
@@ -30,6 +31,20 @@ export function App() {
     tick();
     const id = setInterval(tick, 60_000);
     return () => clearInterval(id);
+  }, [dispatch]);
+
+  // Demo reset: ⌘+Shift+R / Ctrl+Shift+R → restore initial mock data
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'R' || e.key === 'r')) {
+        e.preventDefault();
+        dispatch(resetTasks());
+        dispatch(resetInbox());
+        dispatch(showToast({ message: 'Демо-данные сброшены', variant: 'success' }));
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [dispatch]);
 
   return (

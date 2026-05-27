@@ -77,6 +77,9 @@ function TaskCard({
     disabled: task.locked,
   });
 
+  const isAi = task.source === 'ai';
+  const animDelay = isAi ? Math.max(0, (task.start - 8 * 60)) / 30 * 60 : 0;
+
   return (
     <div
       ref={setNodeRef}
@@ -86,8 +89,12 @@ function TaskCard({
         task.overdue ? styles.taskOverdue : '',
         isActive     ? styles.taskActive  : '',
         isDragging   ? styles.taskDragging : '',
+        isAi         ? styles.taskAiNew   : '',
       ].filter(Boolean).join(' ')}
-      style={catStyle(task.cat)}
+      style={isAi
+        ? { ...catStyle(task.cat), animationDelay: `${animDelay}ms` }
+        : catStyle(task.cat)
+      }
       role="button" tabIndex={0}
       aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}${task.done ? ', выполнено' : ''}`}
       aria-expanded={isActive}

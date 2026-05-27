@@ -7,10 +7,11 @@ import { OverdueBanner }   from './components/OverdueBanner';
 import { PlannerTimeline } from './components/PlannerTimeline';
 import type { ViewMode }   from './components/PlannerTimeline';
 import { TaskSidePanel }   from './components/TaskSidePanel';
+import { GenerateModal }   from './components/GenerateModal';
 import { Icon, SparklesIcon, PlusSignIcon, TaskModal, QuickAddModal } from '../../shared/ui';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { selectAllTasks, addTask, moveTaskToDate, reorderTask } from '../../features/tasks';
-import { removeInboxItem } from '../../features/inbox';
+import { selectAllTasks, addTask, moveTaskToDate, reorderTask, removeFromSchedule } from '../../features/tasks';
+import { removeInboxItem, addInboxItem } from '../../features/inbox';
 import { showToast } from '../../features/ui';
 import { findFreeSlot, fmt } from '../../shared/utils/time';
 import { catStyle } from '../../shared/utils/categories';
@@ -23,6 +24,7 @@ export function PlannerPage() {
   const dispatch = useAppDispatch();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showNewTask, setShowNewTask]        = useState(false);
+  const [showGenerate, setShowGenerate]      = useState(false);
   const [draggingItem, setDraggingItem]      = useState<InboxItem | null>(null);
   const [draggingTask, setDraggingTask]      = useState<Task | null>(null);
   const [viewMode, setViewMode]              = useState<ViewMode>('day');
@@ -49,6 +51,23 @@ export function PlannerPage() {
     const active = e.active.data.current;
     const over   = e.over?.data.current;
     if (!active) return;
+
+    // Task dragged back to inbox — strip time, keep date as deadline
+    if (active.type === 'task' && over?.type === 'inbox') {
+      const task = active.task as Task;
+      if (task.locked) return;
+      dispatch(removeFromSchedule(task.id));
+      dispatch(addInboxItem({
+        title: task.title,
+        cat: task.cat,
+        deadline: task.date ?? null,
+        urgent: false,
+      }));
+      dispatch(showToast({ message: 'Задача возвращена в Inbox', variant: 'success' }));
+      if (selectedTaskId === task.id) setSelectedTaskId(null);
+      return;
+    }
+
     if (!over || over.type !== 'slot') return;
 
     const hour       = over.hour as number;
@@ -151,7 +170,11 @@ export function PlannerPage() {
         <div className={styles.header}>
           <h1 className="t-h2">Планировщик</h1>
           <div className={styles.headerActions}>
-            <button className={styles.btnGenerate} aria-label="Сгенерировать план с помощью ИИ">
+            <button
+              className={styles.btnGenerate}
+              aria-label="Сгенерировать план с помощью ИИ"
+              onClick={() => setShowGenerate(true)}
+            >
               <Icon icon={SparklesIcon} size={14} />
               Сгенерировать
             </button>
@@ -187,6 +210,10 @@ export function PlannerPage() {
 
         {showNewTask && (
           <QuickAddModal onClose={() => setShowNewTask(false)} />
+        )}
+
+        {showGenerate && (
+          <GenerateModal onClose={() => setShowGenerate(false)} />
         )}
       </div>
 

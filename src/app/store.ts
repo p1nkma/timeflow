@@ -4,6 +4,7 @@ import { tasksReducer } from '../features/tasks';
 import { plannerReducer } from '../features/planner';
 import { uiReducer } from '../features/ui';
 import { inboxReducer } from '../features/inbox';
+import { categoriesReducer } from '../features/categories';
 import { baseApi } from './api/baseApi';
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     planner: plannerReducer,
     ui: uiReducer,
     inbox: inboxReducer,
+    categories: categoriesReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: getDefault => getDefault().concat(baseApi.middleware),

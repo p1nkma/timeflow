@@ -6,11 +6,10 @@ import { showToast } from '../../../features/ui';
 import {
   getDailyHint,
   formatSlotRange,
-  formatSlotDuration,
   type DailyHint,
 } from '../../../shared/utils/dailyHint';
 import { fmt } from '../../../shared/utils/time';
-import { Icon, SparklesIcon, Cancel01Icon } from '../../../shared/ui';
+import { Icon, Cancel01Icon } from '../../../shared/ui';
 import styles from './DailyTip.module.css';
 
 const TODAY_ISO = () => new Date().toISOString().slice(0, 10);
@@ -66,7 +65,6 @@ export function DailyTip() {
 
   return (
     <div className={styles.tip} role="region" aria-label="Совет дня">
-      <Icon icon={SparklesIcon} size={16} className={styles.icon} />
       <div className={styles.body}>
         <div className={styles.label}>Совет дня</div>
         {renderHintContent(hint, handleScheduleFromInbox, handleSkipInbox)}
@@ -109,8 +107,8 @@ function renderHintContent(
       return (
         <>
           <p className={styles.text}>
-            Свободно <span className="t-num">{formatSlotRange(hint.slotStart, hint.slotEnd)}</span> (<span className="t-num">{formatSlotDuration(hint.slotStart, hint.slotEnd)}</span>).
-            Поставить сюда <strong>«{hint.inboxItem.title}»</strong>?
+            Свободно <span className="t-num">{formatSlotRange(hint.slotStart, hint.slotEnd)}</span>.
+            Поставить <strong>«{hint.inboxItem.title}»</strong>?
           </p>
           <div className={styles.actions}>
             <button

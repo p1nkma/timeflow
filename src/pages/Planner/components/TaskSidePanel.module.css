@@ -5,13 +5,14 @@
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xl);
-  height: fit-content;
   position: sticky;
   top: var(--space-5);
+  max-height: calc(100dvh - var(--space-5) * 2);
   overflow: hidden;
 }
 
 .panelHeader {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -81,6 +82,7 @@
 }
 
 .filters {
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
@@ -104,6 +106,12 @@
   background: var(--color-accent-primary);
   color: var(--color-text-inverse);
   border-color: var(--color-accent-primary);
+}
+
+.panelDropOver {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--color-accent-primary) 20%, transparent);
+  background: color-mix(in oklch, var(--color-accent-primary) 4%, var(--color-bg-secondary));
 }
 
 .btnAdd {

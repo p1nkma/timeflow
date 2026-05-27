@@ -127,6 +127,31 @@ export function SettingsPage() {
           </Row>
         </Section>
 
+        {/* ── Интеграции ── */}
+        <Section title="Интеграции">
+          <div className={styles.integration}>
+            <div className={styles.integrationIcon} aria-hidden>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M21.2 4.2L2.8 11.5c-1 .4-1 1.5 0 1.9l4.7 1.6 1.8 5.7c.2.6 1 .8 1.5.3l2.6-2.4 4.8 3.5c.7.5 1.6.1 1.7-.7l2.9-15.6c.2-1-.7-1.7-1.6-1.3zM9.7 15.5l-.4 2.8-1-3.4 8.3-7.4-6.9 8z"/>
+              </svg>
+            </div>
+            <div className={styles.integrationBody}>
+              <span className={styles.integrationTitle}>Telegram</span>
+              <span className={styles.integrationDesc}>
+                Подключи бота, чтобы получать уведомления о задачах и быстро добавлять дела через чат
+              </span>
+            </div>
+            <a
+              className={styles.integrationBtn}
+              href="https://t.me/timeflow_bot?start=connect_user"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Подключить
+            </a>
+          </div>
+        </Section>
+
         {/* ── Данные ── */}
         <Section title="Данные">
           <Row label="Хранение данных">

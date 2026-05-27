@@ -333,6 +333,14 @@
 
 .task:hover { box-shadow: var(--shadow-sm); }
 
+@keyframes taskAiAppear {
+  from { opacity: 0; transform: translateY(6px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.taskAiNew {
+  animation: taskAiAppear 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .task:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring), var(--shadow-sm);

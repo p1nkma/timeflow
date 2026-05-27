@@ -1,6 +1,6 @@
 export {
   setNowMin, toggleTask, updateTask, deleteTask, addTask,
-  reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule, moveTaskToDate,
+  reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule, moveTaskToDate, resetTasks,
 } from './model/tasksSlice';
 export { default as tasksReducer } from './model/tasksSlice';
 export {

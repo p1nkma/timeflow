@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDroppable } from '@dnd-kit/core';
 import { Icon, FilterHorizontalIcon } from '../../../shared/ui';
 import { useAppSelector } from '../../../app/hooks';
 import { InboxPanel, FILTERS, type Filter } from './InboxPanel';
@@ -9,8 +10,16 @@ export function TaskSidePanel() {
   const [filter, setFilter]         = useState<Filter>('all');
   const [filterOpen, setFilterOpen] = useState(false);
 
+  const { setNodeRef, isOver } = useDroppable({
+    id: 'inbox-drop-zone',
+    data: { type: 'inbox' },
+  });
+
   return (
-    <aside className={styles.panel}>
+    <aside
+      ref={setNodeRef}
+      className={`${styles.panel} ${isOver ? styles.panelDropOver : ''}`}
+    >
       <div className={styles.panelHeader}>
         <div className={styles.panelTitleGroup}>
           <span className={styles.panelTitle}>Inbox</span>

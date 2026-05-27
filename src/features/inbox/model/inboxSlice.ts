@@ -15,8 +15,11 @@ const inboxSlice = createSlice({
     removeInboxItem(state, action: PayloadAction<string>) {
       return state.filter(i => i.id !== action.payload);
     },
+    resetInbox() {
+      return [...MOCK_INBOX];
+    },
   },
 });
 
-export const { addInboxItem, removeInboxItem } = inboxSlice.actions;
+export const { addInboxItem, removeInboxItem, resetInbox } = inboxSlice.actions;
 export default inboxSlice.reducer;
