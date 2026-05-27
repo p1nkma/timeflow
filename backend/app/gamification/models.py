@@ -4,9 +4,8 @@ import uuid
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Date, DateTime
+from sqlalchemy import Date, DateTime, String, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.enums import AchievementType

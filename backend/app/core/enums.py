@@ -1,23 +1,23 @@
 import enum
 
 
-class Role(str, enum.Enum):
+class Role(enum.StrEnum):
     user = "user"
     admin = "admin"
 
 
-class Theme(str, enum.Enum):
+class Theme(enum.StrEnum):
     light = "light"
     dark = "dark"
 
 
-class TaskStatus(str, enum.Enum):
+class TaskStatus(enum.StrEnum):
     pending = "pending"
     done = "done"
     skipped = "skipped"
 
 
-class TaskSource(str, enum.Enum):
+class TaskSource(enum.StrEnum):
     user = "user"
     ai = "ai"
     uni = "uni"
@@ -25,24 +25,24 @@ class TaskSource(str, enum.Enum):
     telegram = "telegram"
 
 
-class EnergyLevel(str, enum.Enum):
+class EnergyLevel(enum.StrEnum):
     low = "low"
     medium = "medium"
     high = "high"
 
 
-class Chronotype(str, enum.Enum):
+class Chronotype(enum.StrEnum):
     lark = "lark"
     owl = "owl"
     pigeon = "pigeon"
 
 
-class AnalyticsPeriod(str, enum.Enum):
+class AnalyticsPeriod(enum.StrEnum):
     week = "week"
     month = "month"
 
 
-class AchievementType(str, enum.Enum):
+class AchievementType(enum.StrEnum):
     streak_7 = "streak_7"
     streak_14 = "streak_14"
     streak_30 = "streak_30"

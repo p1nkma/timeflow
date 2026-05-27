@@ -5,19 +5,10 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+import app.db.all_models  # noqa: F401  -- register every model in Base.metadata
 from alembic import context
-
 from app.core.config import get_settings
 from app.db.base import Base
-
-# Import all models so Alembic sees them in Base.metadata for autogenerate.
-from app.analytics.models import AnalyticsSnapshot  # noqa: F401
-from app.categories.models import Category  # noqa: F401
-from app.gamification.models import Achievement, Streak  # noqa: F401
-from app.integrations.google.models import GoogleCalendarToken  # noqa: F401
-from app.tasks.models import Task  # noqa: F401
-from app.telegram.models import TelegramUser  # noqa: F401
-from app.users.models import User  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().database_url)

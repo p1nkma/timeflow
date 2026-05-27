@@ -4,9 +4,8 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Index
+from sqlalchemy import DateTime, Index, String, Text
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.enums import EnergyLevel, TaskSource, TaskStatus
