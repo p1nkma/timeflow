@@ -31,8 +31,9 @@ class Settings(BaseSettings):
     google_client_secret: str | None = None
     google_redirect_uri: str | None = None
 
-    anthropic_api_key: str | None = None
-    anthropic_model: str = "claude-sonnet-4-6"
+    llm_base_url: str = "https://polza.ai/api/v1"
+    llm_api_key: str | None = None
+    llm_model: str = "deepseek/deepseek-chat-v3-0324"
 
 
 @lru_cache
