@@ -121,12 +121,22 @@ async def google_sync(
         )
 
     try:
-        events = fetch_events(token, days_ahead=days_ahead)
+        events, creds = fetch_events(token, days_ahead=days_ahead)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Google Calendar fetch failed: {exc}",
         ) from exc
+
+    # Persist refreshed token if google-auth rotated it
+    if creds.token and creds.token != token.access_token:
+        token.access_token = creds.token
+    if creds.expiry:
+        expiry = creds.expiry
+        if expiry.tzinfo is None:
+            expiry = expiry.replace(tzinfo=UTC)
+        token.expires_at = expiry
+    await db.commit()
 
     new_tasks = events_to_tasks(events, user.id)
     if not new_tasks:

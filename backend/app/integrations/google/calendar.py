@@ -21,6 +21,7 @@ def _build_credentials(token: GoogleCalendarToken) -> Credentials:
         token_uri="https://oauth2.googleapis.com/token",
         client_id=settings.google_client_id,
         client_secret=settings.google_client_secret,
+        expiry=token.expires_at,
     )
 
 
@@ -60,8 +61,8 @@ def _parse_event(event: dict, user_id: uuid.UUID) -> Task | None:
     )
 
 
-def fetch_events(token: GoogleCalendarToken, days_ahead: int = 7) -> list[dict]:
-    """Fetch upcoming events from primary Google Calendar."""
+def fetch_events(token: GoogleCalendarToken, days_ahead: int = 7) -> tuple[list[dict], Credentials]:
+    """Fetch upcoming events. Returns (events, creds) — creds may have refreshed token."""
     creds = _build_credentials(token)
     service = build("calendar", "v3", credentials=creds)
 
@@ -80,7 +81,7 @@ def fetch_events(token: GoogleCalendarToken, days_ahead: int = 7) -> list[dict]:
         )
         .execute()
     )
-    return result.get("items", [])
+    return result.get("items", []), creds
 
 
 def events_to_tasks(events: list[dict], user_id: uuid.UUID) -> list[Task]:
