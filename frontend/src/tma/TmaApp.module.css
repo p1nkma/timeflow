@@ -1,0 +1,23 @@
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+  /* Нет сайдбара — только контент + BottomNav */
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* Отступ под BottomNav + safe area */
+  padding-bottom: calc(60px + env(safe-area-inset-bottom));
+}
+
+.center {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+}
