@@ -1,6 +1,8 @@
 """Google OAuth2 helpers (import-only flow)."""
 from __future__ import annotations
 
+from urllib.parse import parse_qs, urlencode, urlparse
+
 from google_auth_oauthlib.flow import Flow
 
 from app.core.config import get_settings
@@ -30,6 +32,10 @@ def build_flow() -> Flow:
     return flow
 
 
+# state → code_verifier mapping for PKCE-free flow
+_state_store: dict[str, str] = {}
+
+
 def get_auth_url(state: str) -> str:
     flow = build_flow()
     url, _ = flow.authorization_url(
@@ -37,8 +43,15 @@ def get_auth_url(state: str) -> str:
         include_granted_scopes="true",
         prompt="consent",
         state=state,
+        code_challenge=None,        # disable PKCE — server-side flow doesn't need it
+        code_challenge_method=None,
     )
-    return url
+    # Strip any code_challenge params the library may have injected
+    parsed = urlparse(url)
+    params = {k: v[0] for k, v in parse_qs(parsed.query).items()
+              if k not in ("code_challenge", "code_challenge_method")}
+    clean_url = parsed._replace(query=urlencode(params)).geturl()
+    return clean_url
 
 
 def exchange_code(code: str) -> dict:

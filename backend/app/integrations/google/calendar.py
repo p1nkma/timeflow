@@ -15,13 +15,17 @@ from app.tasks.models import Task
 
 def _build_credentials(token: GoogleCalendarToken) -> Credentials:
     settings = get_settings()
+    # google-auth expects naive UTC datetime for expiry
+    expiry = token.expires_at
+    if expiry is not None and expiry.tzinfo is not None:
+        expiry = expiry.replace(tzinfo=None)
     return Credentials(
         token=token.access_token,
         refresh_token=token.refresh_token,
         token_uri="https://oauth2.googleapis.com/token",
         client_id=settings.google_client_id,
         client_secret=settings.google_client_secret,
-        expiry=token.expires_at,
+        expiry=expiry,
     )
 
 
