@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app.db.all_models  # noqa: F401  -- register all ORM mappers
 from app.auth.router import router as auth_router
+from app.categories.router import router as categories_router
 from app.core.config import get_settings
+from app.tasks.router import router as tasks_router
 from app.users.router import admin_router
 from app.users.router import router as users_router
 
@@ -33,3 +35,5 @@ async def healthcheck() -> dict[str, str]:
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(admin_router)
+app.include_router(categories_router)
+app.include_router(tasks_router)
