@@ -2,7 +2,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { getToken, clearToken } from '../../features/auth/token';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  console.error("Критическая ошибка: VITE_API_URL не задан в переменных окружения!");
+}
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_URL,
