@@ -82,21 +82,14 @@ def parse_quick_add(text: str, now: datetime | None = None) -> ParsedQuickAdd:
         consumed.append((start, end))
         return True
 
-    # ── Urgent: !! anywhere ──
-    for m in re.finditer(r"(?:^|\s)(!!+)(?=\s|$)", lower):
+    # ── Energy + Urgent: !, !!, !!! (longest match first) ──
+    # !!+ consumed as energy=high/medium + urgent; ! alone = energy=low
+    for m in re.finditer(r"(?:^|\s)(!+)(?=\s|$)", lower):
         offset = 1 if m.group(0).startswith(" ") else 0
         s = m.start() + offset
         e = s + len(m.group(1))
         if claim(s, e):
-            result.urgent = True
-
-    # ── Energy: !, !!, !!! ──
-    for m in re.finditer(r"(?:^|\s)(!{1,3})(?=\s|$)", lower):
-        offset = 1 if m.group(0).startswith(" ") else 0
-        s = m.start() + offset
-        e = s + len(m.group(1))
-        if claim(s, e):
-            bangs = len(m.group(1))
+            bangs = min(len(m.group(1)), 3)
             result.energy = "low" if bangs == 1 else "medium" if bangs == 2 else "high"
             if bangs >= 2:
                 result.urgent = True

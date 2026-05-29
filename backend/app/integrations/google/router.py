@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import secrets
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.core.deps import CurrentUser, DbSession
-from app.integrations.google.calendar import events_to_tasks, fetch_events
+from app.integrations.google.calendar import events_to_tasks, fetch_events, push_tasks_to_google
 from app.integrations.google.models import GoogleCalendarToken
 from app.integrations.google.oauth import exchange_code, get_auth_url
 from app.tasks.models import Task
@@ -110,7 +110,12 @@ async def google_sync(
     db: DbSession,
     days_ahead: int = Query(default=7, ge=1, le=30),
 ) -> list[Task]:
-    """Import upcoming Google Calendar events as locked tasks."""
+    """Two-way sync with Google Calendar for the next `days_ahead` days.
+
+    Google → TimeFlow: new events become locked tasks (deduped by gcal event ID).
+    TimeFlow → Google: our scheduled tasks are created/updated as calendar events.
+    Returns the list of tasks newly imported from Google.
+    """
     token = await db.scalar(
         select(GoogleCalendarToken).where(GoogleCalendarToken.user_id == user.id)
     )
@@ -138,9 +143,8 @@ async def google_sync(
         token.expires_at = expiry
     await db.commit()
 
+    # ── Google → TimeFlow (import) ────────────────────────────────────────────
     new_tasks = events_to_tasks(events, user.id)
-    if not new_tasks:
-        return []
 
     # Dedup: skip events already imported (matched by gcal: notes prefix)
     existing_notes = set(
@@ -163,8 +167,37 @@ async def google_sync(
         db.add(task)
         added.append(task)
 
-    await db.commit()
-    for t in added:
-        await db.refresh(t)
+    if added:
+        await db.commit()
+        for t in added:
+            await db.refresh(t)
+
+    # ── TimeFlow → Google (export) ────────────────────────────────────────────
+    # Fetch our own scheduled tasks for the same window.
+    now = datetime.now(UTC)
+    time_max = now + timedelta(days=days_ahead)
+    our_rows = await db.execute(
+        select(Task).where(
+            Task.user_id == user.id,
+            Task.planned_start_at >= now,
+            Task.planned_start_at < time_max,
+            Task.source != "google",   # don't push back what we pulled from Google
+        )
+    )
+    our_tasks: list[Task] = list(our_rows.scalars().all())
+
+    if our_tasks:
+        try:
+            pushed = push_tasks_to_google(our_tasks, creds)
+        except Exception:
+            pushed = {}
+
+        # Persist gcal event IDs back to tasks that didn't have one yet.
+        if pushed:
+            for task in our_tasks:
+                new_gcal_id = pushed.get(task.id)
+                if new_gcal_id and not task.notes:
+                    task.notes = f"gcal:{new_gcal_id}"
+            await db.commit()
 
     return added

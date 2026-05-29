@@ -3,6 +3,7 @@ import WebApp from '@twa-dev/sdk'
 import { Routes, Route, Navigate } from 'react-router'
 import { useAppDispatch } from '../app/hooks'
 import { setNowMin } from '../features/tasks'
+import { getToken, setToken } from '../features/auth'
 import { BottomNav } from '../components/BottomNav/BottomNav'
 import { Toast, Fab, QuickAddModal } from '../shared/ui'
 import { TodayPage } from '../pages/Today/TodayPage'
@@ -19,13 +20,12 @@ export function TmaApp() {
   const [error, setError] = useState<string | null>(null)
   const [showNewTask, setShowNewTask] = useState(false)
 
-  // Telegram auth
+  // Telegram auth → JWT в общем хранилище tf.token
   useEffect(() => {
     WebApp.ready()
     WebApp.expand()
 
-    const stored = sessionStorage.getItem('tma_token')
-    if (stored) {
+    if (getToken()) {
       setReady(true)
       return
     }
@@ -45,7 +45,7 @@ export function TmaApp() {
       .then(r => r.json())
       .then(data => {
         if (data.access_token) {
-          sessionStorage.setItem('tma_token', data.access_token)
+          setToken(data.access_token)
           setReady(true)
         } else {
           setError('Ошибка авторизации')

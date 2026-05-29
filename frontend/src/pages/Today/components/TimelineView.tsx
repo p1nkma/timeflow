@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useAppSelector } from '../../../app/hooks';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { selectWorkWindow } from '../../../features/planner';
+import { useGetEnergyZonesQuery, type EnergyZoneKind } from '../../../features/user/usersApi';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt } from '../../../shared/utils/time';
 import { Icon, SparklesIcon, ArrowUp01Icon, ArrowDown01Icon, TaskModal, CategoryChip } from '../../../shared/ui';
@@ -10,11 +11,44 @@ import styles from './TimelineView.module.css';
 
 const MAX_VISIBLE = 2;
 
-function energyColor(hour: number): string {
-  if (hour >= 9  && hour < 12) return 'var(--ez-peak)';
-  if (hour >= 12 && hour < 17) return 'var(--ez-medium)';
-  if (hour >= 17 && hour < 20) return 'var(--ez-low)';
-  return 'var(--ez-dip)';
+const EZ_KIND_LABEL: Record<EnergyZoneKind, string> = {
+  peak:     'Пик — сложные задачи, аналитика',
+  recovery: 'Восстановление — креатив, лёгкая работа',
+  trough:   'Спад — рутина, админ-задачи',
+  dip:      'Перезагрузка — отдых, сон',
+};
+const EZ_KIND_VAR: Record<EnergyZoneKind, string> = {
+  peak:     'var(--ez-peak)',
+  recovery: 'var(--ez-recovery)',
+  trough:   'var(--ez-trough)',
+  dip:      'var(--ez-dip)',
+};
+
+function fallbackKind(hour: number): EnergyZoneKind {
+  if (hour >= 9  && hour < 12) return 'peak';
+  if (hour >= 12 && hour < 17) return 'recovery';
+  if (hour >= 17 && hour < 20) return 'trough';
+  return 'dip';
+}
+
+function useHourKindMap(): Map<number, { kind: EnergyZoneKind; source: 'chronotype' | 'history' }> {
+  const { data } = useGetEnergyZonesQuery();
+  return useMemo(() => {
+    const map = new Map<number, { kind: EnergyZoneKind; source: 'chronotype' | 'history' }>();
+    if (!data) {
+      for (let h = 0; h < 24; h++) map.set(h, { kind: fallbackKind(h), source: 'chronotype' });
+      return map;
+    }
+    for (const z of data.zones) {
+      const startH = Math.floor(z.start_min / 60);
+      const endH = Math.ceil(z.end_min / 60);
+      for (let h = startH; h < endH; h++) map.set(h, { kind: z.kind, source: z.source });
+    }
+    for (let h = 0; h < 24; h++) {
+      if (!map.has(h)) map.set(h, { kind: fallbackKind(h), source: 'chronotype' });
+    }
+    return map;
+  }, [data]);
 }
 
 function taskPriority(t: Task): number {
@@ -111,6 +145,7 @@ function HourSlot({
   activeId: string | null; isNow: boolean; onTaskClick: (id: string) => void;
 }) {
   const [page, setPage] = useState(0);
+  const hourKindMap = useHourKindMap();
   const sorted    = [...primary].sort((a, b) => taskPriority(b) - taskPriority(a));
   const totalPages = Math.ceil(sorted.length / MAX_VISIBLE);
   const visible   = sorted.slice(page * MAX_VISIBLE, page * MAX_VISIBLE + MAX_VISIBLE);
@@ -118,10 +153,14 @@ function HourSlot({
   const hasPrev   = page > 0;
   const isEmpty   = primary.length === 0 && cont.length === 0;
 
+  const ezEntry   = hourKindMap.get(hour) ?? { kind: fallbackKind(hour), source: 'chronotype' as const };
+  const ezTooltip = `${EZ_KIND_LABEL[ezEntry.kind]}${ezEntry.source === 'history' ? ' · по твоей статистике' : ''}`;
+
   return (
     <div
       className={`${styles.hourRow} ${isNow ? styles.hourRowNow : ''}`}
-      style={{ ['--ez-color' as string]: energyColor(hour) }}
+      style={{ ['--ez-color' as string]: EZ_KIND_VAR[ezEntry.kind] }}
+      title={ezTooltip}
     >
       <div className={styles.hourGutter}>
         <span className={styles.hourNum}>{hour}</span>

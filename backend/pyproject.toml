@@ -10,28 +10,26 @@ dependencies = [
     # Web framework
     "fastapi>=0.118.0",
     "uvicorn[standard]>=0.32.0",
-
     # DB
     "sqlalchemy>=2.0.36",
     "alembic>=1.14.0",
     "asyncpg>=0.30.0",
     "psycopg[binary]>=3.2.0",
-
     # Validation / settings
     "pydantic>=2.10.0",
     "pydantic-settings>=2.7.0",
     "email-validator>=2.2.0",
-
     # Auth
     "python-jose[cryptography]>=3.3.0",
     "bcrypt>=4.2.0",
     "python-multipart>=0.0.20",
-
     # HTTP client (Claude, Google)
     "httpx>=0.28.0",
-
     # Telegram bot
     "aiogram>=3.15.0",
+    "google-auth>=2.0",
+    "google-auth-oauthlib>=1.0",
+    "google-api-python-client>=2.0",
 ]
 
 [dependency-groups]
@@ -41,6 +39,8 @@ dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
     "httpx>=0.28.0",
+    "aiosqlite>=0.22.1",
+    "anyio[asyncio]>=4.13.0",
 ]
 
 [tool.ruff]
@@ -54,3 +54,4 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+pythonpath = ["."]

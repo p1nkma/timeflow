@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useAppDispatch } from '../../../app/hooks';
-import { deleteTask } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { Icon, Cancel01Icon, Delete01Icon } from '../Icon/Icon';
 import { ModalShell } from '../ModalShell/ModalShell';
 import type { Task } from '../../types';
@@ -9,7 +8,7 @@ import styles from './TaskModal.module.css';
 interface Props { task: Task; onClose: () => void; }
 
 export function DeleteConfirm({ task, onClose }: Props) {
-  const dispatch = useAppDispatch();
+  const taskApi   = useTaskApi();
   const [confirmed, setConfirmed] = useState(false);
 
   return (
@@ -48,7 +47,7 @@ export function DeleteConfirm({ task, onClose }: Props) {
           <button
             className={styles.btnDanger}
             disabled={!confirmed}
-            onClick={() => { dispatch(deleteTask(task.id)); onClose(); }}
+            onClick={() => { taskApi.deleteTask(task.id); onClose(); }}
           >
             <Icon icon={Delete01Icon} size={14} />
             Удалить

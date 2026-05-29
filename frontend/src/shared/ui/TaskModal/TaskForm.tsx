@@ -7,6 +7,7 @@ import styles from './TaskModal.module.css';
 import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { fmt } from '../../utils/time';
+import { useGetCategoriesQuery } from '../../../features/categories/categoriesApi';
 
 interface Props {
   values: TaskFormValues;
@@ -36,11 +37,19 @@ function fmtDateRu(iso: string): string {
   catch { return iso; }
 }
 
+function useCatLabel(key: CategoryKey): string {
+  const { data: cats = [] } = useGetCategoriesQuery();
+  if (!key) return 'Выберите категорию';
+  const cat = cats.find(c => c.key === key);
+  return cat?.name ?? key;
+}
+
 export function TaskForm({
   values, update, autoFocusTitle, titlePlaceholder, notesLabel = 'Заметки', onSubmitOnEnter,
 }: Props) {
   const navigate = useNavigate();
   const [sheet, setSheet] = useState<null | 'date' | 'time' | 'duration' | 'cat'>(null);
+  const catLabel = useCatLabel(values.cat);
 
   const isSchedule = values.destination === 'schedule';
   const isInbox    = values.destination === 'inbox';
@@ -83,13 +92,12 @@ export function TaskForm({
             </div>
             <div className={styles.fieldInline}>
               <span className={styles.fieldLabel}>Категория</span>
-              <button type="button" className={styles.fieldControl} onClick={() => setSheet('cat')}>
-                {values.cat === 'study'     ? 'Учёба'
-                : values.cat === 'code'     ? 'Кодинг'
-                : values.cat === 'freelance'? 'Фриланс'
-                : values.cat === 'sport'    ? 'Спорт'
-                : values.cat === 'reading'  ? 'Чтение'
-                : 'Вуз'}
+              <button
+                type="button"
+                className={`${styles.fieldControl} ${!values.cat ? styles.fieldControlPlaceholder : ''}`}
+                onClick={() => setSheet('cat')}
+              >
+                {catLabel}
               </button>
               <button
                 type="button"
@@ -134,13 +142,12 @@ export function TaskForm({
             <div className={styles.extraFields}>
               <div className={styles.fieldInline}>
                 <span className={styles.fieldLabel}>Категория</span>
-                <button type="button" className={styles.fieldControl} onClick={() => setSheet('cat')}>
-                  {values.cat === 'study'     ? 'Учёба'
-                  : values.cat === 'code'     ? 'Кодинг'
-                  : values.cat === 'freelance'? 'Фриланс'
-                  : values.cat === 'sport'    ? 'Спорт'
-                  : values.cat === 'reading'  ? 'Чтение'
-                  : 'Вуз'}
+                <button
+                  type="button"
+                  className={`${styles.fieldControl} ${!values.cat ? styles.fieldControlPlaceholder : ''}`}
+                  onClick={() => setSheet('cat')}
+                >
+                  {catLabel}
                 </button>
               </div>
               <div className={styles.fieldInlineFull}>

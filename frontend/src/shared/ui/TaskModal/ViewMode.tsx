@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { format, addDays } from 'date-fns';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import {
-  toggleTask, rescheduleTask, reorderTask, removeFromSchedule, moveTaskToDate,
-  selectAllTasks, selectNowMin,
-} from '../../../features/tasks';
-import { addInboxItem } from '../../../features/inbox';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { showToast } from '../../../features/ui';
 import { findFreeSlot, rangeFmt, fmt, fmtCountdown } from '../../utils/time';
 import { Icon, SparklesIcon, LockIcon } from '../Icon/Icon';
@@ -17,6 +14,7 @@ interface Props { task: Task; onClose: () => void; }
 
 export function ViewMode({ task, onClose }: Props) {
   const dispatch  = useAppDispatch();
+  const taskApi   = useTaskApi();
   const nowMin    = useAppSelector(selectNowMin);
   const allTasks  = useAppSelector(selectAllTasks);
 
@@ -30,14 +28,14 @@ export function ViewMode({ task, onClose }: Props) {
 
   function handleMoveToTomorrow() {
     const newStart = findFreeSlot(tomorrowBusy, dur, 9 * 60, 21 * 60);
-    dispatch(moveTaskToDate({ id: task.id, date: tomorrowIso, newStart }));
+    taskApi.moveTaskToDate(task.id, tomorrowIso, newStart);
     dispatch(showToast({ message: `Перенесено на завтра, ${fmt(newStart)}`, variant: 'success' }));
     onClose();
   }
 
   function handleReturnToInbox() {
-    dispatch(removeFromSchedule(task.id));
-    dispatch(addInboxItem({ title: task.title, cat: task.cat }));
+    taskApi.removeFromSchedule(task.id);
+    taskApi.addInboxItem({ title: task.title, cat: task.cat });
     dispatch(showToast({ message: 'Возвращено в Inbox', variant: 'default' }));
     onClose();
   }
@@ -92,7 +90,7 @@ export function ViewMode({ task, onClose }: Props) {
           <div className={styles.overdueActions}>
             <button
               className={`${styles.btnOverdue} ${styles.btnOverdueFull}`}
-              onClick={() => { dispatch(rescheduleTask({ id: task.id, nowMin })); onClose(); }}
+              onClick={() => { taskApi.rescheduleTask(task.id); onClose(); }}
             >
               Сдвинуть → {rangeFmt(suggestedStart, suggestedStart + dur)}
             </button>
@@ -115,7 +113,7 @@ export function ViewMode({ task, onClose }: Props) {
               </div>
               <button
                 className={styles.btnOverduePrimary}
-                onClick={() => { dispatch(reorderTask({ id: task.id, newStart: customStart })); onClose(); }}
+                onClick={() => { taskApi.reorderTask(task.id, customStart); onClose(); }}
               >
                 Поставить в {fmt(customStart)}
               </button>
@@ -128,7 +126,7 @@ export function ViewMode({ task, onClose }: Props) {
         <div className={styles.footer}>
           <button
             className={`${styles.btnPrimary} ${task.done ? styles.btnDoneActive : ''}`}
-            onClick={() => { dispatch(toggleTask(task.id)); onClose(); }}
+            onClick={() => { taskApi.toggleTask(task.id); onClose(); }}
           >
             {task.done ? 'Отменить выполнение' : 'Выполнено'}
           </button>

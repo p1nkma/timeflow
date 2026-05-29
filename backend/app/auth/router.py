@@ -106,8 +106,9 @@ async def telegram_auth(payload: TelegramInitData, db: DbSession) -> TokenOut:
         await seed_system_categories(db, user.id)
 
     from datetime import UTC, datetime
-    from app.telegram.models import TelegramUser as TU
-    db.add(TU(
+
+    from app.telegram.models import TelegramUser
+    db.add(TelegramUser(
         user_id=user.id,
         telegram_id=tg_id,
         chat_id=tg_id,

@@ -198,11 +198,30 @@
   padding: 6px 8px;
   overflow: hidden;
   box-sizing: border-box;
+  position: relative;
 }
 
 /* ── Пустой слот: никакого дополнительного элемента не нужно ── */
 .emptyCell {
   flex: 1;
+}
+
+.emptyCellClickable {
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: background 120ms;
+}
+.emptyCellClickable:hover {
+  background: color-mix(in oklch, var(--color-accent-primary) 8%, transparent);
+}
+.emptyCellClickable:hover::after {
+  content: '+';
+  position: absolute;
+  right: var(--space-3);
+  color: var(--color-text-tertiary);
+  font-size: 1rem;
+  line-height: 1;
+  pointer-events: none;
 }
 
 /* ── Ряд continuation-карточек ── */

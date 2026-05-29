@@ -3,8 +3,8 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
+from sqlalchemy import JSON
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.enums import AnalyticsPeriod
@@ -26,6 +26,6 @@ class AnalyticsSnapshot(Base, TimestampMixin):
         SAEnum(AnalyticsPeriod, name="analytics_period"),
         nullable=False,
     )
-    category_breakdown: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    category_breakdown: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     total_tasks: Mapped[int] = mapped_column(nullable=False)
     completed_tasks: Mapped[int] = mapped_column(nullable=False)

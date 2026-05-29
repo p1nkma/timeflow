@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
-
 from fastapi import APIRouter
 from sqlalchemy import select
 
 from app.core.deps import CurrentUser, DbSession
 from app.core.enums import TaskStatus
+from app.core.timezones import local_today, local_today_bounds_utc
 from app.tasks.models import Task
 from app.tasks.schemas import TaskOut
 
@@ -16,9 +15,8 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 @router.get("")
 async def dashboard(user: CurrentUser, db: DbSession) -> dict:
     """Today's tasks + a lightweight summary (streak placeholder)."""
-    now = datetime.now(UTC)
-    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    day_end = day_start + timedelta(days=1)
+    today = local_today(user.utc_offset)
+    day_start, day_end = local_today_bounds_utc(user.utc_offset)
 
     rows = await db.execute(
         select(Task).where(
@@ -33,7 +31,7 @@ async def dashboard(user: CurrentUser, db: DbSession) -> dict:
     completed = sum(1 for t in tasks if t.status == TaskStatus.done)
 
     return {
-        "date": day_start.date().isoformat(),
+        "date": today.isoformat(),
         "tasks": [TaskOut.model_validate(t) for t in tasks],
         "summary": {
             "total": total,

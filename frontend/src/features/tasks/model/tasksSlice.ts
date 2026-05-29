@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Task } from '../../../shared/types';
 import { findFreeSlot, nowMinutes } from '../../../shared/utils/time';
-import { MOCK_TASKS } from '../../../mocks/tasks';
 
 interface TasksState {
   items: Task[];
@@ -10,7 +9,7 @@ interface TasksState {
 }
 
 const initialState: TasksState = {
-  items: import.meta.env.DEV ? MOCK_TASKS : [],
+  items: [],
   nowMin: nowMinutes(),
 };
 
@@ -20,6 +19,9 @@ const tasksSlice = createSlice({
   reducers: {
     setNowMin(state, action: PayloadAction<number>) {
       state.nowMin = action.payload;
+    },
+    setItems(state, action: PayloadAction<Task[]>) {
+      state.items = action.payload;
     },
     toggleTask(state, action: PayloadAction<string>) {
       const task = state.items.find(t => t.id === action.payload);
@@ -103,10 +105,10 @@ const tasksSlice = createSlice({
       task.overdue = false;
     },
     resetTasks(state) {
-      state.items = [...MOCK_TASKS];
+      state.items = [];
     },
   },
 });
 
-export const { setNowMin, toggleTask, updateTask, deleteTask, addTask, reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule, moveTaskToDate, resetTasks } = tasksSlice.actions;
+export const { setNowMin, setItems, toggleTask, updateTask, deleteTask, addTask, reorderTask, startTaskNow, rescheduleTask, moveTaskToEvening, removeFromSchedule, moveTaskToDate, resetTasks } = tasksSlice.actions;
 export default tasksSlice.reducer;

@@ -5,13 +5,12 @@ import { DatePicker } from '../TimePicker/DatePicker';
 import { CategoryChip } from '../CategoryChip/CategoryChip';
 import { ModalShell } from '../ModalShell/ModalShell';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { addCategory } from '../../../features/categories';
+import { useGetCategoriesQuery, useCreateCategoryMutation } from '../../../features/categories/categoriesApi';
 import { CATEGORIES, catStyle, ICON_OPTIONS, COLOR_OPTIONS, ICON_MAP } from '../../utils/categories';
 import type { CategoryKey } from '../../types';
 import styles from './DateTimeSheet.module.css';
 
-function Sheet({ title, onClose, children }: {
+export function Sheet({ title, onClose, children }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
@@ -263,8 +262,9 @@ export function CategorySheet({ value, onChange, onClose }: {
   onChange: (v: CategoryKey) => void;
   onClose: () => void;
 }) {
-  const dispatch         = useAppDispatch();
-  const customCats       = useAppSelector(s => s.categories);
+  const { data: apiCats = [] } = useGetCategoriesQuery();
+  const [createCategoryMutation] = useCreateCategoryMutation();
+  const customCats = apiCats.filter(c => !c.is_system);
   const [creating, setCreating] = useState(false);
 
   // form state
@@ -275,13 +275,17 @@ export function CategorySheet({ value, onChange, onClose }: {
 
   useEffect(() => { if (creating) labelRef.current?.focus(); }, [creating]);
 
-  function handleCreate() {
+  async function handleCreate() {
     const label = newLabel.trim();
     if (!label) return;
     const key = `custom_${Date.now()}`;
-    dispatch(addCategory({ key, label, iconName: newIcon, color: newColor }));
-    onChange(key);
-    onClose();
+    try {
+      await createCategoryMutation({ key, name: label, color: newColor }).unwrap();
+      onChange(key);
+      onClose();
+    } catch {
+      // ignore — user stays on form
+    }
   }
 
   if (creating) {
@@ -368,15 +372,16 @@ export function CategorySheet({ value, onChange, onClose }: {
         })}
         {customCats.map(c => {
           const active = c.key === value;
+          const customShape = { key: c.key, label: c.name, iconName: '', color: c.color };
           return (
             <button
               key={c.key}
               className={`${styles.catGridItem} ${active ? styles.catGridItemActive : ''}`}
-              style={catStyle(c.key, c)}
+              style={catStyle(c.key, customShape)}
               onClick={() => { onChange(c.key); onClose(); }}
             >
               <CategoryChip cat={c.key} size="md" iconOnly aria-hidden />
-              <span className={styles.catGridLabel}>{c.label}</span>
+              <span className={styles.catGridLabel}>{c.name}</span>
             </button>
           );
         })}

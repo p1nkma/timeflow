@@ -8,11 +8,26 @@ import { useDroppable, useDraggable } from '@dnd-kit/core';
 import { useAppSelector } from '../../../app/hooks';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { selectWorkWindow } from '../../../features/planner';
+import { useGetEnergyZonesQuery, type EnergyZoneKind } from '../../../features/user/usersApi';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt } from '../../../shared/utils/time';
 import { CategoryChip, Icon, ArrowUp01Icon, ArrowDown01Icon } from '../../../shared/ui';
 import type { Task } from '../../../shared/types';
 import styles from './PlannerTimeline.module.css';
+
+const EZ_KIND_LABEL: Record<EnergyZoneKind, string> = {
+  peak:     'Пик — сложные задачи, аналитика',
+  recovery: 'Восстановление — креатив, лёгкая работа',
+  trough:   'Спад — рутина, админ-задачи',
+  dip:      'Перезагрузка — отдых, сон',
+};
+
+const EZ_KIND_VAR: Record<EnergyZoneKind, string> = {
+  peak:     'var(--ez-peak)',
+  recovery: 'var(--ez-recovery)',
+  trough:   'var(--ez-trough)',
+  dip:      'var(--ez-dip)',
+};
 
 export type ViewMode = 'day' | 'week';
 
@@ -22,11 +37,41 @@ const DISPLAY_END   = 24;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function energyColor(hour: number): string {
-  if (hour >= 9  && hour < 12) return 'var(--ez-peak)';
-  if (hour >= 12 && hour < 17) return 'var(--ez-medium)';
-  if (hour >= 17 && hour < 20) return 'var(--ez-low)';
-  return 'var(--ez-dip)';
+/** Fallback хардкод для случаев когда API ещё не загружен. */
+function fallbackKind(hour: number): EnergyZoneKind {
+  if (hour >= 9  && hour < 12) return 'peak';
+  if (hour >= 12 && hour < 17) return 'recovery';
+  if (hour >= 17 && hour < 20) return 'trough';
+  return 'dip';
+}
+
+/**
+ * Hook возвращает Map<hour, { kind, source }>.
+ * Использует RTK Query кеш — повторные вызовы не делают новых запросов.
+ */
+function useHourKindMap(): Map<number, { kind: EnergyZoneKind; source: 'chronotype' | 'history' }> {
+  const { data } = useGetEnergyZonesQuery();
+  return useMemo(() => {
+    const map = new Map<number, { kind: EnergyZoneKind; source: 'chronotype' | 'history' }>();
+    if (!data) {
+      for (let h = 0; h < 24; h++) {
+        map.set(h, { kind: fallbackKind(h), source: 'chronotype' });
+      }
+      return map;
+    }
+    for (const z of data.zones) {
+      const startH = Math.floor(z.start_min / 60);
+      const endH = Math.ceil(z.end_min / 60);
+      for (let h = startH; h < endH; h++) {
+        map.set(h, { kind: z.kind, source: z.source });
+      }
+    }
+    // Заполнить пробелы (на случай incomplete coverage)
+    for (let h = 0; h < 24; h++) {
+      if (!map.has(h)) map.set(h, { kind: fallbackKind(h), source: 'chronotype' });
+    }
+    return map;
+  }, [data]);
 }
 
 function taskPriority(t: Task): number {
@@ -159,7 +204,7 @@ function ContinuationCard({
 // ── HourSlot — единый для day и week ─────────────────────────────────────────
 
 function HourSlot({
-  hour, primary, cont, activeId, isNow, isOffHours, nowMin, date, compact, onTaskClick,
+  hour, primary, cont, activeId, isNow, isOffHours, nowMin, date, compact, onTaskClick, onSlotClick, hourKindMap,
 }: {
   hour: number;
   primary: Task[];
@@ -169,8 +214,10 @@ function HourSlot({
   isOffHours: boolean;
   nowMin: number;
   date: Date;
-  compact?: boolean; // week mode: меньше высота, без reason
+  compact?: boolean;
   onTaskClick: (id: string) => void;
+  onSlotClick: (date: string, hour: number) => void;
+  hourKindMap?: Map<number, { kind: EnergyZoneKind; source: 'chronotype' | 'history' }>;
 }) {
   const [page, setPage] = useState(0);
   const { setNodeRef, isOver } = useDroppable({
@@ -186,7 +233,9 @@ function HourSlot({
   const hasNext    = page < totalPages - 1;
   const isEmpty    = primary.length === 0 && cont.length === 0;
   const isConflict = isOver && !isEmpty;
-  const ezColor    = isOffHours ? undefined : energyColor(hour);
+  const ezEntry    = hourKindMap?.get(hour) ?? { kind: fallbackKind(hour), source: 'chronotype' as const };
+  const ezColor    = isOffHours ? undefined : EZ_KIND_VAR[ezEntry.kind];
+  const ezTooltip  = `${EZ_KIND_LABEL[ezEntry.kind]}${ezEntry.source === 'history' ? ' · по твоей статистике' : ''}`;
 
   return (
     <div
@@ -199,13 +248,21 @@ function HourSlot({
         compact     ? styles.hourRowCompact  : '',
       ].filter(Boolean).join(' ')}
       style={ezColor ? ({ '--ez-color': ezColor } as React.CSSProperties) : undefined}
+      title={isOffHours ? undefined : ezTooltip}
     >
       <div className={styles.gutter}>
         <span className={`${styles.hourNum} ${isNow ? styles.hourNumNow : ''}`}>{hour}</span>
       </div>
       <div className={styles.slotContent}>
         {isEmpty ? (
-          <div className={styles.emptyCell} />
+          <div
+            className={`${styles.emptyCell} ${styles.emptyCellClickable}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`Создать задачу в ${hour}:00`}
+            onClick={() => onSlotClick(isoDate(date), hour)}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onSlotClick(isoDate(date), hour); }}
+          />
         ) : (
           <>
             {cont.length > 0 && (
@@ -272,12 +329,14 @@ interface DayViewProps {
   date: Date;
   selectedTaskId: string | null;
   onTaskSelect: (id: string) => void;
+  onSlotClick: (date: string, hour: number) => void;
 }
 
-function DayView({ date, selectedTaskId, onTaskSelect }: DayViewProps) {
+function DayView({ date, selectedTaskId, onTaskSelect, onSlotClick }: DayViewProps) {
   const allTasks = useAppSelector(selectAllTasks);
   const nowMin   = useAppSelector(selectNowMin);
   const { startHour, endHour } = useAppSelector(selectWorkWindow);
+  const hourKindMap = useHourKindMap();
 
   const nowHour = Math.floor(nowMin / 60);
   const showNow = isToday(date);
@@ -320,6 +379,8 @@ function DayView({ date, selectedTaskId, onTaskSelect }: DayViewProps) {
             nowMin={nowMin}
             date={date}
             onTaskClick={onTaskSelect}
+            onSlotClick={onSlotClick}
+            hourKindMap={hourKindMap}
           />
         );
       })}
@@ -332,16 +393,17 @@ function DayView({ date, selectedTaskId, onTaskSelect }: DayViewProps) {
 interface WeekDayColumnProps {
   date: Date;
   selectedTaskId: string | null;
-  hours: number[];          // общий список часов для всех колонок
+  hours: number[];
   slotMap: Map<number, { primary: Task[]; cont: Task[] }>;
   nowMin: number;
   startHour: number;
   endHour: number;
   onTaskSelect: (id: string) => void;
+  onSlotClick: (date: string, hour: number) => void;
 }
 
 function WeekDayColumn({
-  date, selectedTaskId, hours, slotMap, nowMin, startHour, endHour, onTaskSelect,
+  date, selectedTaskId, hours, slotMap, nowMin, startHour, endHour, onTaskSelect, onSlotClick,
 }: WeekDayColumnProps) {
   const nowHour  = Math.floor(nowMin / 60);
   const showNow  = isToday(date);
@@ -363,6 +425,7 @@ function WeekDayColumn({
             date={date}
             compact
             onTaskClick={onTaskSelect}
+            onSlotClick={onSlotClick}
           />
         );
       })}
@@ -374,9 +437,10 @@ interface WeekViewProps {
   weekStart: Date;
   selectedTaskId: string | null;
   onTaskSelect: (id: string) => void;
+  onSlotClick: (date: string, hour: number) => void;
 }
 
-function WeekView({ weekStart, selectedTaskId, onTaskSelect }: WeekViewProps) {
+function WeekView({ weekStart, selectedTaskId, onTaskSelect, onSlotClick }: WeekViewProps) {
   const allTasks = useAppSelector(selectAllTasks);
   const nowMin   = useAppSelector(selectNowMin);
   const { startHour, endHour } = useAppSelector(selectWorkWindow);
@@ -435,6 +499,7 @@ function WeekView({ weekStart, selectedTaskId, onTaskSelect }: WeekViewProps) {
             startHour={startHour}
             endHour={endHour}
             onTaskSelect={onTaskSelect}
+            onSlotClick={onSlotClick}
           />
         );
       })}
@@ -533,9 +598,11 @@ export interface PlannerTimelineProps {
   selectedTaskId: string | null;
   onTaskSelect: (id: string) => void;
   onModeChange?: (mode: ViewMode) => void;
+  onSlotClick?: (date: string, hour: number) => void;
 }
 
-export function PlannerTimeline({ selectedTaskId, onTaskSelect, onModeChange }: PlannerTimelineProps) {
+export function PlannerTimeline({ selectedTaskId, onTaskSelect, onModeChange, onSlotClick }: PlannerTimelineProps) {
+  const handleSlotClick = onSlotClick ?? (() => {});
   const [date,      setDate]      = useState(new Date());
   const [mode,      setMode]      = useState<ViewMode>('day');
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -578,6 +645,7 @@ export function PlannerTimeline({ selectedTaskId, onTaskSelect, onModeChange }: 
             date={date}
             selectedTaskId={selectedTaskId}
             onTaskSelect={onTaskSelect}
+            onSlotClick={handleSlotClick}
           />
         ) : (
           <div className={styles.weekWrap}>
@@ -587,6 +655,7 @@ export function PlannerTimeline({ selectedTaskId, onTaskSelect, onModeChange }: 
                 weekStart={weekStart}
                 selectedTaskId={selectedTaskId}
                 onTaskSelect={onTaskSelect}
+                onSlotClick={handleSlotClick}
               />
             </div>
           </div>

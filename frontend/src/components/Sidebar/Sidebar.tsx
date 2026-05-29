@@ -2,8 +2,14 @@ import type { IconSvgElement } from '@hugeicons/react';
 import { useNavigate, useLocation } from 'react-router';
 import { Icon,
   Clock01Icon, Calendar03Icon, Analytics01Icon, Setting06Icon } from '../../shared/ui';
-import { MOCK_USER } from '../../mocks/user';
+import { useGetMeQuery, userInitials } from '../../features/user';
 import styles from './Sidebar.module.css';
+
+function shortName(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length <= 1) return fullName;
+  return `${parts[0]} ${parts[1][0]}.`;
+}
 
 interface SidebarProps {
   darkMode?: boolean;
@@ -22,6 +28,11 @@ const NAV: { path: string; label: string; icon: IconSvgElement }[] = [
 export function Sidebar({ collapsed = false, onCollapseToggle }: SidebarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { data: me } = useGetMeQuery();
+
+  const displayName  = me ? shortName(me.full_name) : '…';
+  const displayInits = me ? userInitials(me.full_name).slice(0, 1) : '?';
+  const displayRole  = me?.role === 'admin' ? 'Администратор' : 'Пользователь';
 
   return (
     <aside
@@ -60,13 +71,13 @@ export function Sidebar({ collapsed = false, onCollapseToggle }: SidebarProps) {
           className={styles.userChip}
           onClick={() => navigate('/settings')}
           aria-label="Открыть настройки профиля"
-          title={collapsed ? `${MOCK_USER.shortName} — настройки` : undefined}
+          title={collapsed ? `${displayName} — настройки` : undefined}
         >
-          <div className={styles.avatar}>{MOCK_USER.avatarMono}</div>
+          <div className={styles.avatar}>{displayInits}</div>
           {!collapsed && (
             <div className={styles.userInfo}>
-              <div className={styles.userName}>{MOCK_USER.shortName}</div>
-              <div className={styles.userRole}>{MOCK_USER.role} · {MOCK_USER.university}</div>
+              <div className={styles.userName}>{displayName}</div>
+              <div className={styles.userRole}>{displayRole}</div>
             </div>
           )}
         </button>

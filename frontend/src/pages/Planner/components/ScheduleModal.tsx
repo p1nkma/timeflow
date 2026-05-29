@@ -2,10 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { format, addDays, parseISO, isBefore, startOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
-import { addTask } from '../../../features/tasks';
-import { removeInboxItem } from '../../../features/inbox';
-import { showToast } from '../../../features/ui';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
+import { showToast } from '../../../features/ui';
 import { catStyle } from '../../../shared/utils/categories';
 import { findFreeSlot, fmt } from '../../../shared/utils/time';
 import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, CategoryChip, ModalShell } from '../../../shared/ui';
@@ -95,6 +94,7 @@ interface Props {
 
 export function ScheduleModal({ item, onClose }: Props) {
   const dispatch  = useAppDispatch();
+  const taskApi   = useTaskApi();
   const allTasks  = useAppSelector(selectAllTasks);
   const nowMin    = useAppSelector(selectNowMin);
   const planner   = useAppSelector(s => s.planner);
@@ -136,12 +136,12 @@ export function ScheduleModal({ item, onClose }: Props) {
   // ── Actions ──
   function scheduleTask(dateStr: string, startMin: number) {
     const s = Math.max(0, Math.min(startMin, 23 * 60));
-    dispatch(addTask({
+    taskApi.addTask({
       title: item.title, cat: item.cat,
       date: dateStr, start: s, end: s + duration,
       source: 'user',
-    }));
-    dispatch(removeInboxItem(item.id));
+    });
+    taskApi.removeInboxItem(item.id);
 
     const label =
       dateStr === today       ? 'сегодня' :

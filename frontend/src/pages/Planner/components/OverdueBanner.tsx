@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { format, addDays } from 'date-fns';
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
-import { selectAllTasks, deleteTask, moveTaskToDate } from '../../../features/tasks';
+import { selectAllTasks } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { showToast } from '../../../features/ui';
 import { Icon, Cancel01Icon, AlertCircleIcon } from '../../../shared/ui/Icon/Icon';
 import { ModalShell } from '../../../shared/ui/ModalShell/ModalShell';
@@ -12,14 +13,14 @@ import styles from './OverdueBanner.module.css';
 function ReschedulePopover({
   task, onClose,
 }: { task: Task; onClose: () => void }) {
-  const dispatch = useAppDispatch();
+  const taskApi  = useTaskApi();
   const today    = format(new Date(), 'yyyy-MM-dd');
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
   const [date, setDate] = useState(today);
   const [time, setTime] = useState(task.start);
 
   function confirm() {
-    dispatch(moveTaskToDate({ id: task.id, date, newStart: time }));
+    taskApi.moveTaskToDate(task.id, date, time);
     onClose();
   }
 
@@ -64,7 +65,8 @@ function ReschedulePopover({
 
 export function OverdueBanner() {
   const overdue  = useAppSelector(s => selectAllTasks(s).filter(t => t.overdue && !t.done && !t.locked));
-  const dispatch = useAppDispatch();
+  const dispatch  = useAppDispatch();
+  const taskApi   = useTaskApi();
   const [rescheduleId, setRescheduleId] = useState<string | null>(null);
 
   if (overdue.length === 0) return null;
@@ -91,7 +93,7 @@ export function OverdueBanner() {
                   className={`${styles.actionBtn} ${styles.actionBtnDismiss}`}
                   aria-label="Удалить задачу"
                   onClick={() => {
-                    dispatch(deleteTask(t.id));
+                    taskApi.deleteTask(t.id);
                     dispatch(showToast({
                       message: `«${t.title}» удалена`,
                       variant: 'default',

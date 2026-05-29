@@ -1,16 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { format, addDays } from 'date-fns';
 import { useAppSelector, useAppDispatch } from '../../../app/hooks';
 import { showToast } from '../../../features/ui';
 import { selectPlannerSettings, setWorkHours, mockGenerate, type GeneratedTask } from '../../../features/planner';
-import { addTask } from '../../../features/tasks';
-import { removeInboxItem } from '../../../features/inbox';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
+import { useGeneratePlanMutation } from '../../../features/ai/aiApi';
+import { useGetCategoriesQuery } from '../../../features/categories/categoriesApi';
+import { taskOutToTask, buildCatLookup } from '../../../features/tasks/tasksApi';
 import { ModalShell } from '../../../shared/ui/ModalShell/ModalShell';
 import { Icon, SparklesIcon, Cancel01Icon, AlertCircleIcon, CheckmarkCircle02Icon } from '../../../shared/ui';
 import { TimeSheet } from '../../../shared/ui/DateTimeSheet/DateTimeSheet';
 import { CATEGORIES, catStyle } from '../../../shared/utils/categories';
 import { fmt, rangeFmt } from '../../../shared/utils/time';
 import type { CategoryKey } from '../../../shared/types';
+import { DurationAssignBlock } from './DurationAssignBlock';
 import styles from './GenerateModal.module.css';
 
 type DateRange = 'today' | 'tomorrow' | 'week';
@@ -39,17 +42,24 @@ interface Props {
 
 export function GenerateModal({ onClose }: Props) {
   const dispatch  = useAppDispatch();
+  const taskApi   = useTaskApi();
   const planner   = useAppSelector(selectPlannerSettings);
   const inbox     = useAppSelector(s => s.inbox);
   const allTasks  = useAppSelector(s => s.tasks.items);
+  const [generatePlanApi] = useGeneratePlanMutation();
+  const { data: cats = [] } = useGetCategoriesQuery();
 
   const [phase,      setPhase]      = useState<Phase>('form');
   const [stageIdx,   setStageIdx]   = useState(0);
   const [dateRange,  setDateRange]  = useState<DateRange>('today');
   const [categories, setCategories] = useState<CategoryKey[]>(planner.enabledCategories);
   const [context,    setContext]    = useState('');
+  const apiResultRef     = useRef<GeneratedTask[] | null>(null);
+  const apiSucceededRef  = useRef(false);
   const [workSheet,  setWorkSheet]  = useState<'start' | 'end' | null>(null);
   const [preview,    setPreview]    = useState<GeneratedTask[]>([]);
+  // task_id → user-picked duration in minutes. Missing key = AI/server decides.
+  const [pickedDurations, setPickedDurations] = useState<Map<string, number>>(new Map());
 
   const today       = new Date();
   const todayISO    = format(today, 'yyyy-MM-dd');
@@ -65,6 +75,29 @@ export function GenerateModal({ onClose }: Props) {
   const inboxCount  = inbox.length;
   const canGenerate = categories.length > 0 && inboxCount > 0;
 
+  // Inbox items без указанной длительности — кандидаты на duration-picker.
+  // Только для выбранных категорий + только для day/tomorrow (на week слишком много задач)
+  const itemsWithoutDuration = useMemo(() => {
+    if (dateRange === 'week') return [];
+    return inbox.filter(i =>
+      categories.includes(i.cat) &&
+      (i.estimatedDuration === null || i.estimatedDuration === undefined),
+    );
+  }, [inbox, categories, dateRange]);
+
+  function handlePickDuration(taskId: string, minutes: number | null) {
+    setPickedDurations(prev => {
+      const next = new Map(prev);
+      if (minutes === null) next.delete(taskId);
+      else next.set(taskId, minutes);
+      return next;
+    });
+  }
+
+  function handleResetDurations() {
+    setPickedDurations(new Map());
+  }
+
   function toggleCat(key: CategoryKey) {
     setCategories(prev =>
       prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key],
@@ -75,52 +108,92 @@ export function GenerateModal({ onClose }: Props) {
   useEffect(() => {
     if (phase !== 'progress') return;
     if (stageIdx >= STAGES.length) {
-      // Compute preview once all stages displayed
-      const targetDate = dateRange === 'tomorrow' ? tomorrowISO : todayISO;
-      const result = mockGenerate(
-        inbox.filter(i => categories.includes(i.cat)),
-        allTasks,
-        targetDate,
-        {
-          workStart: planner.workStart,
-          workEnd:   planner.workEnd,
-          enabledCategories: categories,
-        },
-      );
-      setPreview(result);
-      setPhase('preview');
+      if (apiResultRef.current !== null) {
+        setPreview(apiResultRef.current);
+        setPhase('preview');
+      }
+      // else wait for API — the API callback below will set phase
       return;
     }
     const t = setTimeout(() => setStageIdx(i => i + 1), STAGE_DURATION);
     return () => clearTimeout(t);
-  }, [phase, stageIdx, dateRange, todayISO, tomorrowISO, inbox, allTasks, categories, planner]);
+  }, [phase, stageIdx]);
 
-  function startGeneration() {
+  async function startGeneration() {
     if (!canGenerate) return;
+    apiResultRef.current = null;
+    apiSucceededRef.current = false;
     setStageIdx(0);
     setPhase('progress');
+
+    const targetDate = dateRange === 'tomorrow' ? tomorrowISO : todayISO;
+    // Build duration_overrides from user picks + persisted estimatedDuration on inbox items
+    const durationOverrides: Record<string, number> = {};
+    pickedDurations.forEach((mins, taskId) => { durationOverrides[taskId] = mins; });
+    inbox.forEach(i => {
+      if (i.estimatedDuration && !durationOverrides[i.id]) {
+        durationOverrides[i.id] = i.estimatedDuration;
+      }
+    });
+    try {
+      const taskOuts = await generatePlanApi({
+        date: targetDate,
+        ...(Object.keys(durationOverrides).length > 0 ? { duration_overrides: durationOverrides } : {}),
+      }).unwrap();
+      const catLookup = buildCatLookup(cats);
+      const result: GeneratedTask[] = taskOuts.map(t => ({
+        ...taskOutToTask(t, catLookup),
+        inboxId: undefined,
+      }));
+      apiResultRef.current = result;
+      apiSucceededRef.current = true; // задачи уже сохранены бэкендом
+    } catch {
+      // Fall back to mock — задачи надо создавать через addTask
+      const result = mockGenerate(
+        inbox.filter(i => categories.includes(i.cat)),
+        allTasks,
+        targetDate,
+        { workStart: planner.workStart, workEnd: planner.workEnd, enabledCategories: categories },
+      );
+      apiResultRef.current = result;
+    }
+
+    // If animation already finished, show preview immediately
+    setStageIdx(prev => {
+      if (prev >= STAGES.length && apiResultRef.current !== null) {
+        setPreview(apiResultRef.current);
+        setPhase('preview');
+      }
+      return prev;
+    });
   }
 
   function applyPlan() {
-    const ids = new Set<string>();
-    preview.forEach(t => {
-      dispatch(addTask({
-        title:  t.title,
-        cat:    t.cat,
-        start:  t.start,
-        end:    t.end,
-        date:   t.date,
-        source: t.source,
-        ...(t.isBreak ? { isBreak: true } : {}),
-        ...(t.energy ? { energy: t.energy } : {}),
-        ...(t.reason ? { reason: t.reason } : {}),
-      }));
-      if (t.inboxId) ids.add(t.inboxId);
-    });
-    ids.forEach(id => dispatch(removeInboxItem(id)));
-
     const taskCount  = preview.filter(p => !p.isBreak).length;
     const breakCount = preview.filter(p => p.isBreak).length;
+
+    if (apiSucceededRef.current) {
+      // Бэкенд уже сохранил задачи — invalidatesTags обновит RTK Query автоматически
+    } else {
+      // Mock-fallback: создаём задачи локально
+      const ids = new Set<string>();
+      preview.forEach(t => {
+        taskApi.addTask({
+          title:  t.title,
+          cat:    t.cat,
+          start:  t.start,
+          end:    t.end,
+          date:   t.date,
+          source: t.source,
+          ...(t.isBreak ? { isBreak: true } : {}),
+          ...(t.energy ? { energy: t.energy } : {}),
+          ...(t.reason ? { reason: t.reason } : {}),
+        });
+        if (t.inboxId) ids.add(t.inboxId);
+      });
+      ids.forEach(id => taskApi.removeInboxItem(id));
+    }
+
     dispatch(showToast({
       message: breakCount > 0
         ? `Расставлено ${taskCount} задач, добавлено ${breakCount} ${breakCount === 1 ? 'перерыв' : 'перерыва'}`
@@ -343,6 +416,12 @@ export function GenerateModal({ onClose }: Props) {
               }
             </span>
           </div>
+
+          <DurationAssignBlock
+            items={itemsWithoutDuration}
+            picked={pickedDurations}
+            onPick={handlePickDuration}
+          />
         </div>
 
         <div className={styles.footer}>

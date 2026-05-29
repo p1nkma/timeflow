@@ -78,6 +78,7 @@
   line-height: 1;
   transition: background 150ms, color 150ms, border-color 150ms, box-shadow 150ms;
   flex-shrink: 0;
+  align-self: center;
 }
 .closeBtn:hover {
   background: var(--color-bg-tertiary);
@@ -327,6 +328,10 @@ button.fieldControl {
 }
 button.fieldControl:hover {
   border-color: var(--color-accent-primary);
+}
+
+.fieldControlPlaceholder {
+  color: var(--color-text-tertiary);
 }
 
 .newCatBtn {

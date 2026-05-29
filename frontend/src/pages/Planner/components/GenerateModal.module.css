@@ -510,3 +510,319 @@
   color: var(--color-text-tertiary);
   line-height: 1.3;
 }
+
+/* ── Duration trigger row ───────────────────────────────────────────── */
+.durTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-3);
+  padding: 10px 12px;
+  border: 1px solid var(--color-warning-bg, var(--color-border-default));
+  border-radius: var(--radius-md);
+  background: color-mix(in oklch, var(--color-warning-bg, var(--color-bg-secondary)) 35%, transparent);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 150ms, background 150ms;
+}
+.durTrigger:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.durTriggerDone {
+  background: color-mix(in oklch, var(--color-success-bg, var(--color-bg-secondary)) 30%, transparent);
+  border-color: var(--color-success-bg, var(--color-border-default));
+}
+
+.durTriggerLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-primary);
+}
+
+.durTriggerAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent-primary);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+/* ── Bulk duration sheet ────────────────────────────────────────────── */
+.bulkToolbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  padding: 0 2px;
+}
+
+.bulkCount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bulkToolbarActions {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.bulkLink {
+  background: none;
+  border: 0;
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+  color: var(--color-accent-primary);
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 6px;
+  transition: background 120ms;
+}
+.bulkLink:hover { background: color-mix(in oklch, var(--color-accent-primary) 10%, transparent); }
+
+.bulkLinkSep {
+  width: 1px;
+  height: 12px;
+  background: var(--color-border-default);
+  display: inline-block;
+  margin: 0 4px;
+  transform: translateY(1px);
+}
+
+.bulkList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+  margin-bottom: var(--space-4);
+}
+
+.bulkRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  text-align: left;
+  transition: background 120ms, border-color 120ms;
+}
+.bulkRow:hover { background: var(--color-bg-tertiary); }
+.bulkRow:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: -2px;
+}
+
+.bulkRowSelected {
+  background: color-mix(in oklch, var(--color-accent-primary) 8%, var(--color-bg-secondary));
+  border-color: color-mix(in oklch, var(--color-accent-primary) 45%, var(--color-border-default));
+}
+
+.bulkCheck {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-bg-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms, border-color 120ms;
+}
+.bulkCheckOn {
+  background: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+}
+
+.bulkRowMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.bulkRowTitle {
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.bulkRowMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  line-height: 1;
+}
+
+.bulkRowCatDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cat-border);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.bulkRowUrgent {
+  color: var(--color-danger-text, var(--color-text-primary));
+  font-weight: 600;
+}
+
+.bulkRowDeadline { font-variant-numeric: tabular-nums; }
+
+.bulkRowMins {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bulkRowAi {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px dashed var(--color-accent-primary);
+  color: var(--color-accent-primary);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bulkPresets {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+/* Reused inside BulkDurationSheet — mirror DurationSheet styles */
+.durPresetBtn {
+  flex: 1;
+  padding: 8px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms, color 150ms;
+  white-space: nowrap;
+  text-align: center;
+}
+.durPresetBtn:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+.durPresetBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.durPresetActive {
+  border-color: var(--color-accent-primary);
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  font-weight: 600;
+}
+.durPresetActive:hover { border-color: var(--color-accent-primary); }
+
+.durPresetCustom {
+  flex: 0 0 auto;
+  padding: 0;
+  overflow: hidden;
+  min-width: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 12px;
+  color: var(--color-text-secondary);
+}
+.durPresetCustom > button { padding: 8px 14px; }
+
+.durPresetCustomLabel {
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+.durCustomWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 10px;
+}
+
+.durCustomInput {
+  width: 3ch;
+  border: none;
+  background: transparent;
+  color: var(--color-text-inverse);
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+.durCustomInput::-webkit-inner-spin-button,
+.durCustomInput::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.durCustomUnit {
+  font-size: 0.8125rem;
+  color: var(--color-text-inverse);
+  opacity: 0.8;
+}
+
+.bulkHint {
+  margin: 0 2px var(--space-2);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.4;
+}
+
+.bulkAiAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px;
+  margin-top: var(--space-1);
+  border: 1px dashed var(--color-accent-primary);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-accent-primary);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bulkAiAction:hover { background: color-mix(in oklch, var(--color-accent-primary) 8%, transparent); }
+.bulkAiAction:disabled { opacity: 0.4; cursor: not-allowed; }

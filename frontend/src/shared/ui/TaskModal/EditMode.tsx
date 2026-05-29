@@ -1,5 +1,4 @@
-import { useAppDispatch } from '../../../app/hooks';
-import { updateTask } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { Icon, Delete01Icon } from '../Icon/Icon';
 import type { Task } from '../../types';
 import { TaskForm } from './TaskForm';
@@ -14,12 +13,12 @@ interface Props {
 }
 
 export function EditMode({ task, onSaved, onDiscard, onDelete }: Props) {
-  const dispatch = useAppDispatch();
-  const form     = useTaskForm(taskToFormValues(task), task.id);
+  const taskApi = useTaskApi();
+  const form    = useTaskForm(taskToFormValues(task), task.id);
 
   function handleSave() {
     if (!form.isValid) return;
-    dispatch(updateTask({ ...task, ...formValuesToTaskPatch(form.values) }));
+    taskApi.updateTask({ ...task, ...formValuesToTaskPatch(form.values) });
     onSaved();
   }
 

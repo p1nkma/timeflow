@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import {
-  toggleTask, rescheduleTask, moveTaskToEvening,
-  selectAllTasks, selectNowMin,
-} from '../../../features/tasks';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown } from '../../../shared/utils/time';
 import { TaskModal, CategoryChip } from '../../../shared/ui';
@@ -14,8 +12,8 @@ import styles from './TaskList.module.css';
 function TaskCard({
   task, isActive, isNow, isFocused, nowMin, onClick,
 }: { task: Task; isActive: boolean; isNow: boolean; isFocused?: boolean; nowMin: number; onClick: () => void }) {
-  const dispatch = useAppDispatch();
-  const cardRef  = useRef<HTMLDivElement>(null);
+  const taskApi = useTaskApi();
+  const cardRef = useRef<HTMLDivElement>(null);
   const overdueMins = task.overdue ? nowMin - task.start : 0;
 
   useEffect(() => {
@@ -49,7 +47,7 @@ function TaskCard({
         aria-label={task.done ? 'Отметить невыполненным' : 'Отметить выполненным'}
         aria-pressed={task.done}
         disabled={task.locked}
-        onClick={e => { e.stopPropagation(); dispatch(toggleTask(task.id)); }}
+        onClick={e => { e.stopPropagation(); taskApi.toggleTask(task.id); }}
       />
       <div className={styles.taskBody}>
         <span className={styles.taskTime}>{rangeFmt(task.start, task.end)}</span>
@@ -62,14 +60,14 @@ function TaskCard({
           <button
             className={styles.overdueBtn}
             title={`Сдвинуть на ${fmtCountdown(overdueMins)}`}
-            onClick={() => dispatch(rescheduleTask({ id: task.id, nowMin }))}
+            onClick={() => taskApi.rescheduleTask(task.id)}
           >
             Сдвинуть
           </button>
           <button
             className={`${styles.overdueBtn} ${styles.overdueBtnSecondary}`}
             title="Перенести в вечерний слот"
-            onClick={() => dispatch(moveTaskToEvening(task.id))}
+            onClick={() => taskApi.moveToEvening(task.id)}
           >
             На вечер
           </button>

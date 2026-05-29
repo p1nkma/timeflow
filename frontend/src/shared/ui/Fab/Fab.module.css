@@ -35,7 +35,7 @@
 @media (max-width: 768px) {
   .fab {
     right: var(--space-4);
-    bottom: calc(var(--bottom-nav-h, 64px) + var(--space-4));
+    bottom: calc(56px + var(--space-4));
     width: 52px;
     height: 52px;
   }

@@ -24,6 +24,7 @@ export function PlannerPage() {
   const dispatch = useAppDispatch();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showNewTask, setShowNewTask]        = useState(false);
+  const [newTaskSlot, setNewTaskSlot]        = useState<{ date: string; hour: number } | null>(null);
   const [showGenerate, setShowGenerate]      = useState(false);
   const [draggingItem, setDraggingItem]      = useState<InboxItem | null>(null);
   const [draggingTask, setDraggingTask]      = useState<Task | null>(null);
@@ -197,6 +198,7 @@ export function PlannerPage() {
               selectedTaskId={selectedTaskId}
               onTaskSelect={id => setSelectedTaskId(prev => prev === id ? null : id)}
               onModeChange={setViewMode}
+              onSlotClick={(date, hour) => { setNewTaskSlot({ date, hour }); setShowNewTask(true); }}
             />
           </div>
           {viewMode === 'day' && (
@@ -209,7 +211,11 @@ export function PlannerPage() {
         )}
 
         {showNewTask && (
-          <QuickAddModal onClose={() => setShowNewTask(false)} />
+          <QuickAddModal
+            onClose={() => { setShowNewTask(false); setNewTaskSlot(null); }}
+            defaultDate={newTaskSlot?.date}
+            defaultStart={newTaskSlot ? newTaskSlot.hour * 60 : undefined}
+          />
         )}
 
         {showGenerate && (

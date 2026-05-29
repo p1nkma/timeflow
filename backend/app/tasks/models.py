@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Index, String, Text
+from sqlalchemy import DateTime, Index, Integer, String, Text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -47,6 +47,7 @@ class Task(Base, TimestampMixin):
     deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     planned_start_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     planned_end_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    estimated_duration_minutes: Mapped[int | None] = mapped_column(Integer)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

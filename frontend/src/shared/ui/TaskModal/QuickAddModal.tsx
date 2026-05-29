@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { format, addDays, parseISO, isToday, isTomorrow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { addTask, selectAllTasks, selectNowMin } from '../../../features/tasks';
-import { addInboxItem } from '../../../features/inbox';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { showToast } from '../../../features/ui';
 import { findFreeSlot } from '../../utils/time';
 import { CATEGORIES, catStyle } from '../../utils/categories';
@@ -29,6 +29,8 @@ function PenIcon() {
 
 interface Props {
   onClose: () => void;
+  defaultDate?: string;
+  defaultStart?: number;
 }
 
 type Override<T> = { value: T | undefined; explicit: boolean };
@@ -77,8 +79,9 @@ const MARK_CLASS: Record<string, string> = {
   energy:   styles.markEnergy,
 };
 
-export function QuickAddModal({ onClose }: Props) {
+export function QuickAddModal({ onClose, defaultDate, defaultStart: defaultStartProp }: Props) {
   const dispatch = useAppDispatch();
+  const taskApi  = useTaskApi();
   const allTasks = useAppSelector(selectAllTasks);
   const nowMin   = useAppSelector(selectNowMin);
   const planner  = useAppSelector(s => s.planner);
@@ -91,8 +94,8 @@ export function QuickAddModal({ onClose }: Props) {
   const tomorrowISO = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 
   const [overrides, setOverrides] = useState<Overrides>({
-    date:     initOverride(),
-    start:    initOverride(),
+    date:     defaultDate     ? { value: defaultDate,      explicit: true } : initOverride(),
+    start:    defaultStartProp !== undefined ? { value: defaultStartProp, explicit: true } : initOverride(),
     duration: initOverride(),
     cat:      initOverride(),
     energy:   initOverride(),
@@ -160,12 +163,11 @@ export function QuickAddModal({ onClose }: Props) {
     if (!titleSource) return;
 
     if (goesToInbox) {
-      dispatch(addInboxItem({ title: titleSource, cat: finalCat }));
+      taskApi.addInboxItem({ title: titleSource, cat: finalCat });
       dispatch(showToast({ message: 'Добавлено в Inbox', variant: 'default' }));
     } else {
       const start = resolveStart();
-      const id = `t${Date.now()}`;
-      dispatch(addTask({
+      taskApi.addTask({
         title:  titleSource,
         date:   finalDate ?? TODAY_ISO(),
         start,
@@ -174,8 +176,7 @@ export function QuickAddModal({ onClose }: Props) {
         source: 'user',
         energy: finalEnergy,
         notes:  notes.trim() || undefined,
-        id,
-      }));
+      });
       dispatch(showToast({ message: 'Задача создана', variant: 'success' }));
     }
     onClose();

@@ -1,10 +1,18 @@
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { toggleDarkMode } from '../../features/ui';
+import { toggleDarkMode, showToast } from '../../features/ui';
 import { setChronotype, setWorkHours, toggleCategory } from '../../features/planner';
+import { useGetMeQuery, useUpdateMeMutation, userInitials } from '../../features/user';
+import { useGetCategoriesQuery } from '../../features/categories/categoriesApi';
+import {
+  useGetTelegramStatusQuery, useLazyGetTelegramAuthLinkQuery,
+  useDisconnectTelegramMutation, useSetTelegramNotificationsMutation,
+  useGetGoogleStatusQuery, useLazyGetGoogleAuthUrlQuery,
+  useSyncGoogleCalendarMutation, useDisconnectGoogleMutation,
+} from '../../features/integrations/integrationsApi';
+import { clearToken } from '../../features/auth';
 import { Toggle } from '../../shared/ui';
-import { CATEGORIES } from '../../shared/utils/categories';
 import { fmt } from '../../shared/utils/time';
-import { MOCK_USER } from '../../mocks/user';
 import type { ChronoType, CategoryKey } from '../../shared/types';
 import styles from './SettingsPage.module.css';
 
@@ -39,6 +47,41 @@ export function SettingsPage() {
   const dispatch  = useAppDispatch();
   const darkMode  = useAppSelector(s => s.ui.darkMode);
   const planner   = useAppSelector(s => s.planner);
+  const { data: me } = useGetMeQuery();
+  const [updateMe] = useUpdateMeMutation();
+  const { data: apiCats = [] } = useGetCategoriesQuery();
+
+  const { data: tgStatus }   = useGetTelegramStatusQuery();
+  const { data: gcalStatus } = useGetGoogleStatusQuery();
+  const [getTgLink]          = useLazyGetTelegramAuthLinkQuery();
+  const [getGcalUrl]         = useLazyGetGoogleAuthUrlQuery();
+  const [syncGcal, { isLoading: syncing }] = useSyncGoogleCalendarMutation();
+  const [disconnectTg]       = useDisconnectTelegramMutation();
+  const [disconnectGcal]     = useDisconnectGoogleMutation();
+  const [setTgNotif]         = useSetTelegramNotificationsMutation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('google') === 'connected') {
+      dispatch(showToast({ message: 'Google Календарь подключён', variant: 'success' }));
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [dispatch]);
+
+  async function handleConnectTelegram() {
+    const res = await getTgLink().unwrap().catch(() => null);
+    if (res?.url) window.open(res.url, '_blank', 'noopener');
+  }
+
+  async function handleConnectGoogle() {
+    const res = await getGcalUrl().unwrap().catch(() => null);
+    if (res?.url) window.location.assign(res.url);
+  }
+
+  function handleLogout() {
+    clearToken();
+    window.location.assign('/login');
+  }
 
   return (
     <div className={styles.page}>
@@ -51,11 +94,17 @@ export function SettingsPage() {
         {/* ── Профиль ── */}
         <section className={styles.section}>
           <div className={styles.profileCard}>
-            <div className={styles.avatar}>{MOCK_USER.initials}</div>
+            <div className={styles.avatar}>
+              {me ? userInitials(me.full_name) : '…'}
+            </div>
             <div className={styles.profileInfo}>
-              <span className={`t-body ${styles.profileName}`}>{MOCK_USER.fullName}</span>
-              <span className="t-small muted">{MOCK_USER.email}</span>
-              <span className="t-small muted">{MOCK_USER.university} · {MOCK_USER.speciality}</span>
+              <span className={`t-body ${styles.profileName}`}>
+                {me?.full_name ?? 'Загрузка…'}
+              </span>
+              <span className="t-small muted">{me?.email ?? ''}</span>
+              {me?.role === 'admin' && (
+                <span className="t-small muted">Администратор</span>
+              )}
             </div>
           </div>
         </section>
@@ -75,7 +124,10 @@ export function SettingsPage() {
                 <button
                   key={o.value}
                   className={`${styles.chip} ${planner.chronotype === o.value ? styles.chipActive : ''}`}
-                  onClick={() => dispatch(setChronotype(o.value))}
+                  onClick={() => {
+                    dispatch(setChronotype(o.value));
+                    updateMe({ chronotype: o.value });
+                  }}
                   title={o.hint}
                 >
                   {o.label}
@@ -90,7 +142,10 @@ export function SettingsPage() {
                 <button
                   key={h}
                   className={`${styles.chip} ${planner.workStart === h * 60 ? styles.chipActive : ''}`}
-                  onClick={() => dispatch(setWorkHours({ start: h * 60, end: planner.workEnd }))}
+                  onClick={() => {
+                    dispatch(setWorkHours({ start: h * 60, end: planner.workEnd }));
+                    updateMe({ work_start: h * 60 });
+                  }}
                 >
                   {fmt(h * 60)}
                 </button>
@@ -104,7 +159,10 @@ export function SettingsPage() {
                 <button
                   key={h}
                   className={`${styles.chip} ${planner.workEnd === h * 60 ? styles.chipActive : ''}`}
-                  onClick={() => dispatch(setWorkHours({ start: planner.workStart, end: h * 60 }))}
+                  onClick={() => {
+                    dispatch(setWorkHours({ start: planner.workStart, end: h * 60 }));
+                    updateMe({ work_end: h * 60 });
+                  }}
                 >
                   {fmt(h * 60)}
                 </button>
@@ -114,13 +172,13 @@ export function SettingsPage() {
 
           <Row label="Активные категории" hint="Задачи этих категорий включаются в авто-план">
             <div className={styles.chipGroup}>
-              {(Object.keys(CATEGORIES) as CategoryKey[]).filter(k => k !== 'fixed').map(k => (
+              {apiCats.filter(c => c.key !== 'fixed').map(c => (
                 <button
-                  key={k}
-                  className={`${styles.chip} ${planner.enabledCategories.includes(k) ? styles.chipActive : ''}`}
-                  onClick={() => dispatch(toggleCategory(k))}
+                  key={c.key}
+                  className={`${styles.chip} ${planner.enabledCategories.includes(c.key as CategoryKey) ? styles.chipActive : ''}`}
+                  onClick={() => dispatch(toggleCategory(c.key as CategoryKey))}
                 >
-                  {CATEGORIES[k].label}
+                  {c.name}
                 </button>
               ))}
             </div>
@@ -129,6 +187,7 @@ export function SettingsPage() {
 
         {/* ── Интеграции ── */}
         <Section title="Интеграции">
+          {/* Telegram */}
           <div className={styles.integration}>
             <div className={styles.integrationIcon} aria-hidden>
               <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
@@ -137,28 +196,79 @@ export function SettingsPage() {
             </div>
             <div className={styles.integrationBody}>
               <span className={styles.integrationTitle}>Telegram</span>
-              <span className={styles.integrationDesc}>
-                Подключи бота, чтобы получать уведомления о задачах и быстро добавлять дела через чат
-              </span>
+              {tgStatus?.connected ? (
+                <span className={styles.integrationDesc}>
+                  Подключён
+                  {tgStatus.notifications_enabled !== undefined && (
+                    <> · уведомления {tgStatus.notifications_enabled ? 'вкл' : 'выкл'}</>
+                  )}
+                </span>
+              ) : (
+                <span className={styles.integrationDesc}>
+                  Подключи бота, чтобы получать уведомления и добавлять дела через чат
+                </span>
+              )}
             </div>
-            <a
-              className={styles.integrationBtn}
-              href="https://t.me/timeflow_bot?start=connect_user"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Подключить
-            </a>
+            {tgStatus?.connected ? (
+              <div className={styles.integrationActions}>
+                <Toggle
+                  on={tgStatus.notifications_enabled ?? true}
+                  onChange={v => setTgNotif(v)}
+                />
+                <button className={styles.integrationBtnSecondary} onClick={() => disconnectTg()}>
+                  Отключить
+                </button>
+              </div>
+            ) : (
+              <button className={styles.integrationBtn} onClick={handleConnectTelegram}>
+                Подключить
+              </button>
+            )}
+          </div>
+
+          {/* Google Calendar */}
+          <div className={styles.integration}>
+            <div className={styles.integrationIcon} aria-hidden>
+              <img src="/google-calendar.svg" width="24" height="24" alt="" />
+            </div>
+            <div className={styles.integrationBody}>
+              <span className={styles.integrationTitle}>Google Календарь</span>
+              {gcalStatus?.connected ? (
+                <span className={styles.integrationDesc}>Подключён · события импортируются автоматически</span>
+              ) : (
+                <span className={styles.integrationDesc}>
+                  Импортируй события из Google Calendar как заблокированные слоты
+                </span>
+              )}
+            </div>
+            {gcalStatus?.connected ? (
+              <div className={styles.integrationActions}>
+                <button
+                  className={styles.integrationBtn}
+                  onClick={() => syncGcal()}
+                  disabled={syncing}
+                >
+                  {syncing ? 'Синхронизация…' : 'Синхронизировать'}
+                </button>
+                <button className={styles.integrationBtnSecondary} onClick={() => disconnectGcal()}>
+                  Отключить
+                </button>
+              </div>
+            ) : (
+              <button className={styles.integrationBtn} onClick={handleConnectGoogle}>
+                Подключить
+              </button>
+            )}
           </div>
         </Section>
 
         {/* ── Данные ── */}
         <Section title="Данные">
           <Row label="Хранение данных">
-            <span className="t-small tertiary">Локально</span>
+            <span className="t-small tertiary">На сервере</span>
           </Row>
           <div className={styles.dangerZone}>
-            <button className={styles.btnDanger}>Очистить все данные</button>
+            <button className={styles.btnDanger} onClick={handleLogout}>Выйти</button>
           </div>
         </Section>
 

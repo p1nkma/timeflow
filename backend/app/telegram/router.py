@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.core.deps import CurrentUser, DbSession
-from app.telegram.bot import bot, dp
+from app.telegram.bot import dp, get_bot
 from app.telegram.link_tokens import create_token
 from app.telegram.models import TelegramUser
 
@@ -16,8 +16,13 @@ settings = get_settings()
 @router.get("/auth")
 async def telegram_auth(user: CurrentUser) -> dict:
     """Generate a one-time deeplink for connecting Telegram account."""
+    if not settings.telegram_bot_token:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Telegram integration is not configured",
+        )
     token = create_token(user.id)
-    bot_info = await bot.get_me()
+    bot_info = await get_bot().get_me()
     return {
         "url": f"https://t.me/{bot_info.username}?start={token}",
         "expires_in": 600,
@@ -66,6 +71,11 @@ async def telegram_webhook(
     request: Request,
     x_telegram_bot_api_secret_token: str | None = Header(default=None),
 ) -> dict:
+    if not settings.telegram_bot_token:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Telegram integration is not configured",
+        )
     if settings.telegram_webhook_secret and x_telegram_bot_api_secret_token != settings.telegram_webhook_secret:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid secret")
 
@@ -73,5 +83,5 @@ async def telegram_webhook(
 
     body = await request.json()
     update = Update.model_validate(body)
-    await dp.feed_update(bot, update)
+    await dp.feed_update(get_bot(), update)
     return {"ok": True}

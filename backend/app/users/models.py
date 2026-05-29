@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy import String
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.enums import Role, Theme
+from app.core.enums import Chronotype, Role, Theme
 from app.db.base import Base, TimestampMixin
 from app.db.types import UUIDPK
 
@@ -35,6 +35,14 @@ class User(Base, TimestampMixin):
         default=Theme.light,
         nullable=False,
     )
+    chronotype: Mapped[Chronotype] = mapped_column(
+        SAEnum(Chronotype, name="chronotype"),
+        default=Chronotype.pigeon,
+        nullable=False,
+    )
+    work_start: Mapped[int] = mapped_column(Integer, default=540, nullable=False)    # minutes, default 9:00
+    work_end: Mapped[int] = mapped_column(Integer, default=1200, nullable=False)    # minutes, default 20:00
+    utc_offset: Mapped[int] = mapped_column(Integer, default=180, nullable=False)   # UTC offset in minutes, default +3 (Moscow)
 
     categories: Mapped[list[Category]] = relationship(
         back_populates="user", cascade="all, delete-orphan"

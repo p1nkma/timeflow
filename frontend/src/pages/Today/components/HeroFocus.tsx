@@ -1,22 +1,23 @@
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import {
-  toggleTask, updateTask, startTaskNow, rescheduleTask,
   selectCurrentTask, selectNextTask, selectNowMin, selectRealTasks,
 } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { showToast } from '../../../features/ui';
 import { catStyle } from '../../../shared/utils/categories';
 import { rangeFmt, fmtCountdown, fmtRemaining, findFreeSlot } from '../../../shared/utils/time';
-import { CategoryChip, EnergyBadge } from '../../../shared/ui';
+import { CategoryChip, EnergyBadge, Icon, NextIcon, Timer01Icon } from '../../../shared/ui';
 import styles from './HeroFocus.module.css';
 
 export function HeroFocus() {
-  const dispatch = useAppDispatch();
-  const nowMin   = useAppSelector(selectNowMin);
-  const current  = useAppSelector(selectCurrentTask);
-  const next     = useAppSelector(selectNextTask);
+  const dispatch  = useAppDispatch();
+  const taskApi   = useTaskApi();
+  const nowMin    = useAppSelector(selectNowMin);
+  const current   = useAppSelector(selectCurrentTask);
+  const next      = useAppSelector(selectNextTask);
   const realTasks = useAppSelector(selectRealTasks);
-  const planner  = useAppSelector(s => s.planner);
-  const task     = current ?? next;
+  const planner   = useAppSelector(s => s.planner);
+  const task      = current ?? next;
 
   if (!task) {
     const noPlan = realTasks.length === 0;
@@ -46,12 +47,14 @@ export function HeroFocus() {
     ? `Сейчас · ${rangeFmt(task.start, task.end)} · осталось ${fmtRemaining(task.end, nowMin)}`
     : `Следующая задача · через ${fmtCountdown(task.start - nowMin)}`;
 
-  function handleDone()  { dispatch(toggleTask(task!.id)); }
+  function handleDone()  { taskApi.toggleTask(task!.id); }
   function handleSkip()  {
-    if (!current) return;
-    dispatch(rescheduleTask({ id: current.id, nowMin }));
+    if (!task) return;
+    taskApi.addInboxItem({ title: task.title, cat: task.cat });
+    taskApi.removeFromSchedule(task.id);
+    dispatch(showToast({ message: 'Задача отправлена в инбокс', variant: 'info' }));
   }
-  function handleStart() { dispatch(startTaskNow({ id: task!.id, nowMin })); }
+  function handleStart() { taskApi.startTaskNow(task!.id); }
   function handleDelay() {
     if (!current) return;
     const duration = current.end - current.start;
@@ -64,7 +67,7 @@ export function HeroFocus() {
       dispatch(showToast({ message: 'Нет свободного места до конца дня', variant: 'error' }));
       return;
     }
-    dispatch(updateTask({ ...current, start: slot, end: slot + duration }));
+    taskApi.updateTask({ ...current, start: slot, end: slot + duration });
   }
 
   const dur = task.end - task.start;
@@ -96,11 +99,13 @@ export function HeroFocus() {
             <button className={styles.btnPrimary} onClick={handleDone}>
               Выполнено
             </button>
-            <button className={styles.btnSecondary} onClick={handleSkip}>
-              Пропустить
+            <button className={`${styles.btnSecondary} ${styles.btnIconOnly}`} onClick={handleSkip} title="Пропустить">
+              <span className={styles.btnLabel}>Пропустить</span>
+              <Icon icon={NextIcon} size={18} aria-hidden />
             </button>
-            <button className={styles.btnGhost} onClick={handleDelay}>
-              Отложить 15 мин
+            <button className={`${styles.btnGhost} ${styles.btnIconOnly}`} onClick={handleDelay} title="Отложить 15 мин">
+              <span className={styles.btnLabel}>Отложить 15 мин</span>
+              <Icon icon={Timer01Icon} size={18} aria-hidden />
             </button>
           </>
         ) : (
@@ -108,8 +113,9 @@ export function HeroFocus() {
             <button className={styles.btnPrimary} onClick={handleStart}>
               Запустить сейчас
             </button>
-            <button className={styles.btnGhost} onClick={handleSkip}>
-              Пропустить
+            <button className={`${styles.btnGhost} ${styles.btnIconOnly}`} onClick={handleSkip} title="Пропустить">
+              <span className={styles.btnLabel}>Пропустить</span>
+              <Icon icon={NextIcon} size={18} aria-hidden />
             </button>
           </>
         )}

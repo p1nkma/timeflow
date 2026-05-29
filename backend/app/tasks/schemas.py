@@ -19,6 +19,7 @@ class TaskOut(BaseModel):
     deadline: datetime | None
     planned_start_at: datetime | None
     planned_end_at: datetime | None
+    estimated_duration_minutes: int | None
     started_at: datetime | None
     completed_at: datetime | None
     status: TaskStatus
@@ -55,6 +56,7 @@ class TaskCreate(_TaskTimingMixin):
     deadline: datetime | None = None
     planned_start_at: datetime | None = None
     planned_end_at: datetime | None = None
+    estimated_duration_minutes: int | None = Field(default=None, ge=1, le=720)
     energy: EnergyLevel | None = None
     urgent: bool = False
     is_break: bool = False
@@ -71,6 +73,7 @@ class TaskUpdate(_TaskTimingMixin):
     deadline: datetime | None = None
     planned_start_at: datetime | None = None
     planned_end_at: datetime | None = None
+    estimated_duration_minutes: int | None = Field(default=None, ge=1, le=720)
     started_at: datetime | None = None
     completed_at: datetime | None = None
     status: TaskStatus | None = None

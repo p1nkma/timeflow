@@ -1,92 +1,98 @@
+import { useGetAnalyticsSummaryQuery } from '../../../features/analytics/analyticsApi';
+import { useGetCategoriesQuery } from '../../../features/categories/categoriesApi';
 import { CAT_COLORS } from '../../../shared/utils/categories';
 import styles from './CategoryBreakdown.module.css';
 
 type Period = '7' | '30' | '90';
 
-interface CatRow {
-  name: string;
-  key: keyof typeof CAT_COLORS;
-  count: number;
-  hours: number;
-}
-
 function fmtHours(h: number): string {
   return h % 1 === 0 ? `${h}` : h.toFixed(1).replace('.', ',');
 }
 
-const DATA: Record<Period, CatRow[]> = {
-  '7': [
-    { name: 'Учёба',   key: 'study',     count: 14, hours: 8.4  },
-    { name: 'Кодинг',  key: 'code',      count: 12, hours: 6.6  },
-    { name: 'Фриланс', key: 'freelance', count: 8,  hours: 3.2  },
-    { name: 'Спорт',   key: 'sport',     count: 6,  hours: 2.2  },
-    { name: 'Чтение',  key: 'reading',   count: 4,  hours: 1.1  },
-    { name: 'Вуз',     key: 'fixed',     count: 3,  hours: 0.5  },
-  ],
-  '30': [
-    { name: 'Учёба',   key: 'study',     count: 52,  hours: 34.0 },
-    { name: 'Кодинг',  key: 'code',      count: 44,  hours: 26.4 },
-    { name: 'Фриланс', key: 'freelance', count: 28,  hours: 13.0 },
-    { name: 'Спорт',   key: 'sport',     count: 18,  hours: 8.0  },
-    { name: 'Чтение',  key: 'reading',   count: 12,  hours: 4.4  },
-    { name: 'Вуз',     key: 'fixed',     count: 10,  hours: 2.0  },
-  ],
-  '90': [
-    { name: 'Учёба',   key: 'study',     count: 148, hours: 102.0 },
-    { name: 'Кодинг',  key: 'code',      count: 130, hours: 79.2  },
-    { name: 'Фриланс', key: 'freelance', count: 78,  hours: 39.0  },
-    { name: 'Спорт',   key: 'sport',     count: 52,  hours: 24.0  },
-    { name: 'Чтение',  key: 'reading',   count: 34,  hours: 13.2  },
-    { name: 'Вуз',     key: 'fixed',     count: 28,  hours: 6.0   },
-  ],
-};
-
 export function CategoryBreakdown({ period }: { period: Period }) {
-  const data       = DATA[period];
-  const maxHours   = Math.max(...data.map(d => d.hours));
-  const totalHours = Math.round(data.reduce((s, d) => s + d.hours, 0) * 10) / 10;
-  const totalHoursFmt = fmtHours(totalHours);
+  const days = Number(period);
+  const { data: summary, isLoading } = useGetAnalyticsSummaryQuery(days);
+  const { data: cats = [] } = useGetCategoriesQuery();
 
-  const periodLabel = period === '7' ? '7 дней' : period === '30' ? '30 дней' : '90 дней';
+  const catById = new Map(cats.map(c => [c.id, c]));
+
+  const rows = summary
+    ? Object.entries(summary.category_breakdown)
+        .map(([catId, minutes]) => {
+          const cat = catById.get(catId);
+          return {
+            key:   cat?.key ?? catId,
+            name:  cat?.name ?? catId,
+            color: CAT_COLORS[cat?.key ?? ''] ?? (cat?.color ?? '#8E96A6'),
+            hours: Math.round(minutes / 6) / 10,
+          };
+        })
+        .sort((a, b) => b.hours - a.hours)
+    : [];
+
+  const totalHours   = Math.round(rows.reduce((s, d) => s + d.hours, 0) * 10) / 10;
+  const maxHours     = rows.length > 0 ? Math.max(...rows.map(d => d.hours)) : 1;
+  const periodLabel  = period === '7' ? '7 дней' : period === '30' ? '30 дней' : '90 дней';
 
   return (
     <div className={styles.wrap}>
       <div className={styles.head}>
         <span className="t-h3">Время по категориям</span>
-        <span className="t-small muted">{totalHoursFmt} ч за {periodLabel}</span>
+        <span className="t-small muted">{fmtHours(totalHours)} ч за {periodLabel}</span>
       </div>
 
-      <div className={styles.bars}>
-        {data.map(d => {
-          const pct = Math.round((d.hours / totalHours) * 100);
-          return (
-            <div key={d.key} className={styles.barRow}>
+      {isLoading && (
+        <div className={styles.bars}>
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className={styles.barRow}>
               <div className={styles.barLeft}>
-                <span className={styles.dot} style={{ background: CAT_COLORS[d.key] }} />
-                <span className={`t-small ${styles.barLabel}`}>{d.name}</span>
+                <span className={`skel ${styles.dot}`} style={{ background: 'var(--color-bg-tertiary)' }} />
+                <span className={`skel t-small ${styles.barLabel}`} style={{ width: 60, height: 14, borderRadius: 4, display: 'inline-block' }} />
               </div>
-              <div
-                className={styles.barTrack}
-                style={{ background: `${CAT_COLORS[d.key]}18` }}
-              >
-                <div
-                  className={styles.barFill}
-                  style={{
-                    width: '100%',
-                    transform: `scaleX(${d.hours / maxHours})`,
-                    background: CAT_COLORS[d.key],
-                  }}
-                />
+              <div className={styles.barTrack} style={{ background: 'var(--color-bg-tertiary)' }}>
+                <div className={styles.barFill} style={{ width: '100%', transform: `scaleX(${0.3 + i * 0.15})`, background: 'var(--color-bg-elevated)' }} />
               </div>
-              <span className={styles.barMeta}>
-                <span className={styles.metaPct}>{pct}%</span>
-                <span className={styles.metaHours}>{fmtHours(d.hours)} ч</span>
-                <span className={styles.metaCount}>{d.count} задач</span>
-              </span>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {!isLoading && rows.length === 0 && (
+        <p className="t-body muted" style={{ padding: '16px 0' }}>Нет данных за этот период</p>
+      )}
+
+      {!isLoading && rows.length > 0 && (
+        <div className={styles.bars}>
+          {rows.map(d => {
+            const pct = totalHours > 0 ? Math.round((d.hours / totalHours) * 100) : 0;
+            return (
+              <div key={d.key} className={styles.barRow}>
+                <div className={styles.barLeft}>
+                  <span className={styles.dot} style={{ background: d.color }} />
+                  <span className={`t-small ${styles.barLabel}`}>{d.name}</span>
+                </div>
+                <div
+                  className={styles.barTrack}
+                  style={{ background: `${d.color}18` }}
+                >
+                  <div
+                    className={styles.barFill}
+                    style={{
+                      width: '100%',
+                      transform: `scaleX(${maxHours > 0 ? d.hours / maxHours : 0})`,
+                      background: d.color,
+                    }}
+                  />
+                </div>
+                <span className={styles.barMeta}>
+                  <span className={styles.metaPct}>{pct}%</span>
+                  <span className={styles.metaHours}>{fmtHours(d.hours)} ч</span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

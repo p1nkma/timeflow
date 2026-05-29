@@ -111,11 +111,19 @@
   --z-modal:   20;
   --z-toast:   30;
 
-  /* Energy zones — distinct, harmonious, readable */
-  --ez-peak:   #D5DFEC;  /* 9–12  Фокус: холодно-голубой */
-  --ez-medium: #D4E7DA;  /* 12–17 Поток: шалфейный */
-  --ez-low:    #C8C2B9;  /* 17–20 Рутина: пыльно-бежевый */
-  --ez-dip:    #F1B8A9;  /* утро/ночь: Перезагрузка, мягкий персиковый */
+  /* Energy zones — pastel, harmonious, low-saturation. Modeled after Pink (peak/trough/recovery) + dip. */
+  --ez-peak:     #DCE6F1;  /* пик: муаровый голубой */
+  --ez-recovery: #E2EAD8;  /* восстановление: бледный шалфей */
+  --ez-trough:   #ECE6DB;  /* спад: овсяный */
+  --ez-dip:      #EAD7CF;  /* ночь/dip: тёплый пудровый */
+  --ez-medium:   var(--ez-recovery); /* legacy alias */
+  --ez-low:      var(--ez-trough);   /* legacy alias */
+
+  /* Energy zone — accent dot color (для меток/tooltip) */
+  --ez-peak-accent:     #6E89B1;
+  --ez-recovery-accent: #87A074;
+  --ez-trough-accent:   #A89A78;
+  --ez-dip-accent:      #B68E7B;
 }
 
 html.dark {
@@ -180,9 +188,17 @@ html.dark {
 
   --focus-ring: 0 0 0 3px rgba(224, 251, 252, 0.25);
 
-  --ez-peak:   #0F3D28;  /* пик: obsidian teal */
-  --ez-medium: #0C2240;  /* работа: obsidian navy */
-  --ez-low:    #1C1038;  /* спад: obsidian purple */
-  --ez-dip:    #2E1C0A;  /* отдых: obsidian sienna */
+  /* Energy zones — dark variant, deeply muted */
+  --ez-peak:     #1A2638;  /* пик: глубокий стальной синий */
+  --ez-recovery: #1B2A1E;  /* recovery: моховой */
+  --ez-trough:   #2A2519;  /* trough: оливково-тёмный */
+  --ez-dip:      #2A1E18;  /* dip: коньячно-тёмный */
+  --ez-medium:   var(--ez-recovery);
+  --ez-low:      var(--ez-trough);
+
+  --ez-peak-accent:     #7E96BD;
+  --ez-recovery-accent: #94AC83;
+  --ez-trough-accent:   #B3A485;
+  --ez-dip-accent:      #C29F8E;
 }
 

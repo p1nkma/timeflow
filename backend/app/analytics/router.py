@@ -9,6 +9,7 @@ from sqlalchemy import select
 from app.categories.models import Category
 from app.core.deps import CurrentUser, DbSession
 from app.core.enums import TaskStatus
+from app.core.timezones import local_day_bounds_utc, local_today, to_local
 from app.tasks.models import Task
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
@@ -65,9 +66,14 @@ async def report(
     db: DbSession,
     period: Annotated[str, Query(pattern="^(week|month)$")] = "week",
 ) -> dict:
-    """Per-day breakdown for charting (last 7 or 30 days)."""
+    """Per-day breakdown for charting (last 7 or 30 days), in the user's local time."""
     days = 7 if period == "week" else 30
-    start, end = _window(days)
+
+    # Window: from the start of the local day `days-1` ago up to end of local today.
+    today = local_today(user.utc_offset)
+    first_day = today - timedelta(days=days - 1)
+    start, _ = local_day_bounds_utc(first_day, user.utc_offset)
+    _, end = local_day_bounds_utc(today, user.utc_offset)
 
     rows = await db.execute(
         select(Task).where(
@@ -78,15 +84,15 @@ async def report(
     )
     tasks = rows.scalars().all()
 
-    # Build day-by-day counts
+    # Build day-by-day counts (local calendar days)
     daily: dict[str, dict] = {}
     for i in range(days):
-        d = (start + timedelta(days=i)).date().isoformat()
+        d = (first_day + timedelta(days=i)).isoformat()
         daily[d] = {"date": d, "total": 0, "completed": 0}
 
     for t in tasks:
         if t.planned_start_at:
-            d = t.planned_start_at.date().isoformat()
+            d = to_local(t.planned_start_at, user.utc_offset).date().isoformat()
             if d in daily:
                 daily[d]["total"] += 1
                 if t.status == TaskStatus.done:

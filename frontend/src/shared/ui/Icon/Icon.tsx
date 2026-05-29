@@ -43,6 +43,7 @@ export {
   NextIcon,
   HourglassIcon,
   CheckmarkCircle02Icon,
+  InboxIcon,
 } from '@hugeicons/core-free-icons';
 
 type HugeIconProps = ComponentProps<typeof HugeiconsIcon>;

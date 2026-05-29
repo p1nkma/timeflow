@@ -8,8 +8,8 @@ from app.auth.router import router as auth_router
 from app.categories.router import router as categories_router
 from app.core.config import get_settings
 from app.dashboard.router import router as dashboard_router
-from app.recommendations.router import router as recommendations_router
 from app.integrations.google.router import router as google_router
+from app.recommendations.router import router as recommendations_router
 from app.tasks.router import router as tasks_router
 from app.telegram.router import router as telegram_router
 from app.users.router import admin_router

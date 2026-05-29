@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react';
-import { useAppSelector } from '../../../app/hooks';
+import { useGetCategoriesQuery } from '../../../features/categories/categoriesApi';
 import type { CategoryKey } from '../../types';
 import { CATEGORIES, catStyle, getIcon } from '../../utils/categories';
 import { Icon } from '../Icon/Icon';
@@ -29,8 +29,9 @@ export function CategoryChip({
   style,
   ...rest
 }: Props) {
-  const customCategories = useAppSelector(s => s.categories);
-  const custom = customCategories.find(c => c.key === cat);
+  const { data: apiCats = [] } = useGetCategoriesQuery();
+  const apiCat = apiCats.find(c => c.key === cat && !c.is_system);
+  const custom = apiCat ? { key: apiCat.key, label: apiCat.name, iconName: '', color: apiCat.color } : undefined;
   const staticMeta = CATEGORIES[cat];
 
   const text = label ?? custom?.label ?? staticMeta?.label ?? cat;

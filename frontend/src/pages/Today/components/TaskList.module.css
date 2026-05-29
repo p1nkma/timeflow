@@ -40,6 +40,13 @@
   min-height: 52px;
 }
 
+@media (max-width: 768px) {
+  .task {
+    padding: var(--space-3) var(--space-3);
+    min-height: 64px;
+  }
+}
+
 .task:hover { box-shadow: var(--shadow-sm); }
 
 .task:focus-visible {

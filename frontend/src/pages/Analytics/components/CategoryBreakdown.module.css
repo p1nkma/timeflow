@@ -104,3 +104,9 @@
     grid-template-columns: 96px 1fr auto;
   }
 }
+
+@media (max-width: 768px) {
+  .wrap {
+    display: none;
+  }
+}

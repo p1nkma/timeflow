@@ -48,6 +48,7 @@ export interface InboxItem {
   cat: CategoryKey;
   deadline?: string | null;
   urgent?: boolean;
+  estimatedDuration?: number | null; // minutes, optional — used by AI planner
 }
 
 // ===== Planner =====

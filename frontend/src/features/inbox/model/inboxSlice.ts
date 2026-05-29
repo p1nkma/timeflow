@@ -1,14 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { InboxItem } from '../../../shared/types';
-import { MOCK_INBOX } from '../../../mocks/inbox';
-
-const initialInbox: InboxItem[] = import.meta.env.DEV ? MOCK_INBOX : [];
 
 const inboxSlice = createSlice({
   name: 'inbox',
-  initialState: initialInbox,
+  initialState: [] as InboxItem[],
   reducers: {
+    setInboxItems(_state, action: PayloadAction<InboxItem[]>) {
+      return action.payload;
+    },
     addInboxItem(state, action: PayloadAction<Omit<InboxItem, 'id'>>) {
       state.push({ ...action.payload, id: `i${Date.now()}` });
     },
@@ -16,10 +16,10 @@ const inboxSlice = createSlice({
       return state.filter(i => i.id !== action.payload);
     },
     resetInbox() {
-      return [...MOCK_INBOX];
+      return [];
     },
   },
 });
 
-export const { addInboxItem, removeInboxItem, resetInbox } = inboxSlice.actions;
+export const { setInboxItems, addInboxItem, removeInboxItem, resetInbox } = inboxSlice.actions;
 export default inboxSlice.reducer;

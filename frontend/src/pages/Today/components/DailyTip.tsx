@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { addTask, selectAllTasks, selectNowMin } from '../../../features/tasks';
-import { removeInboxItem } from '../../../features/inbox';
+import { selectAllTasks, selectNowMin } from '../../../features/tasks';
+import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { showToast } from '../../../features/ui';
 import {
   getDailyHint,
@@ -16,6 +16,7 @@ const TODAY_ISO = () => new Date().toISOString().slice(0, 10);
 
 export function DailyTip() {
   const dispatch = useAppDispatch();
+  const taskApi  = useTaskApi();
   const allTasks = useAppSelector(selectAllTasks);
   const nowMin   = useAppSelector(selectNowMin);
   const inbox    = useAppSelector(s => s.inbox);
@@ -44,15 +45,15 @@ export function DailyTip() {
 
   function handleScheduleFromInbox(h: Extract<DailyHint, { kind: 'free-slot' }>) {
     const duration = Math.min(h.slotEnd - h.slotStart, 60);
-    dispatch(addTask({
+    taskApi.addTask({
       title:  h.inboxItem.title,
       cat:    h.inboxItem.cat,
       date:   today,
       start:  h.slotStart,
       end:    h.slotStart + duration,
       source: 'user',
-    }));
-    dispatch(removeInboxItem(h.inboxItem.id));
+    });
+    taskApi.removeInboxItem(h.inboxItem.id);
     dispatch(showToast({
       message: `Поставлено на ${fmt(h.slotStart)}`,
       variant: 'success',
