@@ -111,20 +111,21 @@ export function DrumColumn<T extends number | string>({
       if (copyIndex !== 1) jumpToMiddle(idx);
     }
 
-    const supportsScrollEnd = 'onscrollend' in el;
-    if (supportsScrollEnd) {
-      el.addEventListener('scrollend', onScrollEnd);
-      return () => el.removeEventListener('scrollend', onScrollEnd);
-    } else {
-      let timer: ReturnType<typeof setTimeout>;
-      function fallback() {
-        if (isJumping.current) return;
-        clearTimeout(timer);
-        timer = setTimeout(onScrollEnd, 120);
-      }
-      el.addEventListener('scroll', fallback, { passive: true });
-      return () => { el.removeEventListener('scroll', fallback); clearTimeout(timer); };
+    if ('onscrollend' in el) {
+      const node: HTMLUListElement = el;
+      node.addEventListener('scrollend', onScrollEnd);
+      return () => node.removeEventListener('scrollend', onScrollEnd);
     }
+
+    const node: HTMLUListElement = el;
+    let timer: ReturnType<typeof setTimeout>;
+    function fallback() {
+      if (isJumping.current) return;
+      clearTimeout(timer);
+      timer = setTimeout(onScrollEnd, 120);
+    }
+    node.addEventListener('scroll', fallback, { passive: true });
+    return () => { node.removeEventListener('scroll', fallback); clearTimeout(timer); };
   }, [jumpToMiddle, n, pad]);
 
   const allItems: T[] = [];

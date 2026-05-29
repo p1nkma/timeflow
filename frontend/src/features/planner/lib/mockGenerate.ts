@@ -13,7 +13,7 @@ interface Settings {
 interface GeneratedTask {
   title: string;
   cat: CategoryKey;
-  date: string;
+  date?: string;
   start: number;
   end: number;
   source: 'ai';

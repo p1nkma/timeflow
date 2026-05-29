@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { format, addDays, parseISO, isToday, isTomorrow } from 'date-fns';
+import { format, parseISO, isToday, isTomorrow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { showToast } from '../../../features/ui';
 import { findFreeSlot } from '../../utils/time';
-import { CATEGORIES, catStyle } from '../../utils/categories';
+import { CATEGORIES } from '../../utils/categories';
 import { parseQuickAdd } from '../../utils/parseQuickAdd';
 import type { CategoryKey, EnergyLevel } from '../../types';
 import { Icon, Cancel01Icon } from '../Icon/Icon';
@@ -16,16 +16,6 @@ import { DateSheet, TimeSheet, CategorySheet, DurationSheet, EnergySheet } from 
 import { TODAY_ISO } from './constants';
 import styles from './QuickAddModal.module.css';
 
-function PenIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-    >
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-  );
-}
 
 interface Props {
   onClose: () => void;
@@ -65,8 +55,6 @@ function fmtDuration(min: number): string {
   return `${min}м`;
 }
 
-const DURATION_PRESETS = [30, 60, 120];
-
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -90,8 +78,6 @@ export function QuickAddModal({ onClose, defaultDate, defaultStart: defaultStart
   const [notes, setNotes] = useState('');
   const [notesOpen, setNotesOpen] = useState(false);
   const [sheet, setSheet] = useState<null | 'date' | 'time' | 'cat' | 'duration' | 'energy'>(null);
-
-  const tomorrowISO = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 
   const [overrides, setOverrides] = useState<Overrides>({
     date:     defaultDate     ? { value: defaultDate,      explicit: true } : initOverride(),
@@ -368,155 +354,6 @@ export function QuickAddModal({ onClose, defaultDate, defaultStart: defaultStart
         />
       )}
     </>
-  );
-}
-
-/* ── Chip с поповером ── */
-type ChipState = 'empty' | 'filled';
-
-function ChipWithPopover({
-  label, state, open, prefix, onToggle, children,
-}: {
-  label: string;
-  state: ChipState;
-  open: boolean;
-  prefix?: React.ReactNode;
-  onToggle: () => void;
-  children?: React.ReactNode;
-}) {
-  const stateClass = state === 'filled' ? styles.chipFilled : styles.chipEmpty;
-  return (
-    <div className={styles.chipWrap}>
-      <button
-        type="button"
-        className={`${styles.chip} ${stateClass} ${open ? styles.chipOpen : ''}`}
-        onClick={onToggle}
-      >
-        {prefix}
-        <span>{label}</span>
-      </button>
-      {children}
-    </div>
-  );
-}
-
-/* ── When Popover ── */
-function WhenPopover({
-  finalDate, finalStart, tomorrowISO,
-  onToday, onTomorrow, onPickDate, onPickTime, onClear,
-}: {
-  finalDate?: string;
-  finalStart: number;
-  tomorrowISO: string;
-  onToday: () => void;
-  onTomorrow: () => void;
-  onPickDate: () => void;
-  onPickTime: () => void;
-  onClear: () => void;
-}) {
-  const todayISO = TODAY_ISO();
-  const isToday_ = finalDate === todayISO;
-  const isTomorrow_ = finalDate === tomorrowISO;
-
-  return (
-    <div className={styles.popover}>
-      <button
-        className={`${styles.popoverItem} ${isToday_ ? styles.popoverItemActive : ''}`}
-        onClick={onToday}
-      >
-        Сегодня
-        <span className={styles.whenOptTime}>{fmtTime(finalStart)}</span>
-      </button>
-      <button
-        className={`${styles.popoverItem} ${isTomorrow_ ? styles.popoverItemActive : ''}`}
-        onClick={onTomorrow}
-      >
-        Завтра
-      </button>
-      <div className={styles.popoverDivider} />
-      <button className={styles.popoverItem} onClick={onPickDate}>
-        Выбрать дату…
-      </button>
-      <button className={styles.popoverItem} onClick={onPickTime}>
-        Выбрать время…
-      </button>
-      {finalDate && (
-        <>
-          <div className={styles.popoverDivider} />
-          <button className={`${styles.popoverItem} ${styles.popoverItemClear}`} onClick={onClear}>
-            Убрать дату
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ── Popovers ── */
-function DurationPopover({ value, onPick }: { value: number; onPick: (m: number) => void }) {
-  return (
-    <div className={styles.popover}>
-      {DURATION_PRESETS.map(d => (
-        <button
-          key={d}
-          className={`${styles.popoverItem} ${d === value ? styles.popoverItemActive : ''}`}
-          onClick={() => onPick(d)}
-        >
-          {fmtDuration(d)}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function CatPopover({ value, onPick }: { value: CategoryKey; onPick: (c: CategoryKey) => void }) {
-  return (
-    <div className={styles.catPopover}>
-      {(Object.keys(CATEGORIES) as CategoryKey[]).map(key => {
-        const active = key === value;
-        return (
-          <button
-            key={key}
-            className={`${styles.catItem} ${active ? styles.catItemActive : ''}`}
-            style={catStyle(key)}
-            onClick={() => onPick(key)}
-          >
-            <CategoryChip cat={key} size="md" iconOnly aria-hidden />
-            {CATEGORIES[key].label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function EnergyPopover({
-  value, onPick, onClear,
-}: { value?: EnergyLevel; onPick: (e: EnergyLevel) => void; onClear: () => void }) {
-  const items: { v: EnergyLevel; label: string; dots: string }[] = [
-    { v: 'low',    label: 'Лёгкая',  dots: '●○○' },
-    { v: 'medium', label: 'Средняя', dots: '●●○' },
-    { v: 'high',   label: 'Тяжёлая', dots: '●●●' },
-  ];
-  return (
-    <div className={styles.popover}>
-      {items.map(it => (
-        <button
-          key={it.v}
-          className={`${styles.popoverItem} ${it.v === value ? styles.popoverItemActive : ''}`}
-          onClick={() => onPick(it.v)}
-        >
-          <span className={styles.energyDots}>{it.dots}</span>
-          {it.label}
-        </button>
-      ))}
-      {value && (
-        <>
-          <div className={styles.popoverDivider} />
-          <button className={styles.popoverItem} onClick={onClear}>Не задано</button>
-        </>
-      )}
-    </div>
   );
 }
 

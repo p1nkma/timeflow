@@ -140,13 +140,13 @@ function TaskCard({
         ? { ...catStyle(task.cat), animationDelay: `${animDelay}ms` }
         : catStyle(task.cat)
       }
+      {...attributes}
+      {...listeners}
       role="button" tabIndex={0}
       aria-label={`${task.title}, ${rangeFmt(task.start, task.end)}${task.done ? ', выполнено' : ''}`}
       aria-expanded={isActive}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
-      {...listeners}
-      {...attributes}
     >
       <div className={styles.taskBody}>
         <span className={styles.taskTime}>{rangeFmt(task.start, task.end)}</span>
@@ -187,13 +187,13 @@ function ContinuationCard({
         isDragging ? styles.taskDragging   : '',
       ].filter(Boolean).join(' ')}
       style={catStyle(task.cat)}
+      {...attributes}
+      {...listeners}
       role="button" tabIndex={0}
       aria-label={`${task.title} продолжается до ${endStr}`}
       aria-pressed={isActive}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
-      {...listeners}
-      {...attributes}
     >
       <span className={styles.contTitle}>{task.title}</span>
       <span className={styles.contMeta}>до {endStr}</span>

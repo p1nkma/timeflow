@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router';
 import { useLoginMutation } from '../../features/auth';
 import { useAppDispatch } from '../../app/hooks';

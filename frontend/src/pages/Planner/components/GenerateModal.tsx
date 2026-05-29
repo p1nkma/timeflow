@@ -94,10 +94,6 @@ export function GenerateModal({ onClose }: Props) {
     });
   }
 
-  function handleResetDurations() {
-    setPickedDurations(new Map());
-  }
-
   function toggleCat(key: CategoryKey) {
     setCategories(prev =>
       prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key],
@@ -143,6 +139,7 @@ export function GenerateModal({ onClose }: Props) {
       const catLookup = buildCatLookup(cats);
       const result: GeneratedTask[] = taskOuts.map(t => ({
         ...taskOutToTask(t, catLookup),
+        source: 'ai' as const,
         inboxId: undefined,
       }));
       apiResultRef.current = result;

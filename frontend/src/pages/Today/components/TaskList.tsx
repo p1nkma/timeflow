@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { useAppSelector } from '../../../app/hooks';
 import { selectAllTasks, selectNowMin } from '../../../features/tasks';
 import { useTaskApi } from '../../../features/tasks/useTaskApi';
 import { catStyle } from '../../../shared/utils/categories';

@@ -63,7 +63,7 @@ export interface PlannerSettings {
 }
 
 // ===== UI =====
-export type ToastVariant = 'default' | 'success' | 'error';
+export type ToastVariant = 'default' | 'success' | 'error' | 'info';
 
 export interface ToastState {
   message: string;
