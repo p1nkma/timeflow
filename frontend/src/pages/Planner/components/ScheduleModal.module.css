@@ -1,0 +1,657 @@
+/* ── Keyframes ── */
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Backdrop ── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--space-4);
+  /* backdrop-filter убран — вызывал jank при одновременной анимации */
+  animation: backdropIn 180ms ease-out both;
+}
+
+/* ── Modal ── */
+.modal {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-default);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  /* overflow:hidden убран — ломал нативные <select> дропдауны.
+     border-radius держится сам по себе на большинстве браузеров. */
+  will-change: transform, opacity;
+  animation: modalIn 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-default);
+  /* скругление верхних углов вместо overflow:hidden на родителе */
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-bg-elevated);
+}
+
+.title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.closeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Только GPU-свойства: opacity + transform */
+  transition: opacity 150ms ease-out, transform 120ms ease-out;
+}
+.closeBtn:hover  { opacity: 0.7; }
+.closeBtn:active { opacity: 0.6; }
+
+/* ── Body ── */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+/* ── Task card ── */
+.taskCard {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklch, var(--cat-bg, var(--color-bg-secondary)) 40%, var(--color-bg-secondary));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.taskCardTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+}
+
+.taskCardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.catChip {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--cat-bg, var(--color-bg-secondary));
+  color: var(--cat-text, var(--color-text-secondary));
+}
+
+.urgentBadge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.deadlineMeta {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
+}
+
+.deadlineOverdue {
+  color: var(--color-danger-text);
+  font-weight: 500;
+}
+
+.overdueIcon {
+  flex-shrink: 0;
+}
+
+/* ── Duration chips ── */
+.durationRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.durationRowLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.durationChips {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.durationChip {
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  /* background — не GPU, но дешевле чем color+border+background вместе */
+  transition: opacity 150ms ease-out, transform 100ms ease-out;
+  white-space: nowrap;
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+}
+.durationChip:hover  { opacity: 0.75; }
+.durationChip:active { opacity: 0.7; }
+
+.durationChipActive {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-accent-primary);
+  opacity: 1;
+}
+.durationChipActive:hover { opacity: 1; }
+
+/* Custom duration chip — wraps both button and input */
+.durationChipCustom {
+  padding: 0;
+  overflow: hidden;
+}
+
+.customDurBtn {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 3px 10px;
+  min-height: 26px;
+  min-width: 28px;
+  color: inherit;
+}
+
+.customDurInputWrap {
+  display: flex;
+  align-items: center;
+  padding: 3px 8px 3px 10px;
+  min-height: 26px;
+  gap: 2px;
+}
+
+.customDurInput {
+  width: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-inverse);
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  outline: none;
+  text-align: right;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.customDurInput::-webkit-outer-spin-button,
+.customDurInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.customDurUnit {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+html.dark .customDurUnit { color: rgba(0, 0, 0, 0.5); }
+
+/* ── AI / info hint ── */
+.aiHint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg);
+  border: 1px solid rgba(12, 68, 124, 0.10);
+}
+html.dark .aiHint { border-color: rgba(169, 205, 242, 0.10); }
+
+.aiIcon {
+  color: var(--color-info-text);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.aiText {
+  font-size: 0.75rem;
+  color: var(--color-info-text);
+  line-height: 1.4;
+}
+
+.aiSlot { font-weight: 700; }
+
+/* ── Option list ── */
+.optionList {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-border-default);
+}
+/* Когда список последний в модале — скруглить нижние углы */
+.optionList:last-child {
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+.optionList:last-child .optionItem:last-child {
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-bg-elevated);
+  cursor: pointer;
+  border: none;
+  border-bottom: 1px solid var(--color-border-default);
+  /* opacity дешевле чем background — GPU compositing */
+  transition: opacity 150ms ease-out;
+  text-align: left;
+  width: 100%;
+  min-height: 52px;
+  gap: var(--space-3);
+}
+.optionItem:last-child { border-bottom: none; }
+.optionItem:hover { opacity: 0.75; }
+
+/* Selected: задаём через отдельный слой, не анимируем background */
+.optionItemSelected {
+  background: var(--color-info-bg);
+  border-color: var(--color-border-default);
+  outline: none;
+}
+.optionItemSelected:hover { opacity: 0.85; }
+
+/* Selection indicator dot */
+.selIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-strong);
+  flex-shrink: 0;
+  /* transform + opacity — чисто GPU */
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 180ms ease-out;
+  opacity: 0.4;
+}
+.selIndicatorActive {
+  background: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  transform: scale(1.25);
+  opacity: 1;
+}
+
+.optionLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.optionLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.optionSub {
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.2;
+}
+
+.optionTime {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+  transition: opacity 180ms ease-out;
+}
+.optionItemSelected .optionTime {
+  color: var(--color-accent-primary);
+  opacity: 1;
+}
+
+/* Custom row */
+.optionItemCustom .optionLabel { color: var(--color-accent-primary); }
+.optionItemCustomOpen { background: var(--color-bg-secondary); }
+.optionItemCustomOpen:hover { opacity: 0.85; }
+
+.chevronWrap {
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  /* ease-out — стартует быстро, тормозит плавно */
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chevronWrapOpen { transform: rotate(180deg); }
+
+/* ── Custom sub-rows (date + time buttons inside option list) ── */
+.customSubRows {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border-default);
+  animation: slideDown 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.customSubRows:last-child {
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.subRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border-default);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  min-height: 48px;
+  transition: opacity 150ms ease-out;
+}
+.subRow:last-child { border-bottom: none; }
+.subRow:hover { opacity: 0.7; }
+
+.subRowLabel {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+}
+
+.subRowValue {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-accent-primary);
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+}
+
+.subRowChevron {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-tertiary);
+}
+
+/* ── Sheet (bottom sheet portal) ── */
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sheetBackdrop {
+  position: fixed;
+  inset: 0;
+  /* Полностью перекрываем ScheduleModal — без просветов */
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: calc(var(--z-modal) + 10);
+  padding: 0 var(--space-3) var(--space-3);
+  animation: backdropIn 180ms ease-out both;
+}
+
+.sheet {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-xl);
+  border: 1px solid var(--color-border-default);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  will-change: transform, opacity;
+  animation: sheetIn 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.sheetHandle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border-strong);
+  margin: var(--space-2) auto var(--space-1);
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5) var(--space-2);
+  flex-shrink: 0;
+}
+
+.sheetTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.sheetBody {
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sheetConfirmBtn {
+  width: 100%;
+  padding: 11px var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 150ms ease-out, transform 100ms ease-out;
+  margin-top: var(--space-2);
+}
+.sheetConfirmBtn:hover  { opacity: 0.85; }
+.sheetConfirmBtn:active { opacity: 0.8; }
+
+/* ── Date list in sheet ── */
+.dateList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dateItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 150ms ease-out;
+  gap: var(--space-3);
+}
+.dateItem:hover { opacity: 0.7; }
+
+.dateItemActive {
+  background: var(--color-info-bg);
+}
+
+.dateItemLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+.dateItemActive .dateItemLabel { color: var(--color-accent-primary); }
+
+.dateItemSub {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.dateItemCheck {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-accent-primary);
+  flex-shrink: 0;
+}
+
+.pickerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.pickerGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pickerLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pickerSelect {
+  width: 100%;
+  padding: var(--space-2);
+  padding-right: 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23627781' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  box-sizing: border-box;
+  transition: border-color 150ms ease-out;
+}
+.pickerSelect:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Footer / CTA ── */
+.footer {
+  padding: var(--space-3) var(--space-5) var(--space-4);
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-elevated);
+  /* скругление нижних углов когда footer последний */
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  animation: slideDown 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ctaBtn {
+  width: 100%;
+  padding: 11px var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 150ms ease-out, transform 100ms ease-out;
+}
+.ctaBtn:hover  { opacity: 0.85; }
+.ctaBtn:active { opacity: 0.8; }

@@ -1,0 +1,204 @@
+/* ============================================
+   TimeFlow · Design Tokens
+   ============================================ */
+
+:root {
+  /* Background — elevation model: higher = lighter */
+  --color-bg-primary:       #e6ebee;  /* фон страницы — глубокий, зеркально dark */
+  --color-bg-secondary:     #eef2f4;  /* sidebar, секции — промежуточный слой */
+  --color-bg-tertiary:      #e0fbfc;  /* hover/active — фирменный циан */
+  --color-bg-elevated:      #ffffff;  /* карточки, hero, modal — самый верх */
+
+  /* Accent */
+  --color-accent-primary:       #1e292d;
+  --color-accent-primary-hover: #0f1618;
+  --color-accent-secondary:     #4a5a61;
+
+  /* Text */
+  --color-text-primary:     #1e292d;
+  --color-text-secondary:   #3d4f57;
+  --color-text-tertiary:    #627781;
+  --color-text-inverse:     #ffffff;
+
+  /* Text on dark accent surface (e.g. cardDark) */
+  --color-on-accent:           rgba(255, 255, 255, 0.92);
+  --color-on-accent-secondary: rgba(255, 255, 255, 0.70);
+  --color-on-accent-tertiary:  rgba(255, 255, 255, 0.50);
+
+  /* Borders */
+  --color-border-default:   rgba(30, 41, 45, 0.05);
+  --color-border-strong:    rgba(30, 41, 45, 0.12);
+
+  /* Semantic */
+  --color-success-bg:   #E1F5EE;
+  --color-success-text: #085041;
+  --color-warning-bg:   #FAEEDA;
+  --color-warning-text: #633806;
+  --color-danger-bg:    #FCEBEB;
+  --color-danger-text:  #791F1F;
+  --color-info-bg:      #E6F1FB;
+  --color-info-text:    #0C447C;
+
+  /* Categories — slate monochrome (hue 250, very low chroma) */
+  --cat-study-bg:         oklch(96% 0.008 250);
+  --cat-study-border:     oklch(50% 0.020 250);
+  --cat-study-text:       oklch(42% 0.025 250);
+
+  --cat-reading-bg:       oklch(94% 0.012 250);
+  --cat-reading-border:   oklch(48% 0.022 250);
+  --cat-reading-text:     oklch(40% 0.028 250);
+
+  --cat-code-bg:          oklch(92% 0.016 250);
+  --cat-code-border:      oklch(46% 0.024 250);
+  --cat-code-text:        oklch(38% 0.030 250);
+
+  --cat-freelance-bg:     oklch(90% 0.020 250);
+  --cat-freelance-border: oklch(44% 0.026 250);
+  --cat-freelance-text:   oklch(36% 0.032 250);
+
+  --cat-sport-bg:         oklch(87% 0.024 250);
+  --cat-sport-border:     oklch(42% 0.028 250);
+  --cat-sport-text:       oklch(34% 0.034 250);
+
+  --cat-fixed-bg:         oklch(84% 0.014 250);
+  --cat-fixed-border:     oklch(40% 0.020 250);
+  --cat-fixed-text:       oklch(32% 0.028 250);
+
+  /* Space */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Radius */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 999px;
+
+  /* Shadow */
+  --shadow-xs: 0 1px 2px rgba(37, 50, 55, 0.04);
+  --shadow-sm: 0 2px 6px rgba(37, 50, 55, 0.06), 0 1px 2px rgba(37, 50, 55, 0.04);
+  --shadow-md: 0 8px 24px -4px rgba(37, 50, 55, 0.10), 0 2px 6px rgba(37, 50, 55, 0.05);
+  --shadow-lg: 0 20px 48px -8px rgba(37, 50, 55, 0.18), 0 6px 16px rgba(37, 50, 55, 0.08);
+
+  /* Focus ring */
+  --focus-ring: 0 0 0 3px rgba(37, 50, 55, 0.20);
+
+  /* Type */
+  --font-sans: 'Onest', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* Layout */
+  --sidebar-w: 248px;
+  --topbar-h: 64px;
+  --bottom-nav-h: 64px;
+
+  /* Breakpoints (для документации; @media custom-media пока не поддержано без PostCSS) */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+
+  /* Z-index scale */
+  --z-base:    1;
+  --z-raised:  5;
+  --z-overlay: 10;
+  --z-fab:     15;
+  --z-modal:   20;
+  --z-toast:   30;
+
+  /* Energy zones — pastel, harmonious, low-saturation. Modeled after Pink (peak/trough/recovery) + dip. */
+  --ez-peak:     #DCE6F1;  /* пик: муаровый голубой */
+  --ez-recovery: #E2EAD8;  /* восстановление: бледный шалфей */
+  --ez-trough:   #ECE6DB;  /* спад: овсяный */
+  --ez-dip:      #EAD7CF;  /* ночь/dip: тёплый пудровый */
+  --ez-medium:   var(--ez-recovery); /* legacy alias */
+  --ez-low:      var(--ez-trough);   /* legacy alias */
+
+  /* Energy zone — accent dot color (для меток/tooltip) */
+  --ez-peak-accent:     #6E89B1;
+  --ez-recovery-accent: #87A074;
+  --ez-trough-accent:   #A89A78;
+  --ez-dip-accent:      #B68E7B;
+}
+
+html.dark {
+  --color-bg-primary:       #151c20;
+  --color-bg-secondary:     #1f2a2f;
+  --color-bg-tertiary:      #2e3d44;
+  --color-bg-elevated:      #253237;
+
+  --color-accent-primary:       #9db4c0;
+  --color-accent-primary-hover: #c2dfe3;
+  --color-accent-secondary:     #c2dfe3;
+
+  --color-text-primary:     #e0fbfc;
+  --color-text-secondary:   #9db4c0;
+  --color-text-tertiary:    #5c6b73;
+  --color-text-inverse:     #253237;
+
+  --color-on-accent:           rgba(37, 50, 55, 0.92);
+  --color-on-accent-secondary: rgba(37, 50, 55, 0.65);
+  --color-on-accent-tertiary:  rgba(37, 50, 55, 0.45);
+
+  --color-border-default:   rgba(224, 251, 252, 0.08);
+  --color-border-strong:    rgba(224, 251, 252, 0.18);
+
+  --color-success-bg:   #0B3E33;
+  --color-success-text: #A9E3D1;
+  --color-warning-bg:   #412402;
+  --color-warning-text: #F2C990;
+  --color-danger-bg:    #3E1313;
+  --color-danger-text:  #F2B4B4;
+  --color-info-bg:      #0A2A4D;
+  --color-info-text:    #A9CDF2;
+
+  --cat-study-bg:         oklch(18% 0.010 220);
+  --cat-study-border:     oklch(65% 0.030 220);
+  --cat-study-text:       oklch(70% 0.035 220);
+
+  --cat-reading-bg:       oklch(20% 0.014 220);
+  --cat-reading-border:   oklch(65% 0.030 220);
+  --cat-reading-text:     oklch(70% 0.035 220);
+
+  --cat-code-bg:          oklch(22% 0.018 220);
+  --cat-code-border:      oklch(68% 0.032 220);
+  --cat-code-text:        oklch(72% 0.038 220);
+
+  --cat-freelance-bg:     oklch(24% 0.022 220);
+  --cat-freelance-border: oklch(70% 0.034 220);
+  --cat-freelance-text:   oklch(74% 0.040 220);
+
+  --cat-sport-bg:         oklch(26% 0.026 220);
+  --cat-sport-border:     oklch(72% 0.036 220);
+  --cat-sport-text:       oklch(76% 0.042 220);
+
+  --cat-fixed-bg:         oklch(20% 0.012 220);
+  --cat-fixed-border:     oklch(60% 0.025 220);
+  --cat-fixed-text:       oklch(66% 0.030 220);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 20px 48px -8px rgba(0, 0, 0, 0.55);
+
+  --focus-ring: 0 0 0 3px rgba(224, 251, 252, 0.25);
+
+  /* Energy zones — dark variant, deeply muted */
+  --ez-peak:     #1A2638;  /* пик: глубокий стальной синий */
+  --ez-recovery: #1B2A1E;  /* recovery: моховой */
+  --ez-trough:   #2A2519;  /* trough: оливково-тёмный */
+  --ez-dip:      #2A1E18;  /* dip: коньячно-тёмный */
+  --ez-medium:   var(--ez-recovery);
+  --ez-low:      var(--ez-trough);
+
+  --ez-peak-accent:     #7E96BD;
+  --ez-recovery-accent: #94AC83;
+  --ez-trough-accent:   #B3A485;
+  --ez-dip-accent:      #C29F8E;
+}
+

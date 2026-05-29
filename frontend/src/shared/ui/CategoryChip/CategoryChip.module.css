@@ -1,0 +1,32 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--cat-bg, var(--color-bg-secondary));
+  color: var(--cat-text, var(--color-text-secondary));
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.label { line-height: 1; }
+
+.uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.size_xs { padding: 3px 6px; font-size: 0.625rem; gap: 3px; }
+.size_sm { padding: 4px 8px; font-size: 0.6875rem; }
+.size_md { padding: 5px 10px; font-size: 0.8125rem; gap: 6px; }
+
+.iconOnly.size_xs { padding: 4px; }
+.iconOnly.size_sm { padding: 5px; }
+.iconOnly.size_md { padding: 6px; }
+
+.variant_pill { border-radius: var(--radius-full); }
+.variant_badge { border-radius: var(--radius-sm); }

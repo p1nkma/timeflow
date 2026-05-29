@@ -1,0 +1,108 @@
+.tip {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--color-accent-primary) 7%, var(--color-bg-elevated));
+  border: 1px solid color-mix(in srgb, var(--color-accent-primary) 20%, transparent);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+}
+
+.label {
+  color: var(--color-accent-primary);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+}
+
+.text {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.text strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-top: 2px;
+}
+
+/* Outline slate — выделен, но не конкурирует с Hero primary */
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px var(--space-4);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-accent-primary);
+  border: 1px solid var(--color-accent-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+}
+.btnPrimary:hover {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+}
+
+/* Ghost link — skip к другой задаче */
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  border: none;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 150ms;
+}
+.btnGhost:hover {
+  color: var(--color-text-primary);
+}
+
+/* Dismiss — мелкий ✕ справа */
+.dismissBtn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+  z-index: var(--z-raised);
+}
+.dismissBtn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}

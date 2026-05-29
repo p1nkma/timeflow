@@ -1,0 +1,262 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  user-select: none;
+}
+
+/* ── Display ── */
+.display {
+  padding: var(--space-1) 0 var(--space-2);
+}
+
+.displayTime {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: -0.03em;
+  color: var(--color-accent-primary);
+  line-height: 1;
+}
+
+.displayDate {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--color-accent-primary);
+  line-height: 1;
+}
+
+/* ── Drum roll ── */
+.drumWrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 220px;
+  width: 100%;
+  justify-content: center;
+}
+
+.drumColon {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  padding: 0 var(--space-2);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.drumColumn {
+  position: relative;
+  width: 80px;
+  height: 220px;
+  overflow: hidden;
+  flex-shrink: 0;
+  contain: strict;
+}
+
+.drumList {
+  height: 100%;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  will-change: scroll-position;
+}
+.drumList::-webkit-scrollbar { display: none; }
+
+.drumPad {
+  height: 44px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.drumItem {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 400;
+  font-family: var(--font-sans);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color 120ms ease-out;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.drumItemActive {
+  color: var(--color-text-primary);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+/* Highlight band behind centre item */
+.drumSelector {
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  right: 6px;
+  height: 44px;
+  transform: translateY(-50%);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Fade masks */
+.drumFadeTop,
+.drumFadeBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.drumFadeTop {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-elevated) 0%,
+    transparent 100%
+  );
+}
+
+.drumFadeBottom {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--color-bg-elevated) 0%,
+    transparent 100%
+  );
+}
+
+/* Ensure list items render above selector band */
+.drumList { position: relative; z-index: 2; }
+
+/* ── Clock dial ── */
+.dialWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* HH:MM tabs — clicking switches dial phase */
+.dialTabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
+}
+
+.dialTab {
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: -0.03em;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-secondary);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: color 150ms ease-out, background 150ms ease-out;
+  line-height: 1;
+}
+.dialTab:hover { background: var(--color-bg-tertiary); }
+
+.dialTabActive {
+  color: var(--color-accent-primary);
+  background: var(--color-info-bg);
+}
+
+.dialColon {
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  line-height: 1;
+}
+
+.dialSvg {
+  width: 100%;
+  max-width: 280px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.dialBg {
+  fill: var(--color-bg-secondary);
+}
+
+.dialNeedle {
+  stroke: var(--color-accent-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+
+.dialCentreDot {
+  fill: var(--color-accent-primary);
+}
+
+.dialThumb {
+  fill: var(--color-accent-primary);
+}
+
+.dialNum {
+  font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  fill: var(--color-text-secondary);
+  pointer-events: none;
+  transition: fill 120ms ease-out;
+}
+
+.dialNumInner {
+  font-size: 0.6875rem;
+  fill: var(--color-text-tertiary);
+}
+
+.dialNumActive {
+  fill: var(--color-text-inverse);
+  font-weight: 700;
+}
+
+/* ── Mode toggle row ── */
+.modeRow {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  padding: var(--space-1) var(--space-2) 0;
+}
+
+.modeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: opacity 150ms ease-out, transform 100ms ease-out;
+}
+.modeToggle:hover  { opacity: 0.7; }
+.modeToggle:active { opacity: 0.6; }

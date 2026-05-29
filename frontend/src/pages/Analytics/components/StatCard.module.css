@@ -1,0 +1,47 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-5);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+}
+
+.featured {
+  background: var(--color-accent-primary);
+  border-color: transparent;
+  color: var(--color-text-inverse);
+  justify-content: flex-end;
+  padding: var(--space-6);
+  gap: var(--space-2);
+}
+
+.featured .label { color: var(--color-text-inverse); opacity: 0.65; margin-bottom: 0; }
+.featured .value { font-size: 3rem; line-height: 1; letter-spacing: -0.03em; color: var(--color-text-inverse); }
+.featured .sub   { color: var(--color-text-inverse); opacity: 0.65; }
+.featured .trend { color: var(--color-text-inverse); opacity: 0.5; }
+
+.streakBar {
+  display: flex;
+  gap: 3px;
+  margin-bottom: var(--space-3);
+  margin-top: auto;
+}
+
+.streakDot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-text-inverse);
+  opacity: 0.25;
+}
+
+.streakDot.filled {
+  opacity: 0.9;
+}
+
+.label { margin-bottom: var(--space-1); }
+.value { line-height: 1.1; }
+.up   { color: var(--color-success-text); }
+.down { color: var(--color-danger-text);  }

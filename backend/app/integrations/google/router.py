@@ -1,0 +1,203 @@
+from __future__ import annotations
+
+import secrets
+from datetime import UTC, datetime, timedelta
+
+from fastapi import APIRouter, HTTPException, Query, status
+from fastapi.responses import RedirectResponse
+from sqlalchemy import select
+
+from app.core.config import get_settings
+from app.core.deps import CurrentUser, DbSession
+from app.integrations.google.calendar import events_to_tasks, fetch_events, push_tasks_to_google
+from app.integrations.google.models import GoogleCalendarToken
+from app.integrations.google.oauth import exchange_code, get_auth_url
+from app.tasks.models import Task
+from app.tasks.schemas import TaskOut
+
+router = APIRouter(prefix="/integrations/google", tags=["google"])
+settings = get_settings()
+
+# In-memory state store (user_id → state token) — good enough for single-server MVP
+_pending_states: dict[str, str] = {}  # state → user_id str
+
+
+@router.get("/auth")
+async def google_auth(user: CurrentUser) -> dict:
+    """Generate Google OAuth2 redirect URL."""
+    if not settings.google_client_id:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google integration is not configured",
+        )
+    state = secrets.token_urlsafe(24)
+    _pending_states[state] = str(user.id)
+    return {"url": get_auth_url(state)}
+
+
+@router.get("/callback")
+async def google_callback(
+    db: DbSession,
+    code: str = Query(...),
+    state: str = Query(...),
+) -> RedirectResponse:
+    """Handle OAuth2 callback from Google."""
+    user_id_str = _pending_states.pop(state, None)
+    if user_id_str is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired state")
+
+    import uuid
+    user_id = uuid.UUID(user_id_str)
+
+    try:
+        token_data = exchange_code(code)
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Token exchange failed: {exc}") from exc
+
+    existing = await db.scalar(
+        select(GoogleCalendarToken).where(GoogleCalendarToken.user_id == user_id)
+    )
+    expires_at = token_data["expires_at"]
+    if isinstance(expires_at, datetime) and expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=UTC)
+
+    if existing:
+        existing.access_token = token_data["access_token"]
+        if token_data.get("refresh_token"):
+            existing.refresh_token = token_data["refresh_token"]
+        existing.expires_at = expires_at
+    else:
+        db.add(GoogleCalendarToken(
+            user_id=user_id,
+            access_token=token_data["access_token"],
+            refresh_token=token_data.get("refresh_token", ""),
+            expires_at=expires_at,
+        ))
+
+    await db.commit()
+
+    # Redirect back to frontend settings page
+    frontend_url = settings.cors_origins[0] if settings.cors_origins else "http://localhost:5173"
+    return RedirectResponse(url=f"{frontend_url}/settings?google=connected")
+
+
+@router.get("/status")
+async def google_status(user: CurrentUser, db: DbSession) -> dict:
+    token = await db.scalar(
+        select(GoogleCalendarToken).where(GoogleCalendarToken.user_id == user.id)
+    )
+    if token is None:
+        return {"connected": False}
+    return {
+        "connected": True,
+        "expires_at": token.expires_at.isoformat(),
+    }
+
+
+@router.delete("/status", status_code=status.HTTP_204_NO_CONTENT)
+async def google_disconnect(user: CurrentUser, db: DbSession) -> None:
+    token = await db.scalar(
+        select(GoogleCalendarToken).where(GoogleCalendarToken.user_id == user.id)
+    )
+    if token:
+        await db.delete(token)
+        await db.commit()
+
+
+@router.post("/sync", response_model=list[TaskOut])
+async def google_sync(
+    user: CurrentUser,
+    db: DbSession,
+    days_ahead: int = Query(default=7, ge=1, le=30),
+) -> list[Task]:
+    """Two-way sync with Google Calendar for the next `days_ahead` days.
+
+    Google → TimeFlow: new events become locked tasks (deduped by gcal event ID).
+    TimeFlow → Google: our scheduled tasks are created/updated as calendar events.
+    Returns the list of tasks newly imported from Google.
+    """
+    token = await db.scalar(
+        select(GoogleCalendarToken).where(GoogleCalendarToken.user_id == user.id)
+    )
+    if token is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Google Calendar not connected",
+        )
+
+    try:
+        events, creds = fetch_events(token, days_ahead=days_ahead)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Google Calendar fetch failed: {exc}",
+        ) from exc
+
+    # Persist refreshed token if google-auth rotated it
+    if creds.token and creds.token != token.access_token:
+        token.access_token = creds.token
+    if creds.expiry:
+        expiry = creds.expiry
+        if expiry.tzinfo is None:
+            expiry = expiry.replace(tzinfo=UTC)
+        token.expires_at = expiry
+    await db.commit()
+
+    # ── Google → TimeFlow (import) ────────────────────────────────────────────
+    new_tasks = events_to_tasks(events, user.id)
+
+    # Dedup: skip events already imported (matched by gcal: notes prefix)
+    existing_notes = set(
+        row[0]
+        for row in (
+            await db.execute(
+                select(Task.notes).where(
+                    Task.user_id == user.id,
+                    Task.source == "google",
+                    Task.notes.isnot(None),
+                )
+            )
+        ).all()
+    )
+
+    added: list[Task] = []
+    for task in new_tasks:
+        if task.notes and task.notes in existing_notes:
+            continue
+        db.add(task)
+        added.append(task)
+
+    if added:
+        await db.commit()
+        for t in added:
+            await db.refresh(t)
+
+    # ── TimeFlow → Google (export) ────────────────────────────────────────────
+    # Fetch our own scheduled tasks for the same window.
+    now = datetime.now(UTC)
+    time_max = now + timedelta(days=days_ahead)
+    our_rows = await db.execute(
+        select(Task).where(
+            Task.user_id == user.id,
+            Task.planned_start_at >= now,
+            Task.planned_start_at < time_max,
+            Task.source != "google",   # don't push back what we pulled from Google
+        )
+    )
+    our_tasks: list[Task] = list(our_rows.scalars().all())
+
+    if our_tasks:
+        try:
+            pushed = push_tasks_to_google(our_tasks, creds)
+        except Exception:
+            pushed = {}
+
+        # Persist gcal event IDs back to tasks that didn't have one yet.
+        if pushed:
+            for task in our_tasks:
+                new_gcal_id = pushed.get(task.id)
+                if new_gcal_id and not task.notes:
+                    task.notes = f"gcal:{new_gcal_id}"
+            await db.commit()
+
+    return added

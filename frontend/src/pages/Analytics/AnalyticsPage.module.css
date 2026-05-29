@@ -1,0 +1,93 @@
+.page {
+  padding: 0 var(--space-6) var(--space-8);
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.stickyTop {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised);
+  background: var(--color-bg-primary);
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.periodSwitch {
+  display: flex;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.periodBtn {
+  padding: 6px 16px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: background 200ms cubic-bezier(0.22, 1, 0.36, 1),
+              color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.periodBtn:hover:not(.periodBtnActive) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.periodBtnActive {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+}
+
+/* fade transition on period change */
+.fadeIn {
+  animation: fadeIn 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.fadeOut {
+  animation: fadeOut 160ms cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+  .fadeIn, .fadeOut, .content > * { animation: none; }
+}
+
+
+@media (max-width: 600px) {
+  .page { padding: 0 var(--space-4) var(--space-7); }
+}
