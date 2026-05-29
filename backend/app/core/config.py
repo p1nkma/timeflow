@@ -18,6 +18,14 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://timeflow:timeflow@localhost:5432/timeflow"
 
+    @property
+    def async_database_url(self) -> str:
+        return (
+            self.database_url
+            .replace("postgres://", "postgresql+asyncpg://", 1)
+            .replace("postgresql://", "postgresql+asyncpg://", 1)
+        )
+
     jwt_secret: str = "change-me-in-env"
     jwt_algorithm: str = "HS256"
     jwt_access_ttl_minutes: int = 60 * 24 * 7
